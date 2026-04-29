@@ -1,0 +1,68 @@
+:root {
+  font-family:
+    Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  color: #202124;
+  background: #f6f7f9;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.intro {
+  width: min(720px, 100%);
+  padding: 48px;
+  border: 1px solid #dfe3ea;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+h1 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 20px 0 0;
+  font-size: 20px;
+  line-height: 1.5;
+  color: #3f4854;
+}
+
+.stage {
+  margin: 12px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #626c7a;
+}
+
+@media (max-width: 640px) {
+  .app {
+    padding: 20px;
+  }
+
+  .intro {
+    padding: 28px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+}
