@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import "./App.css";
 
 type IdeaInput = {
@@ -52,6 +52,14 @@ type ScriptOutput = {
   episodes: EpisodeScript[];
 };
 
+type SystemStatus = {
+  app_name: string;
+  app_env: string;
+  script_generation_mode: string;
+  llm_enabled: boolean;
+  status: string;
+};
+
 const defaultForm: IdeaInput = {
   idea_text: "一个被裁员的中年男人，意外发现公司老板用AI伪造财报",
   script_type: "短剧",
@@ -86,9 +94,32 @@ const stages = [
 function App() {
   const [form, setForm] = useState<IdeaInput>(defaultForm);
   const [result, setResult] = useState<ScriptOutput | null>(null);
+  const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
+  const [isSystemConnected, setIsSystemConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
+
+  useEffect(() => {
+    const loadSystemStatus = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/system/status");
+
+        if (!response.ok) {
+          throw new Error("状态接口请求失败");
+        }
+
+        const data = (await response.json()) as SystemStatus;
+        setSystemStatus(data);
+        setIsSystemConnected(true);
+      } catch {
+        setSystemStatus(null);
+        setIsSystemConnected(false);
+      }
+    };
+
+    loadSystemStatus();
+  }, []);
 
   const updateField = <K extends keyof IdeaInput>(field: K, value: IdeaInput[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -142,6 +173,20 @@ function App() {
             从灵感输入到结构化短剧剧本输出，帮助 AI 生成部门快速获得可复用创作素材。
           </p>
         </div>
+
+        <aside className="system-status" aria-label="后端系统状态">
+          <div className={isSystemConnected ? "status-dot status-ok" : "status-dot status-offline"} />
+          <div>
+            <p>{isSystemConnected ? `后端状态：${systemStatus?.status}` : "后端状态：未连接"}</p>
+            {isSystemConnected && systemStatus && (
+              <>
+                <p>运行环境：{systemStatus.app_env}</p>
+                <p>生成模式：{systemStatus.script_generation_mode}</p>
+                <p>LLM：{systemStatus.llm_enabled ? "已启用" : "未启用"}</p>
+              </>
+            )}
+          </div>
+        </aside>
       </header>
 
       <section className="stage-grid" aria-label="第一阶段 MVP 状态">

@@ -41,7 +41,9 @@ textarea {
 
 .page-header {
   display: flex;
+  gap: 20px;
   justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 20px;
   padding: 28px 0 4px;
 }
@@ -76,6 +78,41 @@ textarea {
   color: #536276;
   font-size: 16px;
   line-height: 1.7;
+}
+
+.system-status {
+  min-width: 230px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(37, 99, 235, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.system-status p {
+  margin: 0;
+  color: #445267;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 6px;
+  border-radius: 999px;
+}
+
+.status-ok {
+  background: #0f766e;
+}
+
+.status-offline {
+  background: #b42318;
 }
 
 .stage-grid {
@@ -359,6 +396,14 @@ textarea {
 }
 
 @media (max-width: 980px) {
+  .page-header {
+    flex-direction: column;
+  }
+
+  .system-status {
+    width: 100%;
+  }
+
   .stage-grid,
   .workspace {
     grid-template-columns: 1fr;
