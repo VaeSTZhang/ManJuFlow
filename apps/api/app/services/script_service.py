@@ -11,6 +11,7 @@ from app.schemas.script import (
     ScriptOutput,
 )
 from app.services.llm_client import LLMClient
+from app.services.text_cleaner import clean_chinese_spacing
 
 
 def load_prompt_template(prompt_name: str = "idea_to_script_v1.md") -> str:
@@ -95,8 +96,10 @@ def generate_script_with_llm(input_data: IdeaInput) -> ScriptOutput:
     except json.JSONDecodeError as exc:
         raise ValueError("LLM response was not valid JSON.") from exc
 
+    cleaned_data = clean_chinese_spacing(data)
+
     try:
-        return ScriptOutput.model_validate(data)
+        return ScriptOutput.model_validate(cleaned_data)
     except ValueError as exc:
         raise ValueError("LLM response did not match ScriptOutput schema.") from exc
 
