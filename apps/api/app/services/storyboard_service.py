@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from app.config import get_settings
 from app.schemas.storyboard import (
     SceneStoryboard,
     ShotStoryboard,
@@ -122,4 +123,13 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
 
 
 def generate_storyboard(input_data: StoryboardInput) -> StoryboardOutput:
-    return generate_storyboard_mock(input_data)
+    mode = get_settings().storyboard_generation_mode.lower()
+
+    if mode == "mock":
+        return generate_storyboard_mock(input_data)
+
+    if mode == "llm":
+        # TODO: 接入真实 LLM 后，在这里调用剧本转分镜模型链路，并补充 JSON 解析与 Schema 校验修复。
+        return generate_storyboard_mock(input_data)
+
+    raise ValueError("STORYBOARD_GENERATION_MODE only supports 'mock' or 'llm'.")

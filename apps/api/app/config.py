@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     llm_base_url: str = ""
     llm_model: str = ""
     script_generation_mode: str = "mock"
+    storyboard_generation_mode: str = "mock"
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8")
 

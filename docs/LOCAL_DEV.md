@@ -22,6 +22,17 @@ cp .env.example .env
 - 不再需要 `apps/api/.env`
 - 后端从 `apps/api` 启动时，也会读取项目根目录 `.env`
 
+## 生成模式配置
+
+默认使用 mock 模式，适合本地演示和测试：
+
+```env
+SCRIPT_GENERATION_MODE=mock
+STORYBOARD_GENERATION_MODE=mock
+```
+
+`STORYBOARD_GENERATION_MODE` 支持 `mock` / `llm`。当前 Storyboard 真实 LLM 尚未正式接入，即使配置为 `llm`，服务层也会暂时 fallback 到 mock；后续接真实 LLM 时再补充 JSON 解析、Schema 校验与修复逻辑。
+
 ## 后端启动方式
 
 ```bash

@@ -103,7 +103,8 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 
 ## 六、当前仍是 mock 的部分
 
-- 当前 `storyboard_service` 仍是 mock
+- 当前 `storyboard_service` 默认使用 `STORYBOARD_GENERATION_MODE=mock`
+- `STORYBOARD_GENERATION_MODE` 已预留 `llm` 模式，但暂未正式接入真实 LLM；当前 `llm` 模式仍 fallback 到 mock
 - `script_to_storyboard_v1.md` Prompt 已要求 `scene_id`、`shot_id`、`visual_description`，为后续真实 LLM 接入和绘图 Prompt 阶段做准备
 - 尚未接入真实 LLM
 - 尚未做模型 JSON 解析与修复
