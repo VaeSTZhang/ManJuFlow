@@ -96,6 +96,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - [ ] 页面能展示 scenes / shots
 - [ ] 分镜 JSON 中包含 `scene_id`、`shot_id`、`visual_description`
 - [ ] Storyboard service 自动测试通过：`python -m pytest tests/api/test_storyboard_service.py`
+- [ ] Storyboard generation mode 测试通过，覆盖 mock / llm fallback / invalid mode
 - [ ] 复制 JSON 可用
 - [ ] 导出 JSON 可用
 - [ ] `npm run build` 通过
@@ -105,6 +106,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 
 - 当前 `storyboard_service` 默认使用 `STORYBOARD_GENERATION_MODE=mock`
 - `STORYBOARD_GENERATION_MODE` 已预留 `llm` 模式，但暂未正式接入真实 LLM；当前 `llm` 模式仍 fallback 到 mock
+- `STORYBOARD_GENERATION_MODE=llm` fallback mock 的临时行为已有测试覆盖，后续真实 LLM 接入时需要同步更新测试预期
 - `script_to_storyboard_v1.md` Prompt 已要求 `scene_id`、`shot_id`、`visual_description`，为后续真实 LLM 接入和绘图 Prompt 阶段做准备
 - 尚未接入真实 LLM
 - 尚未做模型 JSON 解析与修复

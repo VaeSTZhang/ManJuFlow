@@ -62,6 +62,12 @@ python -m pytest tests/api/test_storyboard_service.py
 
 该测试用于确认 Storyboard mock service 返回 `scene_id`、`shot_id`、`visual_description`、`ai_image_prompt_hint` 等后续流水线需要的关键字段。
 
+当前 Storyboard service 测试也覆盖 generation mode 行为：
+
+- `STORYBOARD_GENERATION_MODE=mock` 正常生成
+- `STORYBOARD_GENERATION_MODE=llm` 当前 fallback mock
+- 非法 mode 会抛出 `ValueError`
+
 ## 本地测试分镜接口
 
 启动后端后，可以直接测试剧本转分镜接口：

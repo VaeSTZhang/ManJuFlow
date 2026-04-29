@@ -21,6 +21,7 @@
 - 前端生成分镜 UI 已完成
 - 前端“剧本 → 分镜”衔接已完成
 - Storyboard service 字段覆盖测试已完成
+- Storyboard generation mode 测试覆盖已完成
 - 第二阶段本地稳定验收已通过
 
 ## 下一步计划
