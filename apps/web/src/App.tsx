@@ -605,9 +605,9 @@ function App() {
                   {storyboardResult.scenes.map((scene) => (
                     <section className="storyboard-scene-card" key={scene.scene_number}>
                       <div className="storyboard-scene-header">
-                        <span>Scene {scene.scene_number}</span>
+                        <span>{scene.scene_id}</span>
                         <h5>
-                          {scene.location} · {scene.time}
+                          场景 {scene.scene_number} · {scene.location} · {scene.time}
                         </h5>
                       </div>
 
@@ -626,7 +626,7 @@ function App() {
                         {scene.shots.map((shot) => (
                           <section className="storyboard-shot-card" key={`${scene.scene_number}-${shot.shot_number}`}>
                             <div className="shot-title-row">
-                              <span>Shot {shot.shot_number}</span>
+                              <span>{shot.shot_id}</span>
                               <h6>{shot.shot_type}</h6>
                             </div>
 
@@ -656,6 +656,11 @@ function App() {
                                 <dd>{shot.duration_seconds ?? "未设置"} 秒</dd>
                               </div>
                             </dl>
+
+                            <div className="visual-description">
+                              <span>完整画面描述</span>
+                              <p>{shot.visual_description}</p>
+                            </div>
 
                             <div className="prompt-hint">
                               <span>AI 绘图提示</span>

@@ -24,6 +24,7 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
     load_storyboard_prompt_template()
 
     scene_number = input_data.scene_number or 1
+    scene_id = f"S{scene_number:03d}"
     script_excerpt = input_data.script_text.strip()[:48] or "输入剧本"
 
     return StoryboardOutput(
@@ -35,6 +36,7 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
         ),
         scenes=[
             SceneStoryboard(
+                scene_id=scene_id,
                 scene_number=scene_number,
                 location="主要冲突发生地点",
                 time="傍晚",
@@ -42,6 +44,7 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
                 scene_conflict="主角想确认真相，对方试图回避或压制，双方在信息差中形成对峙。",
                 shots=[
                     ShotStoryboard(
+                        shot_id=f"{scene_id}_SH001",
                         shot_number=1,
                         scene_number=scene_number,
                         shot_type="远景",
@@ -54,6 +57,10 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
                         emotion="警觉、迟疑",
                         dialogue="旁白：她意识到，这场见面从一开始就不简单。",
                         duration_seconds=4,
+                        visual_description=(
+                            "傍晚冷光压进空旷室内，主角站在场景入口处观察远处低声交谈的人群，"
+                            "入口与核心人物之间保留明显距离，画面突出孤立感和紧张气氛。"
+                        ),
                         visual_notes="用远景交代空间关系，让主角显得孤立，为后续冲突建立压迫感。",
                         ai_image_prompt_hint=(
                             "现实主义短剧画面，傍晚室内远景，主角站在入口处观察现场，"
@@ -61,6 +68,7 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
                         ),
                     ),
                     ShotStoryboard(
+                        shot_id=f"{scene_id}_SH002",
                         shot_number=2,
                         scene_number=scene_number,
                         shot_type="中景",
@@ -73,6 +81,10 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
                         emotion="试探、压迫",
                         dialogue="主角：你刚才说的那句话，到底是什么意思？",
                         duration_seconds=5,
+                        visual_description=(
+                            "中景过肩构图中，主角向前一步逼问对峙对象，对方停顿并避开视线，"
+                            "桌面散落文件和手机，侧光照亮主角面部，对方半张脸藏在阴影里。"
+                        ),
                         visual_notes="过肩构图突出双方距离，推镜加强质问的压迫感。",
                         ai_image_prompt_hint=(
                             "短剧中景过肩镜头，主角质问对方，桌面有文件和手机，"
@@ -80,6 +92,7 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
                         ),
                     ),
                     ShotStoryboard(
+                        shot_id=f"{scene_id}_SH003",
                         shot_number=3,
                         scene_number=scene_number,
                         shot_type="特写",
@@ -92,6 +105,10 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
                         emotion="心虚、紧张、反转前的停顿",
                         dialogue="对方：你最好别继续查下去。",
                         duration_seconds=4,
+                        visual_description=(
+                            "特写镜头聚焦对峙对象闪躲的眼神和按住手机屏幕的手指，"
+                            "背景虚化，只保留手机屏幕反光与面部边缘冷光，暗示秘密即将暴露。"
+                        ),
                         visual_notes="特写聚焦手部和眼神，作为信息反转的视觉钩子。",
                         ai_image_prompt_hint=(
                             "电影感特写，人物手指按住手机屏幕，眼神闪躲，背景虚化，"

@@ -102,6 +102,8 @@ curl -X POST http://127.0.0.1:8000/api/scripts/generate \
 
 当前说明：此接口当前使用 mock service，暂未接入真实 LLM、数据库或图片生成能力。
 
+`scene_id`、`shot_id`、`visual_description` 用于后续“分镜 → AI 绘图 Prompt”的稳定衔接。
+
 ### 请求体字段
 
 | 字段 | 类型 | 必填 | 默认值 | 说明 |
@@ -124,6 +126,7 @@ curl -X POST http://127.0.0.1:8000/api/scripts/generate \
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
+| `scene_id` | string | 场景唯一标识，例如 `S001`，用于后续流水线稳定引用 |
 | `scene_number` | integer | 场次编号 |
 | `location` | string | 场景地点 |
 | `time` | string | 场景时间 |
@@ -135,6 +138,7 @@ curl -X POST http://127.0.0.1:8000/api/scripts/generate \
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
+| `shot_id` | string | 镜头唯一标识，例如 `S001_SH001`，用于后续流水线稳定引用 |
 | `shot_number` | integer | 镜头编号 |
 | `scene_number` | integer | 所属场次编号 |
 | `shot_type` | string | 景别，例如远景、中景、近景、特写 |
@@ -147,6 +151,7 @@ curl -X POST http://127.0.0.1:8000/api/scripts/generate \
 | `emotion` | string | 本镜头的情绪重点 |
 | `dialogue` | string/null | 对白或旁白 |
 | `duration_seconds` | number/null | 建议镜头时长，单位为秒 |
+| `visual_description` | string | 适合直接给绘图 Prompt 阶段使用的完整画面描述 |
 | `visual_notes` | string | 视觉备注 |
 | `ai_image_prompt_hint` | string/null | 后续转绘图 Prompt 的画面提示 |
 

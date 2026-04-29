@@ -470,10 +470,11 @@ textarea {
 .storyboard-scene-header span,
 .shot-title-row span {
   display: inline-flex;
-  min-width: 66px;
+  min-width: 70px;
   height: 26px;
   align-items: center;
   justify-content: center;
+  padding: 0 8px;
   border-radius: 6px;
   color: #0f766e;
   background: #dffbf6;
@@ -519,6 +520,7 @@ textarea {
 }
 
 .shot-title-row span {
+  min-width: 98px;
   color: #1d4ed8;
   background: #e8f1ff;
 }
@@ -552,6 +554,7 @@ textarea {
   line-height: 1.65;
 }
 
+.visual-description,
 .prompt-hint {
   margin-top: 10px;
   padding: 12px;
@@ -560,10 +563,17 @@ textarea {
   background: #f2fbf9;
 }
 
+.visual-description {
+  border-left-color: #2563eb;
+  background: #f6f9ff;
+}
+
+.visual-description span,
 .prompt-hint span {
   display: block;
 }
 
+.visual-description p,
 .prompt-hint p {
   color: #243149;
   line-height: 1.75;

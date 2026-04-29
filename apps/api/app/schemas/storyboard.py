@@ -14,6 +14,7 @@ class StoryboardInput(BaseModel):
 
 
 class ShotStoryboard(BaseModel):
+    shot_id: str = Field(..., description="镜头唯一标识，例如 S001_SH001。")
     shot_number: int = Field(..., ge=1, description="镜头编号，必须大于等于 1。")
     scene_number: int = Field(..., ge=1, description="所属场次编号，必须大于等于 1。")
     shot_type: str = Field(..., description="景别，例如远景、中景、近景、特写。")
@@ -26,11 +27,13 @@ class ShotStoryboard(BaseModel):
     emotion: str = Field(..., description="本镜头的情绪重点。")
     dialogue: str | None = Field(None, description="对白或旁白，可选。")
     duration_seconds: float | None = Field(None, ge=0, description="建议镜头时长，单位为秒，可选。")
+    visual_description: str = Field(..., description="适合直接给绘图 Prompt 阶段使用的完整画面描述。")
     visual_notes: str = Field(..., description="视觉备注。")
     ai_image_prompt_hint: str | None = Field(None, description="后续转绘图 Prompt 的画面提示，可选。")
 
 
 class SceneStoryboard(BaseModel):
+    scene_id: str = Field(..., description="场景唯一标识，例如 S001。")
     scene_number: int = Field(..., ge=1, description="场次编号，必须大于等于 1。")
     location: str = Field(..., description="场景地点。")
     time: str = Field(..., description="场景时间。")

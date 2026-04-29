@@ -13,6 +13,7 @@
 ## 二、已完成能力
 
 - StoryboardInput / StoryboardOutput Schema
+- Storyboard 中已补充 `scene_id`、`shot_id`、`visual_description`，用于后续“分镜 → AI 绘图 Prompt”的稳定衔接
 - `script_to_storyboard_v1.md` Prompt
 - `storyboard_service` mock service
 - `POST /api/storyboards/generate`
@@ -92,6 +93,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - [ ] 剧本结果可一键带入分镜输入
 - [ ] 带入后可继续生成分镜
 - [ ] 页面能展示 scenes / shots
+- [ ] 分镜 JSON 中包含 `scene_id`、`shot_id`、`visual_description`
 - [ ] 复制 JSON 可用
 - [ ] 导出 JSON 可用
 - [ ] `npm run build` 通过

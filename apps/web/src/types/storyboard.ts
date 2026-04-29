@@ -11,6 +11,7 @@ export type StoryboardInput = {
 };
 
 export type StoryboardShot = {
+  shot_id: string;
   shot_number: number;
   scene_number: number;
   shot_type: string;
@@ -23,11 +24,13 @@ export type StoryboardShot = {
   emotion: string;
   dialogue?: string | null;
   duration_seconds?: number | null;
+  visual_description: string;
   visual_notes: string;
   ai_image_prompt_hint?: string | null;
 };
 
 export type StoryboardScene = {
+  scene_id: string;
   scene_number: number;
   location: string;
   time: string;
