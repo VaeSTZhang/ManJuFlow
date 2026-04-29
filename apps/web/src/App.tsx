@@ -524,34 +524,73 @@ function App() {
                 <p>第 {storyboardResult.episode_number} 集</p>
               </section>
 
-              <section className="info-block">
+              <section className="storyboard-summary-block">
                 <h4>分镜说明</h4>
                 <p>{storyboardResult.storyboard_summary}</p>
               </section>
 
-              <section className="content-section">
+              <section className="storyboard-scenes">
                 <h4>场景分镜</h4>
-                <div className="item-list">
+                <div className="storyboard-scene-list">
                   {storyboardResult.scenes.map((scene) => (
-                    <section className="item" key={scene.scene_number}>
-                      <h5>
-                        场景 {scene.scene_number} · {scene.location} · {scene.time}
-                      </h5>
-                      <p>摘要：{scene.scene_summary}</p>
-                      <p>冲突：{scene.scene_conflict}</p>
+                    <section className="storyboard-scene-card" key={scene.scene_number}>
+                      <div className="storyboard-scene-header">
+                        <span>Scene {scene.scene_number}</span>
+                        <h5>
+                          {scene.location} · {scene.time}
+                        </h5>
+                      </div>
+
+                      <div className="storyboard-scene-meta">
+                        <p>
+                          <strong>摘要</strong>
+                          {scene.scene_summary}
+                        </p>
+                        <p>
+                          <strong>冲突</strong>
+                          {scene.scene_conflict}
+                        </p>
+                      </div>
 
                       <div className="shot-list">
                         {scene.shots.map((shot) => (
-                          <section className="scene storyboard-shot" key={`${scene.scene_number}-${shot.shot_number}`}>
-                            <h6>
-                              镜头 {shot.shot_number} · {shot.shot_type} · {shot.camera_angle} ·{" "}
-                              {shot.camera_movement}
-                            </h6>
-                            <p>主体：{shot.subject}</p>
-                            <p>动作：{shot.action}</p>
-                            <p>情绪：{shot.emotion}</p>
-                            <p>时长：{shot.duration_seconds ?? "未设置"} 秒</p>
-                            <p>绘图提示：{shot.ai_image_prompt_hint || "无"}</p>
+                          <section className="storyboard-shot-card" key={`${scene.scene_number}-${shot.shot_number}`}>
+                            <div className="shot-title-row">
+                              <span>Shot {shot.shot_number}</span>
+                              <h6>{shot.shot_type}</h6>
+                            </div>
+
+                            <dl className="shot-detail-grid">
+                              <div>
+                                <dt>机位角度</dt>
+                                <dd>{shot.camera_angle}</dd>
+                              </div>
+                              <div>
+                                <dt>镜头运动</dt>
+                                <dd>{shot.camera_movement}</dd>
+                              </div>
+                              <div>
+                                <dt>画面主体</dt>
+                                <dd>{shot.subject}</dd>
+                              </div>
+                              <div>
+                                <dt>人物动作</dt>
+                                <dd>{shot.action}</dd>
+                              </div>
+                              <div>
+                                <dt>情绪重点</dt>
+                                <dd>{shot.emotion}</dd>
+                              </div>
+                              <div>
+                                <dt>建议时长</dt>
+                                <dd>{shot.duration_seconds ?? "未设置"} 秒</dd>
+                              </div>
+                            </dl>
+
+                            <div className="prompt-hint">
+                              <span>AI 绘图提示</span>
+                              <p>{shot.ai_image_prompt_hint || "无"}</p>
+                            </div>
                           </section>
                         ))}
                       </div>
