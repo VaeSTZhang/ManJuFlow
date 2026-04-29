@@ -80,6 +80,52 @@ const defaultStoryboardForm: StoryboardInput = {
     "第1集 第1场｜医院门口｜雨夜。暴雨中，林晚撑着黑伞站在医院门口，顾沉从车里下来，两人隔雨对视。顾沉：你终于肯回来了？林晚：我回来，不是为了见你。",
 };
 
+function formatScriptForStoryboard(script: ScriptOutput): string {
+  const characters = script.characters
+    .map(
+      (character) =>
+        `- ${character.name}（${character.role}）：${character.age}，${character.personality}。人物弧光：${character.arc}`,
+    )
+    .join("\n");
+
+  const episodes = script.episodes
+    .map((episode) => {
+      const scenes = episode.scenes
+        .map((scene) => {
+          const dialogues = scene.dialogues
+            .map((dialogue) => `    ${dialogue.character}：${dialogue.line}`)
+            .join("\n");
+
+          return [
+            `  第 ${scene.scene_number} 场｜${scene.location}｜${scene.time}`,
+            `  场景描述：${scene.description}`,
+            `  画面说明：${scene.visual_notes}`,
+            `  情绪曲线：${scene.emotion_curve}`,
+            dialogues ? `  对白：\n${dialogues}` : "  对白：无",
+          ].join("\n");
+        })
+        .join("\n\n");
+
+      return [
+        `第 ${episode.episode_number} 集：${episode.title}`,
+        `概要：${episode.summary}`,
+        `钩子：${episode.hook}`,
+        scenes,
+      ].join("\n");
+    })
+    .join("\n\n");
+
+  return [
+    `项目标题：${script.project_title}`,
+    `故事梗概：${script.logline}`,
+    `世界观设定：${script.world_setting}`,
+    "主要人物：",
+    characters || "无",
+    "分集与场景：",
+    episodes || "无",
+  ].join("\n\n");
+}
+
 const stages = [
   {
     title: "灵感输入",
@@ -114,6 +160,7 @@ function App() {
   const [storyboardError, setStoryboardError] = useState("");
   const [storyboardCopyStatus, setStoryboardCopyStatus] = useState("");
   const [storyboardExportStatus, setStoryboardExportStatus] = useState("");
+  const [storyboardTransferStatus, setStoryboardTransferStatus] = useState("");
 
   useEffect(() => {
     const loadSystemStatus = async () => {
@@ -142,6 +189,7 @@ function App() {
 
   const updateStoryboardField = <K extends keyof StoryboardInput>(field: K, value: StoryboardInput[K]) => {
     setStoryboardForm((current) => ({ ...current, [field]: value }));
+    setStoryboardTransferStatus("");
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -150,6 +198,7 @@ function App() {
     setError("");
     setCopyStatus("");
     setExportStatus("");
+    setStoryboardTransferStatus("");
 
     try {
       const response = await fetch("http://127.0.0.1:8000/api/scripts/generate", {
@@ -204,12 +253,29 @@ function App() {
     setCopyStatus("");
   };
 
+  const transferScriptToStoryboard = () => {
+    if (!result) {
+      return;
+    }
+
+    setStoryboardForm((current) => ({
+      ...current,
+      project_title: result.project_title,
+      script_text: formatScriptForStoryboard(result),
+    }));
+    setStoryboardTransferStatus("已带入分镜生成区域");
+    setStoryboardError("");
+    setStoryboardCopyStatus("");
+    setStoryboardExportStatus("");
+  };
+
   const handleStoryboardSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsStoryboardLoading(true);
     setStoryboardError("");
     setStoryboardCopyStatus("");
     setStoryboardExportStatus("");
+    setStoryboardTransferStatus("");
 
     try {
       const data = await generateStoryboard(storyboardForm);
@@ -378,6 +444,9 @@ function App() {
               <h2>结构化剧本</h2>
             </div>
             <div className="result-actions">
+              <button className="secondary-button" disabled={!result} onClick={transferScriptToStoryboard} type="button">
+                带入分镜生成
+              </button>
               <button className="secondary-button" disabled={!result} onClick={copyJson} type="button">
                 复制 JSON
               </button>
@@ -389,6 +458,7 @@ function App() {
 
           {copyStatus && <p className="copy-status">{copyStatus}</p>}
           {exportStatus && <p className="copy-status">{exportStatus}</p>}
+          {storyboardTransferStatus && <p className="copy-status">{storyboardTransferStatus}</p>}
 
           {!result ? (
             <div className="empty-state">输入灵感后，生成结果将在这里展示。</div>
