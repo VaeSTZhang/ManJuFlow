@@ -18,6 +18,7 @@
 - `storyboard_service` mock service
 - Storyboard LLM 输出解析与 Schema 校验辅助函数
 - 支持从 LLM 原始文本解析 StoryboardOutput
+- Storyboard LLM 模式真实调用已本地测试通过
 - `POST /api/storyboards/generate`
 - 前端生成分镜 UI
 - 分镜结果展示
@@ -105,20 +106,19 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - [ ] Storyboard endpoint 自动测试通过：`python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py`
 - [ ] Storyboard Schema 约束测试通过：`python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py tests/api/test_storyboard_schema.py`
 - [ ] Storyboard LLM parser 测试通过：`python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py tests/api/test_storyboard_schema.py tests/api/test_storyboard_llm_parser.py`
+- [ ] `STORYBOARD_GENERATION_MODE=llm` 真实接口测试通过
 - [ ] 复制 JSON 可用
 - [ ] 导出 JSON 可用
 - [ ] `npm run build` 通过
 - [ ] `git status` clean
 
-## 六、当前仍是 mock 的部分
+## 六、当前模式与仍待加固的部分
 
-- 当前 `storyboard_service` 默认使用 `STORYBOARD_GENERATION_MODE=mock`
-- `STORYBOARD_GENERATION_MODE` 已预留 `llm` 模式，但暂未正式接入真实 LLM；当前 `llm` 模式仍 fallback 到 mock
-- `STORYBOARD_GENERATION_MODE=llm` fallback mock 的临时行为已有测试覆盖，后续真实 LLM 接入时需要同步更新测试预期
+- mock 模式仍保留用于本地演示和测试
+- `STORYBOARD_GENERATION_MODE=llm` 已完成本地真实调用测试
 - `script_to_storyboard_v1.md` Prompt 已要求 `scene_id`、`shot_id`、`visual_description`，为后续真实 LLM 接入和绘图 Prompt 阶段做准备
-- 虽然真实 LLM 尚未接入，但 LLM 输出 JSON 解析与 Pydantic 校验函数已准备好；后续接入真实 LLM 时，应调用 `parse_storyboard_llm_response` 处理模型返回
-- 尚未接入真实 LLM
-- 尚未做模型 JSON 解析与修复
+- LLM 输出 JSON 解析与 Pydantic 校验函数已准备好，并已用于处理模型返回
+- 尚未做更复杂的 JSON 自动修复和质量评估
 - 尚未做数据库保存
 - 尚未生成绘图 Prompt
 - 尚未接入图片或视频生成
@@ -144,10 +144,11 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - Storyboard service、endpoint 与 Schema 约束测试均通过
 - Storyboard Schema 约束测试通过
 - Storyboard LLM parser 测试通过
+- Storyboard LLM 真实调用通过
 - 前端 `npm run build` 通过
 - `/api/storyboards/generate` curl 返回正常
 - 前端“灵感 → 剧本 → 分镜”流水线可用
 - `scene_id` / `shot_id` / `visual_description` 字段可见并可导出
 - `git status` clean
 
-当前阶段仍未接入真实 LLM，`storyboard_service` 仍是 mock service；但接口、Schema、Prompt、前端、测试和文档已经具备后续扩展基础。
+当前阶段已保留 mock 模式并完成 Storyboard LLM 本地真实调用测试；接口、Schema、Prompt、前端、测试和文档已经具备后续扩展基础。
