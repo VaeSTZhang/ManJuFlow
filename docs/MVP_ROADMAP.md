@@ -19,6 +19,7 @@
 - Storyboard mock service 已完成
 - `/api/storyboards/generate` 已完成
 - 前端生成分镜 UI 已完成
+- 前端“剧本 → 分镜”衔接已完成
 
 ## 下一步计划
 
