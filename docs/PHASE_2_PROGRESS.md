@@ -122,3 +122,18 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 3. 再做 mock service。
 4. 再做 `/api/prompts/generate`。
 5. 最后接前端展示。
+
+## 八、稳定验收状态
+
+当前第二阶段 MVP+加固版已通过本地验收。
+
+已验证：
+
+- Storyboard service pytest 通过
+- 前端 `npm run build` 通过
+- `/api/storyboards/generate` curl 返回正常
+- 前端“灵感 → 剧本 → 分镜”流水线可用
+- `scene_id` / `shot_id` / `visual_description` 字段可见并可导出
+- `git status` clean
+
+当前阶段仍未接入真实 LLM，`storyboard_service` 仍是 mock service；但接口、Schema、Prompt、前端、测试和文档已经具备后续扩展基础。
