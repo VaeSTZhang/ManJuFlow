@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from app.config import get_settings
@@ -7,6 +8,22 @@ from app.schemas.storyboard import (
     StoryboardInput,
     StoryboardOutput,
 )
+from pydantic import ValidationError
+
+
+def _strip_json_code_fence(raw_text: str) -> str:
+    text = raw_text.strip()
+
+    if not text.startswith("```"):
+        return text
+
+    lines = text.splitlines()
+    if lines and lines[0].strip().startswith("```"):
+        lines = lines[1:]
+    if lines and lines[-1].strip() == "```":
+        lines = lines[:-1]
+
+    return "\n".join(lines).strip()
 
 
 def load_storyboard_prompt_template(
@@ -19,6 +36,23 @@ def load_storyboard_prompt_template(
         raise FileNotFoundError(f"Storyboard prompt file not found: {prompt_name}")
 
     return prompt_path.read_text(encoding="utf-8")
+
+
+def parse_storyboard_llm_response(raw_text: str) -> StoryboardOutput:
+    if not raw_text or not raw_text.strip():
+        raise ValueError("Storyboard LLM response is empty.")
+
+    cleaned_text = _strip_json_code_fence(raw_text)
+
+    try:
+        data = json.loads(cleaned_text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Storyboard LLM response is not valid JSON: {exc}") from exc
+
+    try:
+        return StoryboardOutput.model_validate(data)
+    except ValidationError as exc:
+        raise ValueError(f"Storyboard LLM response does not match StoryboardOutput schema: {exc}") from exc
 
 
 def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
