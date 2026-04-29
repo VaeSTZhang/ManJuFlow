@@ -282,6 +282,14 @@ textarea {
   border-bottom: 1px solid #e3eaf4;
 }
 
+.result-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .copy-status {
   margin: 0 0 12px;
   color: #0f766e;
@@ -436,5 +444,13 @@ textarea {
   .result-header {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .result-actions {
+    justify-content: stretch;
+  }
+
+  .result-actions .secondary-button {
+    flex: 1;
   }
 }

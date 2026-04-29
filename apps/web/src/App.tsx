@@ -99,6 +99,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
+  const [exportStatus, setExportStatus] = useState("");
 
   useEffect(() => {
     const loadSystemStatus = async () => {
@@ -130,6 +131,7 @@ function App() {
     setIsLoading(true);
     setError("");
     setCopyStatus("");
+    setExportStatus("");
 
     try {
       const response = await fetch("http://127.0.0.1:8000/api/scripts/generate", {
@@ -160,6 +162,28 @@ function App() {
 
     await navigator.clipboard.writeText(JSON.stringify(result, null, 2));
     setCopyStatus("已复制");
+    setExportStatus("");
+  };
+
+  const exportJson = () => {
+    if (!result) {
+      return;
+    }
+
+    const json = JSON.stringify(result, null, 2);
+    const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "manjuflow-script-output.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    setExportStatus("已导出");
+    setCopyStatus("");
   };
 
   return (
@@ -287,12 +311,18 @@ function App() {
               <p>输出预览</p>
               <h2>结构化剧本</h2>
             </div>
-            <button className="secondary-button" disabled={!result} onClick={copyJson} type="button">
-              复制 JSON
-            </button>
+            <div className="result-actions">
+              <button className="secondary-button" disabled={!result} onClick={copyJson} type="button">
+                复制 JSON
+              </button>
+              <button className="secondary-button" disabled={!result} onClick={exportJson} type="button">
+                导出 JSON
+              </button>
+            </div>
           </div>
 
           {copyStatus && <p className="copy-status">{copyStatus}</p>}
+          {exportStatus && <p className="copy-status">{exportStatus}</p>}
 
           {!result ? (
             <div className="empty-state">输入灵感后，生成结果将在这里展示。</div>
