@@ -16,6 +16,8 @@
 - Storyboard 中已补充 `scene_id`、`shot_id`、`visual_description`，用于后续“分镜 → AI 绘图 Prompt”的稳定衔接
 - `script_to_storyboard_v1.md` Prompt
 - `storyboard_service` mock service
+- Storyboard LLM 输出解析与 Schema 校验辅助函数
+- 支持从 LLM 原始文本解析 StoryboardOutput
 - `POST /api/storyboards/generate`
 - 前端生成分镜 UI
 - 分镜结果展示
@@ -37,6 +39,7 @@
 - `tests/api/test_storyboard_service.py`
 - `tests/api/test_storyboard_endpoint.py`
 - `tests/api/test_storyboard_schema.py`
+- `tests/api/test_storyboard_llm_parser.py`
 
 前端：
 
@@ -101,6 +104,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - [ ] Storyboard generation mode 测试通过，覆盖 mock / llm fallback / invalid mode
 - [ ] Storyboard endpoint 自动测试通过：`python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py`
 - [ ] Storyboard Schema 约束测试通过：`python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py tests/api/test_storyboard_schema.py`
+- [ ] Storyboard LLM parser 测试通过：`python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py tests/api/test_storyboard_schema.py tests/api/test_storyboard_llm_parser.py`
 - [ ] 复制 JSON 可用
 - [ ] 导出 JSON 可用
 - [ ] `npm run build` 通过
@@ -112,6 +116,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - `STORYBOARD_GENERATION_MODE` 已预留 `llm` 模式，但暂未正式接入真实 LLM；当前 `llm` 模式仍 fallback 到 mock
 - `STORYBOARD_GENERATION_MODE=llm` fallback mock 的临时行为已有测试覆盖，后续真实 LLM 接入时需要同步更新测试预期
 - `script_to_storyboard_v1.md` Prompt 已要求 `scene_id`、`shot_id`、`visual_description`，为后续真实 LLM 接入和绘图 Prompt 阶段做准备
+- 虽然真实 LLM 尚未接入，但 LLM 输出 JSON 解析与 Pydantic 校验函数已准备好；后续接入真实 LLM 时，应调用 `parse_storyboard_llm_response` 处理模型返回
 - 尚未接入真实 LLM
 - 尚未做模型 JSON 解析与修复
 - 尚未做数据库保存
@@ -138,6 +143,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 
 - Storyboard service、endpoint 与 Schema 约束测试均通过
 - Storyboard Schema 约束测试通过
+- Storyboard LLM parser 测试通过
 - 前端 `npm run build` 通过
 - `/api/storyboards/generate` curl 返回正常
 - 前端“灵感 → 剧本 → 分镜”流水线可用

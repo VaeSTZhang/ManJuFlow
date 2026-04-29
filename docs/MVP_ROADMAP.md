@@ -24,6 +24,7 @@
 - Storyboard generation mode 测试覆盖已完成
 - Storyboard endpoint 测试已完成
 - Storyboard Schema 约束测试已完成
+- Storyboard LLM 输出解析测试已完成
 - 第二阶段本地稳定验收已通过
 
 ## 下一步计划
