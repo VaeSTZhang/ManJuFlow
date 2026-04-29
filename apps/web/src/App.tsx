@@ -1,5 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
+import { generateStoryboard } from "./api/storyboards";
 import "./App.css";
+import type { StoryboardInput, StoryboardOutput } from "./types/storyboard";
 
 type IdeaInput = {
   idea_text: string;
@@ -72,6 +74,12 @@ const defaultForm: IdeaInput = {
   style_requirements: "开头要有强冲突，结尾要有反转",
 };
 
+const defaultStoryboardForm: StoryboardInput = {
+  project_title: "测试短剧：雨夜重逢",
+  script_text:
+    "第1集 第1场｜医院门口｜雨夜。暴雨中，林晚撑着黑伞站在医院门口，顾沉从车里下来，两人隔雨对视。顾沉：你终于肯回来了？林晚：我回来，不是为了见你。",
+};
+
 const stages = [
   {
     title: "灵感输入",
@@ -100,6 +108,12 @@ function App() {
   const [error, setError] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
   const [exportStatus, setExportStatus] = useState("");
+  const [storyboardForm, setStoryboardForm] = useState<StoryboardInput>(defaultStoryboardForm);
+  const [storyboardResult, setStoryboardResult] = useState<StoryboardOutput | null>(null);
+  const [isStoryboardLoading, setIsStoryboardLoading] = useState(false);
+  const [storyboardError, setStoryboardError] = useState("");
+  const [storyboardCopyStatus, setStoryboardCopyStatus] = useState("");
+  const [storyboardExportStatus, setStoryboardExportStatus] = useState("");
 
   useEffect(() => {
     const loadSystemStatus = async () => {
@@ -124,6 +138,10 @@ function App() {
 
   const updateField = <K extends keyof IdeaInput>(field: K, value: IdeaInput[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const updateStoryboardField = <K extends keyof StoryboardInput>(field: K, value: StoryboardInput[K]) => {
+    setStoryboardForm((current) => ({ ...current, [field]: value }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -184,6 +202,54 @@ function App() {
 
     setExportStatus("已导出");
     setCopyStatus("");
+  };
+
+  const handleStoryboardSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsStoryboardLoading(true);
+    setStoryboardError("");
+    setStoryboardCopyStatus("");
+    setStoryboardExportStatus("");
+
+    try {
+      const data = await generateStoryboard(storyboardForm);
+      setStoryboardResult(data);
+    } catch {
+      setStoryboardError("生成分镜失败，请确认后端服务已启动：http://127.0.0.1:8000");
+    } finally {
+      setIsStoryboardLoading(false);
+    }
+  };
+
+  const copyStoryboardJson = async () => {
+    if (!storyboardResult) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(JSON.stringify(storyboardResult, null, 2));
+    setStoryboardCopyStatus("已复制分镜 JSON");
+    setStoryboardExportStatus("");
+  };
+
+  const exportStoryboardJson = () => {
+    if (!storyboardResult) {
+      return;
+    }
+
+    const json = JSON.stringify(storyboardResult, null, 2);
+    const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "manjuflow-storyboard-output.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    setStoryboardExportStatus("已导出分镜 JSON");
+    setStoryboardCopyStatus("");
   };
 
   return (
@@ -391,6 +457,106 @@ function App() {
                     ))}
                   </section>
                 ))}
+                </div>
+              </section>
+            </article>
+          )}
+        </section>
+      </section>
+
+      <section className="storyboard-workspace">
+        <form className="panel form-panel" onSubmit={handleStoryboardSubmit}>
+          <div className="panel-heading">
+            <p>第二阶段</p>
+            <h2>生成分镜</h2>
+          </div>
+
+          <label className="field field-wide">
+            <span>项目标题</span>
+            <input
+              value={storyboardForm.project_title}
+              onChange={(event) => updateStoryboardField("project_title", event.target.value)}
+            />
+          </label>
+
+          <label className="field field-wide">
+            <span>剧本文本</span>
+            <textarea
+              value={storyboardForm.script_text}
+              onChange={(event) => updateStoryboardField("script_text", event.target.value)}
+              rows={7}
+            />
+          </label>
+
+          <button className="primary-button" disabled={isStoryboardLoading} type="submit">
+            {isStoryboardLoading ? "生成中..." : "生成分镜"}
+          </button>
+
+          {storyboardError && <p className="error-message">{storyboardError}</p>}
+        </form>
+
+        <section className="panel result-panel">
+          <div className="result-header">
+            <div>
+              <p>输出预览</p>
+              <h2>分镜结果</h2>
+            </div>
+            <div className="result-actions">
+              <button className="secondary-button" disabled={!storyboardResult} onClick={copyStoryboardJson} type="button">
+                复制分镜 JSON
+              </button>
+              <button className="secondary-button" disabled={!storyboardResult} onClick={exportStoryboardJson} type="button">
+                导出分镜 JSON
+              </button>
+            </div>
+          </div>
+
+          {storyboardCopyStatus && <p className="copy-status">{storyboardCopyStatus}</p>}
+          {storyboardExportStatus && <p className="copy-status">{storyboardExportStatus}</p>}
+
+          {!storyboardResult ? (
+            <div className="empty-state">输入剧本文本后，分镜结果将在这里展示。</div>
+          ) : (
+            <article className="script-output storyboard-output">
+              <section className="result-summary">
+                <span>项目标题</span>
+                <h3>{storyboardResult.project_title}</h3>
+                <p>第 {storyboardResult.episode_number} 集</p>
+              </section>
+
+              <section className="info-block">
+                <h4>分镜说明</h4>
+                <p>{storyboardResult.storyboard_summary}</p>
+              </section>
+
+              <section className="content-section">
+                <h4>场景分镜</h4>
+                <div className="item-list">
+                  {storyboardResult.scenes.map((scene) => (
+                    <section className="item" key={scene.scene_number}>
+                      <h5>
+                        场景 {scene.scene_number} · {scene.location} · {scene.time}
+                      </h5>
+                      <p>摘要：{scene.scene_summary}</p>
+                      <p>冲突：{scene.scene_conflict}</p>
+
+                      <div className="shot-list">
+                        {scene.shots.map((shot) => (
+                          <section className="scene storyboard-shot" key={`${scene.scene_number}-${shot.shot_number}`}>
+                            <h6>
+                              镜头 {shot.shot_number} · {shot.shot_type} · {shot.camera_angle} ·{" "}
+                              {shot.camera_movement}
+                            </h6>
+                            <p>主体：{shot.subject}</p>
+                            <p>动作：{shot.action}</p>
+                            <p>情绪：{shot.emotion}</p>
+                            <p>时长：{shot.duration_seconds ?? "未设置"} 秒</p>
+                            <p>绘图提示：{shot.ai_image_prompt_hint || "无"}</p>
+                          </section>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
                 </div>
               </section>
             </article>

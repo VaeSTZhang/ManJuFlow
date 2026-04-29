@@ -28,3 +28,9 @@ outputs/
 # Temporary
 tmp/
 temp/
+
+# TypeScript
+*.tsbuildinfo
+
+# TypeScript
+*.tsbuildinfo
