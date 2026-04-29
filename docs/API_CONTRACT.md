@@ -96,6 +96,71 @@ curl -X POST http://127.0.0.1:8000/api/scripts/generate \
   -d '{"idea_text":"一个普通女孩发现公司老板正在隐藏一个巨大秘密","script_type":"短剧","genre":"都市"}'
 ```
 
+## POST /api/storyboards/generate
+
+用途：根据结构化剧本或剧本文本生成分镜结果。
+
+当前说明：此接口当前使用 mock service，暂未接入真实 LLM、数据库或图片生成能力。
+
+### 请求体字段
+
+| 字段 | 类型 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- | --- |
+| `project_title` | string | 是 | 无 | 项目标题 |
+| `script_text` | string | 是 | 无 | 需要转分镜的剧本文本或结构化剧本摘要 |
+
+当前前端只传入 `project_title` 和 `script_text`。后端 `StoryboardInput` 还支持 `episode_number`、`scene_number`、`style`、`target_platform`、`visual_style`、`shot_count`、`extra_requirements` 等可选字段。
+
+### 响应体核心字段
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `project_title` | string | 项目标题 |
+| `episode_number` | integer | 集数编号 |
+| `storyboard_summary` | string | 分镜整体说明 |
+| `scenes` | array | 分镜场景列表 |
+
+`scenes` 字段包含：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `scene_number` | integer | 场次编号 |
+| `location` | string | 场景地点 |
+| `time` | string | 场景时间 |
+| `scene_summary` | string | 场景摘要 |
+| `scene_conflict` | string | 本场核心冲突 |
+| `shots` | array | 本场景下的分镜镜头列表 |
+
+`shots` 字段包含：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `shot_number` | integer | 镜头编号 |
+| `scene_number` | integer | 所属场次编号 |
+| `shot_type` | string | 景别，例如远景、中景、近景、特写 |
+| `camera_angle` | string | 机位角度，例如平视、俯拍、仰拍、侧拍 |
+| `camera_movement` | string | 镜头运动，例如固定、推镜、拉镜、跟拍、摇镜 |
+| `subject` | string | 画面主体 |
+| `action` | string | 人物动作或事件动作 |
+| `environment` | string | 场景环境 |
+| `lighting` | string | 光影氛围 |
+| `emotion` | string | 本镜头的情绪重点 |
+| `dialogue` | string/null | 对白或旁白 |
+| `duration_seconds` | number/null | 建议镜头时长，单位为秒 |
+| `visual_notes` | string | 视觉备注 |
+| `ai_image_prompt_hint` | string/null | 后续转绘图 Prompt 的画面提示 |
+
+### curl 测试示例
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_title": "测试短剧：雨夜重逢",
+    "script_text": "第1集 第1场｜医院门口｜雨夜。暴雨中，林晚撑着黑伞站在医院门口，顾沉从车里下来，两人隔雨对视。顾沉：你终于肯回来了？林晚：我回来，不是为了见你。"
+  }'
+```
+
 ## 后续说明
 
 后续会将当前 mock 逻辑替换为真实 LLM 调用层，并保持接口契约尽量稳定。

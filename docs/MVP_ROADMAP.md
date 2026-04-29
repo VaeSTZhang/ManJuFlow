@@ -14,13 +14,17 @@
 - 核心 Schema
 - `/api/scripts/generate` mock
 - GitHub 初次推送
+- Storyboard Schema 已完成
+- `script_to_storyboard_v1.md` 已完成
+- Storyboard mock service 已完成
+- `/api/storyboards/generate` 已完成
+- 前端生成分镜 UI 已完成
 
 ## 下一步计划
 
-- 初始化 `apps/web` 前端
-- 创建灵感输入页面
-- 调用后端 mock 接口
-- 展示结构化剧本结果
+- 继续打磨剧本转分镜的 mock 输出质量
+- 评估后续真实 LLM 接入方式
+- 继续保持前后端接口契约稳定
 
 ## 当前暂不做
 
