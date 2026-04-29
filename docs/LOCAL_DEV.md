@@ -54,10 +54,10 @@ uvicorn app.main:app --reload
 pip install -r apps/api/requirements.txt
 ```
 
-当前推荐一起运行 Storyboard service 测试和 endpoint 测试：
+当前推荐一起运行 Storyboard service、endpoint 和 Schema 约束测试：
 
 ```bash
-python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py
+python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py tests/api/test_storyboard_schema.py
 ```
 
 `test_storyboard_service.py` 用于确认 Storyboard mock service 返回 `scene_id`、`shot_id`、`visual_description`、`ai_image_prompt_hint` 等后续流水线需要的关键字段。
@@ -69,6 +69,8 @@ python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_
 - 非法 mode 会抛出 `ValueError`
 
 `test_storyboard_endpoint.py` 用于验证 `POST /api/storyboards/generate` 返回稳定 `StoryboardOutput`。
+
+`test_storyboard_schema.py` 用于验证 Storyboard Schema 会拒绝空标题、空剧本、空 `scenes`、空 `shots`、空 `visual_description` 和非正数 `duration_seconds`。
 
 ## 本地测试分镜接口
 

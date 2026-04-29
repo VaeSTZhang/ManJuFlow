@@ -108,8 +108,8 @@ curl -X POST http://127.0.0.1:8000/api/scripts/generate \
 
 | 字段 | 类型 | 必填 | 默认值 | 说明 |
 | --- | --- | --- | --- | --- |
-| `project_title` | string | 是 | 无 | 项目标题 |
-| `script_text` | string | 是 | 无 | 需要转分镜的剧本文本或结构化剧本摘要 |
+| `project_title` | string | 是 | 无 | 项目标题，非空 |
+| `script_text` | string | 是 | 无 | 需要转分镜的剧本文本或结构化剧本摘要，非空 |
 
 当前前端只传入 `project_title` 和 `script_text`。后端 `StoryboardInput` 还支持 `episode_number`、`scene_number`、`style`、`target_platform`、`visual_style`、`shot_count`、`extra_requirements` 等可选字段。
 
@@ -117,29 +117,29 @@ curl -X POST http://127.0.0.1:8000/api/scripts/generate \
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `project_title` | string | 项目标题 |
-| `episode_number` | integer | 集数编号 |
-| `storyboard_summary` | string | 分镜整体说明 |
-| `scenes` | array | 分镜场景列表 |
+| `project_title` | string | 项目标题，非空 |
+| `episode_number` | integer | 集数编号，必须大于等于 1 |
+| `storyboard_summary` | string | 分镜整体说明，非空 |
+| `scenes` | array | 分镜场景列表，至少 1 个 |
 
 `scenes` 字段包含：
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `scene_id` | string | 场景唯一标识，例如 `S001`，用于后续流水线稳定引用 |
-| `scene_number` | integer | 场次编号 |
+| `scene_id` | string | 场景唯一标识，非空，例如 `S001`，用于后续流水线稳定引用 |
+| `scene_number` | integer | 场次编号，必须大于等于 1 |
 | `location` | string | 场景地点 |
 | `time` | string | 场景时间 |
 | `scene_summary` | string | 场景摘要 |
 | `scene_conflict` | string | 本场核心冲突 |
-| `shots` | array | 本场景下的分镜镜头列表 |
+| `shots` | array | 本场景下的分镜镜头列表，至少 1 个 |
 
 `shots` 字段包含：
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `shot_id` | string | 镜头唯一标识，例如 `S001_SH001`，用于后续流水线稳定引用 |
-| `shot_number` | integer | 镜头编号 |
+| `shot_id` | string | 镜头唯一标识，非空，例如 `S001_SH001`，用于后续流水线稳定引用 |
+| `shot_number` | integer | 镜头编号，必须大于等于 1 |
 | `scene_number` | integer | 所属场次编号 |
 | `shot_type` | string | 景别，例如远景、中景、近景、特写 |
 | `camera_angle` | string | 机位角度，例如平视、俯拍、仰拍、侧拍 |
@@ -150,10 +150,10 @@ curl -X POST http://127.0.0.1:8000/api/scripts/generate \
 | `lighting` | string | 光影氛围 |
 | `emotion` | string | 本镜头的情绪重点 |
 | `dialogue` | string/null | 对白或旁白 |
-| `duration_seconds` | number/null | 建议镜头时长，单位为秒 |
-| `visual_description` | string | 适合直接给绘图 Prompt 阶段使用的完整画面描述 |
+| `duration_seconds` | number/null | 建议镜头时长，单位为秒；如果存在，必须大于 0 |
+| `visual_description` | string | 适合直接给绘图 Prompt 阶段使用的完整画面描述，非空 |
 | `visual_notes` | string | 视觉备注 |
-| `ai_image_prompt_hint` | string/null | 后续转绘图 Prompt 的画面提示 |
+| `ai_image_prompt_hint` | string | 后续转绘图 Prompt 的画面提示，非空 |
 
 ### curl 测试示例
 
