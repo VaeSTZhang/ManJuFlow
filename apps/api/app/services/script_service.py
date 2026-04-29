@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from app.config import get_settings
@@ -9,6 +10,7 @@ from app.schemas.script import (
     SceneScript,
     ScriptOutput,
 )
+from app.services.llm_client import LLMClient
 
 
 def load_prompt_template(prompt_name: str = "idea_to_script_v1.md") -> str:
@@ -72,6 +74,33 @@ def generate_script_mock(input_data: IdeaInput) -> ScriptOutput:
     )
 
 
+def generate_script_with_llm(input_data: IdeaInput) -> ScriptOutput:
+    prompt_template = load_prompt_template()
+    input_json = json.dumps(input_data.model_dump(), ensure_ascii=False)
+    messages = [
+        {
+            "role": "system",
+            "content": prompt_template,
+        },
+        {
+            "role": "user",
+            "content": f"请根据以下输入生成结构化剧本 JSON：\n{input_json}",
+        },
+    ]
+
+    content = LLMClient().chat(messages)
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as exc:
+        raise ValueError("LLM response was not valid JSON.") from exc
+
+    try:
+        return ScriptOutput.model_validate(data)
+    except ValueError as exc:
+        raise ValueError("LLM response did not match ScriptOutput schema.") from exc
+
+
 def generate_script(input_data: IdeaInput) -> ScriptOutput:
     mode = get_settings().script_generation_mode.lower()
 
@@ -79,6 +108,6 @@ def generate_script(input_data: IdeaInput) -> ScriptOutput:
         return generate_script_mock(input_data)
 
     if mode == "llm":
-        raise NotImplementedError("Real LLM script generation is not implemented yet.")
+        return generate_script_with_llm(input_data)
 
     raise ValueError("SCRIPT_GENERATION_MODE only supports 'mock' or 'llm'.")

@@ -1,4 +1,66 @@
-class LLMClient:
-    """Future OpenAI-compatible LLM client placeholder."""
+from typing import Any
 
-    pass
+import httpx
+
+from app.config import get_settings
+
+
+class LLMClient:
+    """OpenAI-compatible chat completions client."""
+
+    def __init__(self, timeout: float = 60.0) -> None:
+        settings = get_settings()
+        missing_fields = []
+
+        if not settings.llm_api_key:
+            missing_fields.append("LLM_API_KEY")
+        if not settings.llm_base_url:
+            missing_fields.append("LLM_BASE_URL")
+        if not settings.llm_model:
+            missing_fields.append("LLM_MODEL")
+
+        if missing_fields:
+            raise ValueError(f"Missing required LLM configuration: {', '.join(missing_fields)}")
+
+        self.api_key = settings.llm_api_key
+        self.base_url = settings.llm_base_url.rstrip("/")
+        self.model = settings.llm_model
+        self.timeout = timeout
+
+    def chat(self, messages: list[dict[str, str]]) -> str:
+        try:
+            response = httpx.post(
+                f"{self.base_url}/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": self.model,
+                    "messages": messages,
+                    "temperature": 0.7,
+                },
+                timeout=self.timeout,
+            )
+        except httpx.RequestError as exc:
+            raise RuntimeError("LLM request failed before receiving a response.") from exc
+
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            raise RuntimeError(f"LLM request failed with status {response.status_code}.") from exc
+
+        try:
+            data: dict[str, Any] = response.json()
+        except ValueError as exc:
+            raise ValueError("LLM response was not valid JSON.") from exc
+
+        try:
+            content = data["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError) as exc:
+            raise ValueError("LLM response does not contain message content.") from exc
+
+        if not isinstance(content, str) or not content.strip():
+            raise ValueError("LLM response message content is empty.")
+
+        return content
