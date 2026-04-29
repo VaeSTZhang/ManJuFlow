@@ -27,12 +27,13 @@
 - Storyboard LLM 输出解析测试已完成
 - Storyboard LLM 真实调用测试已完成
 - 第二阶段本地稳定验收已通过
+- 第二阶段最终总结已完成
 
 ## 下一步计划
 
-- 继续打磨剧本转分镜的 mock 输出质量
-- 评估后续真实 LLM 接入方式
-- 继续保持前后端接口契约稳定
+- 开始第三阶段：分镜 → AI 绘图 Prompt
+- 先定义 ImagePrompt Schema
+- 再实现 Prompt mock service 和 `/api/prompts/generate`
 
 ## 当前暂不做
 
