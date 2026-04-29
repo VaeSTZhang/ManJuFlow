@@ -6,6 +6,22 @@
 - Node.js / npm
 - Git
 
+## 本地配置文件
+
+真实配置文件统一放在项目根目录 `.env`。
+
+可以从模板创建本地配置：
+
+```bash
+cp .env.example .env
+```
+
+注意：
+
+- 不要提交 `.env`
+- 不再需要 `apps/api/.env`
+- 后端从 `apps/api` 启动时，也会读取项目根目录 `.env`
+
 ## 后端启动方式
 
 ```bash

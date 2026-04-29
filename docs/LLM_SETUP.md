@@ -34,6 +34,14 @@ POST {LLM_BASE_URL}/v1/chat/completions
 
 ## 环境变量说明
 
+真实配置文件统一放在项目根目录 `.env`，可以从模板创建：
+
+```bash
+cp .env.example .env
+```
+
+不再需要 `apps/api/.env`。后端从 `apps/api` 启动时，也会读取项目根目录 `.env`。
+
 本地 `.env` 示例：
 
 ```text
@@ -53,6 +61,8 @@ LLM_API_KEY=不要写入真实密钥
 ## 安全提醒
 
 - 不要把真实 `.env` 提交到 Git
+- `.env` 统一放在项目根目录
+- 不要创建或依赖 `apps/api/.env`
 - 不要把 API Key 写进代码
 - 不要把 API Key 发给任何 AI
 - `.env.example` 只放字段名，不放真实值
@@ -60,7 +70,11 @@ LLM_API_KEY=不要写入真实密钥
 
 ## 本地测试流程
 
-1. 在 `apps/api` 目录下创建本地 `.env` 文件。
+1. 在项目根目录创建本地 `.env` 文件：
+
+```bash
+cp .env.example .env
+```
 
 2. 填入真实 API Key 和模型配置：
 

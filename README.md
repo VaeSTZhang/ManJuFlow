@@ -27,6 +27,14 @@ ManJuFlow｜漫剧流 是一个公司内部 AI 影视化创作流水线 MVP。
 
 ## 本地运行
 
+首次本地配置：
+
+```bash
+cp .env.example .env
+```
+
+真实配置文件统一放在项目根目录 `.env`。不再需要 `apps/api/.env`。
+
 后端：
 
 ```bash
@@ -69,6 +77,8 @@ LLM_API_KEY=请放在本地 .env，不要提交
 ## 安全提醒
 
 - 不要提交 `.env`
+- `.env` 统一放在项目根目录
+- 不要创建或依赖 `apps/api/.env`
 - 不要把 API Key 写进代码
 - 不要把 API Key 发给任何 AI
 - `.env.example` 只保留字段名
