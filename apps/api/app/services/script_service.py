@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from app.config import get_settings
 from app.schemas.idea import IdeaInput
 from app.schemas.script import (
     CharacterProfile,
@@ -69,3 +70,15 @@ def generate_script_mock(input_data: IdeaInput) -> ScriptOutput:
             )
         ],
     )
+
+
+def generate_script(input_data: IdeaInput) -> ScriptOutput:
+    mode = get_settings().script_generation_mode.lower()
+
+    if mode == "mock":
+        return generate_script_mock(input_data)
+
+    if mode == "llm":
+        raise NotImplementedError("Real LLM script generation is not implemented yet.")
+
+    raise ValueError("SCRIPT_GENERATION_MODE only supports 'mock' or 'llm'.")
