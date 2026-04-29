@@ -54,19 +54,21 @@ uvicorn app.main:app --reload
 pip install -r apps/api/requirements.txt
 ```
 
-运行 Storyboard service 测试：
+当前推荐一起运行 Storyboard service 测试和 endpoint 测试：
 
 ```bash
-python -m pytest tests/api/test_storyboard_service.py
+python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py
 ```
 
-该测试用于确认 Storyboard mock service 返回 `scene_id`、`shot_id`、`visual_description`、`ai_image_prompt_hint` 等后续流水线需要的关键字段。
+`test_storyboard_service.py` 用于确认 Storyboard mock service 返回 `scene_id`、`shot_id`、`visual_description`、`ai_image_prompt_hint` 等后续流水线需要的关键字段。
 
 当前 Storyboard service 测试也覆盖 generation mode 行为：
 
 - `STORYBOARD_GENERATION_MODE=mock` 正常生成
 - `STORYBOARD_GENERATION_MODE=llm` 当前 fallback mock
 - 非法 mode 会抛出 `ValueError`
+
+`test_storyboard_endpoint.py` 用于验证 `POST /api/storyboards/generate` 返回稳定 `StoryboardOutput`。
 
 ## 本地测试分镜接口
 

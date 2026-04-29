@@ -35,6 +35,7 @@
 - `apps/api/app/routers/storyboards.py`
 - `apps/api/app/main.py`
 - `tests/api/test_storyboard_service.py`
+- `tests/api/test_storyboard_endpoint.py`
 
 前端：
 
@@ -97,6 +98,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - [ ] 分镜 JSON 中包含 `scene_id`、`shot_id`、`visual_description`
 - [ ] Storyboard service 自动测试通过：`python -m pytest tests/api/test_storyboard_service.py`
 - [ ] Storyboard generation mode 测试通过，覆盖 mock / llm fallback / invalid mode
+- [ ] Storyboard endpoint 自动测试通过：`python -m pytest tests/api/test_storyboard_service.py tests/api/test_storyboard_endpoint.py`
 - [ ] 复制 JSON 可用
 - [ ] 导出 JSON 可用
 - [ ] `npm run build` 通过
@@ -132,7 +134,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 
 已验证：
 
-- Storyboard service pytest 通过
+- Storyboard service 与 endpoint 测试均通过
 - 前端 `npm run build` 通过
 - `/api/storyboards/generate` curl 返回正常
 - 前端“灵感 → 剧本 → 分镜”流水线可用
