@@ -6,6 +6,12 @@ from app.schemas.script import (
     SceneScript,
     ScriptOutput,
 )
+from app.schemas.storyboard import (
+    SceneStoryboard,
+    ShotStoryboard,
+    StoryboardInput,
+    StoryboardOutput,
+)
 
 __all__ = [
     "CharacterProfile",
@@ -13,5 +19,9 @@ __all__ = [
     "EpisodeScript",
     "IdeaInput",
     "SceneScript",
+    "SceneStoryboard",
+    "ShotStoryboard",
     "ScriptOutput",
+    "StoryboardInput",
+    "StoryboardOutput",
 ]
