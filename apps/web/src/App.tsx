@@ -64,6 +64,25 @@ const defaultForm: IdeaInput = {
   style_requirements: "开头要有强冲突，结尾要有反转",
 };
 
+const stages = [
+  {
+    title: "灵感输入",
+    description: "整理创意、题材、平台和风格要求，形成可生成的结构化输入。",
+  },
+  {
+    title: "结构化剧本",
+    description: "输出标题、卖点、世界观、角色、分集和场景对白。",
+  },
+  {
+    title: "前端展示",
+    description: "以工作台形式预览生成结果，便于内部评审和演示。",
+  },
+  {
+    title: "复制 / 导出",
+    description: "保留完整 JSON，方便后续进入 Prompt、模型和生产流程。",
+  },
+];
+
 function App() {
   const [form, setForm] = useState<IdeaInput>(defaultForm);
   const [result, setResult] = useState<ScriptOutput | null>(null);
@@ -97,7 +116,7 @@ function App() {
       const data = (await response.json()) as ScriptOutput;
       setResult(data);
     } catch {
-      setError("请确认后端服务已启动");
+      setError("生成失败，请确认后端服务已启动：http://127.0.0.1:8000");
     } finally {
       setIsLoading(false);
     }
@@ -115,12 +134,33 @@ function App() {
   return (
     <main className="app">
       <header className="page-header">
-        <h1>ManJuFlow｜漫剧流</h1>
-        <p>AI 影视化创作流水线 · 第一阶段 MVP</p>
+        <div>
+          <p className="eyebrow">内部 AI 创作工作台</p>
+          <h1>ManJuFlow｜漫剧流</h1>
+          <p className="subtitle">AI 影视化创作流水线 · 第一阶段 MVP</p>
+          <p className="description">
+            从灵感输入到结构化短剧剧本输出，帮助 AI 生成部门快速获得可复用创作素材。
+          </p>
+        </div>
       </header>
+
+      <section className="stage-grid" aria-label="第一阶段 MVP 状态">
+        {stages.map((stage, index) => (
+          <article className="stage-card" key={stage.title}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <h2>{stage.title}</h2>
+            <p>{stage.description}</p>
+          </article>
+        ))}
+      </section>
 
       <section className="workspace">
         <form className="panel form-panel" onSubmit={handleSubmit}>
+          <div className="panel-heading">
+            <p>输入配置</p>
+            <h2>创作灵感</h2>
+          </div>
+
           <label className="field field-wide">
             <span>灵感输入</span>
             <textarea
@@ -198,7 +238,10 @@ function App() {
 
         <section className="panel result-panel">
           <div className="result-header">
-            <h2>生成结果</h2>
+            <div>
+              <p>输出预览</p>
+              <h2>结构化剧本</h2>
+            </div>
             <button className="secondary-button" disabled={!result} onClick={copyJson} type="button">
               复制 JSON
             </button>
@@ -207,21 +250,27 @@ function App() {
           {copyStatus && <p className="copy-status">{copyStatus}</p>}
 
           {!result ? (
-            <p className="empty-state">提交灵感后，这里会展示结构化剧本结果。</p>
+            <div className="empty-state">输入灵感后，生成结果将在这里展示。</div>
           ) : (
             <article className="script-output">
-              <h3>{result.project_title}</h3>
-              <p>
-                <strong>一句话卖点：</strong>
-                {result.logline}
-              </p>
-              <p>
-                <strong>世界观设定：</strong>
-                {result.world_setting}
-              </p>
+              <section className="result-summary">
+                <span>项目标题</span>
+                <h3>{result.project_title}</h3>
+              </section>
 
-              <h4>角色列表</h4>
-              <div className="item-list">
+              <section className="info-block">
+                <h4>一句话卖点</h4>
+                <p>{result.logline}</p>
+              </section>
+
+              <section className="info-block">
+                <h4>世界观设定</h4>
+                <p>{result.world_setting}</p>
+              </section>
+
+              <section className="content-section">
+                <h4>角色列表</h4>
+                <div className="item-list character-list">
                 {result.characters.map((character) => (
                   <section className="item" key={character.name}>
                     <h5>
@@ -232,10 +281,12 @@ function App() {
                     <p>人物弧光：{character.arc}</p>
                   </section>
                 ))}
-              </div>
+                </div>
+              </section>
 
-              <h4>分集内容</h4>
-              <div className="item-list">
+              <section className="content-section">
+                <h4>分集大纲</h4>
+                <div className="item-list">
                 {result.episodes.map((episode) => (
                   <section className="item" key={episode.episode_number}>
                     <h5>
@@ -247,11 +298,12 @@ function App() {
                     {episode.scenes.map((scene) => (
                       <section className="scene" key={scene.scene_number}>
                         <h6>
-                          场景 {scene.scene_number} · {scene.location} · {scene.time}
+                          场景内容 {scene.scene_number} · {scene.location} · {scene.time}
                         </h6>
                         <p>{scene.description}</p>
                         <p>画面说明：{scene.visual_notes}</p>
                         <p>情绪曲线：{scene.emotion_curve}</p>
+                        <p className="dialogue-title">对白</p>
                         <ul>
                           {scene.dialogues.map((dialogue, index) => (
                             <li key={`${dialogue.character}-${index}`}>
@@ -264,7 +316,8 @@ function App() {
                     ))}
                   </section>
                 ))}
-              </div>
+                </div>
+              </section>
             </article>
           )}
         </section>
