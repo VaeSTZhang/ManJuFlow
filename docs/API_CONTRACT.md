@@ -166,6 +166,84 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
   }'
 ```
 
+## POST /api/prompts/generate
+
+用途：根据分镜文本或结构化分镜生成 AI 绘图 Prompt JSON。
+
+当前说明：此接口当前使用 mock service，暂未接入真实 LLM、数据库或图片生成能力。当前 mock 接口主要使用 `storyboard_text` 生成稳定示例输出，后续会接入真实 LLM。
+
+`storyboard` 和 `storyboard_text` 至少需要提供一种。
+
+### 请求体字段
+
+请求体 Schema：`ImagePromptInput`
+
+| 字段 | 类型 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- | --- |
+| `project_title` | string | 是 | 无 | 项目标题，非空 |
+| `storyboard_summary` | string/null | 否 | `null` | 分镜整体摘要 |
+| `storyboard` | object/null | 否 | `null` | 结构化分镜数据 |
+| `storyboard_text` | string/null | 否 | `null` | 分镜文本内容 |
+| `target_model` | string | 否 | `general` | 目标绘图模型或模型类型 |
+| `aspect_ratio` | string | 否 | `9:16` | 目标画面比例 |
+| `style_preset` | string | 否 | `cinematic realistic` | 整体绘图风格预设 |
+| `language` | string | 否 | `en` | 生成 Prompt 使用的语言 |
+| `extra_requirements` | string/null | 否 | `null` | 额外绘图 Prompt 要求 |
+
+### 响应体核心字段
+
+响应体 Schema：`ImagePromptOutput`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `project_title` | string | 项目标题 |
+| `prompt_summary` | string | 绘图 Prompt 生成结果摘要 |
+| `target_model` | string | 目标绘图模型或模型类型 |
+| `aspect_ratio` | string | 整体画面比例 |
+| `style_preset` | string | 整体绘图风格预设 |
+| `items` | array | 绘图 Prompt 条目列表，至少 1 个 |
+
+`items` 中每个 `ImagePromptItem` 包含：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `prompt_id` | string | 绘图 Prompt 唯一标识 |
+| `shot_id` | string | 对应的分镜镜头唯一标识 |
+| `scene_id` | string/null | 对应的场景唯一标识 |
+| `shot_number` | integer/null | 镜头编号 |
+| `scene_number` | integer/null | 场次编号 |
+| `source_visual_description` | string/null | 来自分镜阶段的原始画面描述 |
+| `positive_prompt` | string | 正向绘图 Prompt |
+| `negative_prompt` | string | 反向绘图 Prompt |
+| `style_preset` | string | 本条 Prompt 的绘图风格预设 |
+| `aspect_ratio` | string | 本条 Prompt 的画面比例 |
+| `camera_language` | string/null | 镜头语言描述 |
+| `lighting` | string/null | 光照与氛围描述 |
+| `color_palette` | string/null | 色彩方案描述 |
+| `character_consistency` | string/null | 角色一致性要求 |
+| `environment` | string/null | 场景环境描述 |
+| `composition` | string/null | 构图要求 |
+| `model_hint` | string/null | 面向目标绘图模型的提示 |
+| `seed` | integer/null | 随机种子 |
+| `notes` | string/null | 补充说明 |
+
+### curl 测试示例
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/prompts/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_title": "测试短剧：雨夜重逢",
+    "storyboard_summary": "医院门口雨夜重逢，男女主在冷色车灯和雨幕中对峙。",
+    "storyboard_text": "第1场｜医院门口｜雨夜。镜头1：林晚撑着黑伞站在医院门口台阶边，雨水打湿地面。镜头2：顾沉从黑色轿车里下来，两人在车灯和雨幕中对视。",
+    "target_model": "general",
+    "aspect_ratio": "9:16",
+    "style_preset": "cinematic realistic",
+    "language": "en",
+    "extra_requirements": "保持雨夜、冷色光影、电影感写实风格。"
+  }'
+```
+
 ## 后续说明
 
 后续会将当前 mock 逻辑替换为真实 LLM 调用层，并保持接口契约尽量稳定。

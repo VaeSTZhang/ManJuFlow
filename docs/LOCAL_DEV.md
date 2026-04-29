@@ -89,6 +89,47 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 
 后端接口文档可以在 `http://127.0.0.1:8000/docs` 查看。
 
+## 本地测试绘图 Prompt 接口
+
+启动后端：
+
+```bash
+cd apps/api
+source .venv/bin/activate 2>/dev/null || source ../../.venv/bin/activate
+uvicorn app.main:app --reload
+```
+
+测试以下地址：
+
+- `http://127.0.0.1:8000/health`
+- `http://127.0.0.1:8000/api/system/status`
+- `POST http://127.0.0.1:8000/api/prompts/generate`
+
+curl 示例：
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/prompts/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_title": "测试短剧：雨夜重逢",
+    "storyboard_summary": "医院门口雨夜重逢，男女主在冷色车灯和雨幕中对峙。",
+    "storyboard_text": "第1场｜医院门口｜雨夜。镜头1：林晚撑着黑伞站在医院门口台阶边，雨水打湿地面。镜头2：顾沉从黑色轿车里下来，两人在车灯和雨幕中对视。",
+    "target_model": "general",
+    "aspect_ratio": "9:16",
+    "style_preset": "cinematic realistic",
+    "language": "en",
+    "extra_requirements": "保持雨夜、冷色光影、电影感写实风格。"
+  }'
+```
+
+打开接口文档：
+
+- `http://127.0.0.1:8000/docs`
+
+确认可以看到：
+
+- `POST /api/prompts/generate`
+
 ## 前端启动方式
 
 ```bash

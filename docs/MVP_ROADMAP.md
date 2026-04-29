@@ -28,12 +28,18 @@
 - Storyboard LLM 真实调用测试已完成
 - 第二阶段本地稳定验收已通过
 - 第二阶段最终总结已完成
+- 第三阶段已开始：分镜 → AI 绘图 Prompt
+- ImagePrompt Schema 已完成
+- `storyboard_to_image_prompt_v1.md` 已完成
+- ImagePrompt mock service 已完成
+- `/api/prompts/generate` 已完成
+- mock 模式 curl 测试已通过
 
 ## 下一步计划
 
-- 开始第三阶段：分镜 → AI 绘图 Prompt
-- 先定义 ImagePrompt Schema
-- 再实现 Prompt mock service 和 `/api/prompts/generate`
+- 补充第三阶段进展文档
+- 后续接入真实 LLM 前，继续保持 mock 小闭环可测试
+- 规划前端调用 `/api/prompts/generate` 的 UI 流程
 
 ## 当前暂不做
 
