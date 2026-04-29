@@ -48,6 +48,7 @@
 
 其中 `scenes` 必须由 `SceneStoryboard` 结构组成，每个场景至少包含：
 
+- `scene_id`
 - `scene_number`
 - `location`
 - `time`
@@ -57,6 +58,7 @@
 
 其中 `shots` 必须由 `ShotStoryboard` 结构组成，每个镜头至少包含：
 
+- `shot_id`
 - `shot_number`
 - `scene_number`
 - `shot_type`
@@ -69,6 +71,7 @@
 - `emotion`
 - `dialogue`
 - `duration_seconds`
+- `visual_description`
 - `visual_notes`
 - `ai_image_prompt_hint`
 
@@ -91,6 +94,9 @@
 - 字符串内容必须可被 JSON 解析
 - 字符串中不要包含多余换行、不可见控制字符或无法解析的符号
 - `dialogue` 如果没有对白或旁白，可以使用空字符串
+- `scene_id` 必须是稳定场景 ID，格式建议为 `S001`、`S002`、`S003`
+- `shot_id` 必须是稳定镜头 ID，格式建议为 `S001_SH001`、`S001_SH002`
+- `visual_description` 必须是完整画面描述，服务于后续“分镜 → AI 绘图 Prompt”
 - `ai_image_prompt_hint` 如果信息不足，也必须给出适合后续绘图 Prompt 的画面提示
 
 ## 分镜创作要求
@@ -109,11 +115,14 @@
 - 如果用户给了 `scene_number`，优先围绕该场次生成分镜
 - 如果剧本包含多个场景，请按剧情顺序拆分 `scenes`
 - 每个场景必须有核心冲突，不能只是介绍地点或人物
+- 每个场景必须包含稳定的 `scene_id`
+- 每个镜头必须包含稳定的 `shot_id`
 - 每个镜头的 `subject` 必须明确到人物、物件或可见事件
 - 每个镜头的 `action` 必须是可视化动作或事件，不要只写心理活动
 - 每个镜头的 `environment` 必须说明地点、关键陈设或空间关系
 - 每个镜头的 `lighting` 必须服务于情绪、冲突或视觉风格
 - 每个镜头的 `emotion` 必须描述本镜头的情绪重点
+- `visual_description` 必须写清楚人物、动作、场景、光影和镜头画面，不要只写抽象情绪
 - `visual_notes` 要包含构图、节奏、焦点、人物关系或画面重点
 - `ai_image_prompt_hint` 要能帮助后续生成绘图 Prompt，包含主体、动作、环境、光影、情绪和画风方向
 
@@ -164,6 +173,9 @@
 - 字段名必须严格匹配 `StoryboardOutput` Schema
 - 不要新增 Schema 外字段
 - 不要遗漏必需字段
+- 每个 `scene` 必须包含 `scene_id`，格式建议为 `S001`、`S002`、`S003`
+- 每个 `shot` 必须包含 `shot_id`，格式建议为 `S001_SH001`、`S001_SH002`
+- 每个 `shot` 必须包含 `visual_description`
 - `scenes` 和 `shots` 必须是数组
 - `episode_number`、`scene_number`、`shot_number` 必须是数字
 - `duration_seconds` 必须是数字；如果无法确定，可以给合理估计
@@ -188,7 +200,10 @@
 - `episode_number`、`scene_number`、`shot_number` 是否都是数字
 - `duration_seconds` 是否是合理数字
 - 每个 `scene` 是否有明确核心冲突
+- 每个 `scene` 是否有稳定的 `scene_id`
+- 每个 `shot` 是否有稳定的 `shot_id`
 - 每个 `shot` 是否有主体、动作、环境和情绪
+- 每个 `shot` 是否有完整的 `visual_description`
 - 每个镜头是否具备可执行画面，而不是普通剧情总结
 - 镜头之间是否有节奏推进
 - 内容是否适合 3-5 分钟短剧 / 漫剧
@@ -204,6 +219,7 @@
   "storyboard_summary": "本集分镜整体说明，概括主要冲突、情绪节奏和视觉风格。",
   "scenes": [
     {
+      "scene_id": "S001",
       "scene_number": 1,
       "location": "场景地点",
       "time": "场景时间",
@@ -211,6 +227,7 @@
       "scene_conflict": "本场核心冲突。",
       "shots": [
         {
+          "shot_id": "S001_SH001",
           "shot_number": 1,
           "scene_number": 1,
           "shot_type": "中景",
@@ -223,6 +240,7 @@
           "emotion": "本镜头的情绪重点。",
           "dialogue": "对白或旁白内容，没有则为空字符串。",
           "duration_seconds": 4,
+          "visual_description": "完整画面描述，写清楚人物、动作、场景、光影和镜头画面，用于后续分镜转 AI 绘图 Prompt。",
           "visual_notes": "构图、节奏、焦点、人物关系或画面重点。",
           "ai_image_prompt_hint": "适合后续转绘图 Prompt 的主体、动作、环境、光影、情绪和画风提示。"
         }

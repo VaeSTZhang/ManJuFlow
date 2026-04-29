@@ -102,6 +102,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 ## 六、当前仍是 mock 的部分
 
 - 当前 `storyboard_service` 仍是 mock
+- `script_to_storyboard_v1.md` Prompt 已要求 `scene_id`、`shot_id`、`visual_description`，为后续真实 LLM 接入和绘图 Prompt 阶段做准备
 - 尚未接入真实 LLM
 - 尚未做模型 JSON 解析与修复
 - 尚未做数据库保存
@@ -110,7 +111,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 
 ## 七、下一步建议
 
-第 34 步建议开始第三阶段：分镜 → AI 绘图 Prompt。
+后续建议开始第三阶段：分镜 → AI 绘图 Prompt。
 
 建议顺序：
 
