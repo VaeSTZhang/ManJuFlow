@@ -8,6 +8,7 @@ from app.schemas.storyboard import (
     StoryboardInput,
     StoryboardOutput,
 )
+from app.services.llm_client import LLMClient
 from pydantic import ValidationError
 
 
@@ -156,6 +157,24 @@ def generate_storyboard_mock(input_data: StoryboardInput) -> StoryboardOutput:
     )
 
 
+def generate_storyboard_llm(input_data: StoryboardInput) -> StoryboardOutput:
+    prompt_template = load_storyboard_prompt_template()
+    input_json = json.dumps(input_data.model_dump(), ensure_ascii=False)
+    messages = [
+        {
+            "role": "system",
+            "content": prompt_template,
+        },
+        {
+            "role": "user",
+            "content": f"请根据以下输入生成结构化分镜 JSON：\n{input_json}",
+        },
+    ]
+
+    content = LLMClient().chat(messages)
+    return parse_storyboard_llm_response(content)
+
+
 def generate_storyboard(input_data: StoryboardInput) -> StoryboardOutput:
     mode = get_settings().storyboard_generation_mode.lower()
 
@@ -163,7 +182,6 @@ def generate_storyboard(input_data: StoryboardInput) -> StoryboardOutput:
         return generate_storyboard_mock(input_data)
 
     if mode == "llm":
-        # TODO: 接入真实 LLM 后，在这里调用剧本转分镜模型链路，并补充 JSON 解析与 Schema 校验修复。
-        return generate_storyboard_mock(input_data)
+        return generate_storyboard_llm(input_data)
 
     raise ValueError("STORYBOARD_GENERATION_MODE only supports 'mock' or 'llm'.")

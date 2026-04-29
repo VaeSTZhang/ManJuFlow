@@ -8,9 +8,14 @@ API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
 from app.main import app
+from app.services import storyboard_service
 
 
-def test_generate_storyboard_endpoint_returns_stable_storyboard_fields() -> None:
+def test_generate_storyboard_endpoint_returns_stable_storyboard_fields(monkeypatch) -> None:
+    class FakeSettings:
+        storyboard_generation_mode = "mock"
+
+    monkeypatch.setattr(storyboard_service, "get_settings", lambda: FakeSettings())
     client = TestClient(app)
 
     response = client.post(
