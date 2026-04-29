@@ -1,0 +1,30 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Env
+.env
+.env.local
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+
+# Outputs
+storage/
+outputs/
+*.log
+
+# Temporary
+tmp/
+temp/
