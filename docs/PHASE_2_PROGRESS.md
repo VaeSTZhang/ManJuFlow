@@ -34,6 +34,7 @@
 - `apps/api/app/services/storyboard_service.py`
 - `apps/api/app/routers/storyboards.py`
 - `apps/api/app/main.py`
+- `tests/api/test_storyboard_service.py`
 
 前端：
 
@@ -94,6 +95,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - [ ] 带入后可继续生成分镜
 - [ ] 页面能展示 scenes / shots
 - [ ] 分镜 JSON 中包含 `scene_id`、`shot_id`、`visual_description`
+- [ ] Storyboard service 自动测试通过：`python -m pytest tests/api/test_storyboard_service.py`
 - [ ] 复制 JSON 可用
 - [ ] 导出 JSON 可用
 - [ ] `npm run build` 通过

@@ -35,6 +35,22 @@ uvicorn app.main:app --reload
 - `http://127.0.0.1:8000/health`
 - `http://127.0.0.1:8000/docs`
 
+## 运行后端测试
+
+安装依赖：
+
+```bash
+pip install -r apps/api/requirements.txt
+```
+
+运行 Storyboard service 测试：
+
+```bash
+python -m pytest tests/api/test_storyboard_service.py
+```
+
+该测试用于确认 Storyboard mock service 返回 `scene_id`、`shot_id`、`visual_description`、`ai_image_prompt_hint` 等后续流水线需要的关键字段。
+
 ## 本地测试分镜接口
 
 启动后端后，可以直接测试剧本转分镜接口：
