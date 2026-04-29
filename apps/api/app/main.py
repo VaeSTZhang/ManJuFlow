@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers.health import router as health_router
 from app.routers.scripts import router as scripts_router
+from app.routers.system import router as system_router
 
 
 app = FastAPI(title="ManJuFlow API")
@@ -17,3 +18,4 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(scripts_router)
+app.include_router(system_router)
