@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from app.schemas.idea import IdeaInput
 from app.schemas.script import (
     CharacterProfile,
@@ -8,7 +10,19 @@ from app.schemas.script import (
 )
 
 
+def load_prompt_template(prompt_name: str = "idea_to_script_v1.md") -> str:
+    prompts_dir = Path(__file__).resolve().parent.parent / "prompts"
+    prompt_path = prompts_dir / prompt_name
+
+    if not prompt_path.exists():
+        raise FileNotFoundError(f"Prompt file not found: {prompt_name}")
+
+    return prompt_path.read_text(encoding="utf-8")
+
+
 def generate_script_mock(input_data: IdeaInput) -> ScriptOutput:
+    load_prompt_template()
+
     title_seed = input_data.idea_text.strip()[:12] or input_data.genre
     project_title = f"{input_data.genre}{input_data.script_type}：{title_seed}"
 
