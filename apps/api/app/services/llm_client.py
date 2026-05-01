@@ -25,13 +25,18 @@ _PROVIDER_DEFAULT_TIMEOUT_SECONDS = {
 class LLMClient:
     """OpenAI-compatible chat completions client."""
 
-    def __init__(self, timeout: float | None = None) -> None:
+    def __init__(
+        self,
+        provider: str | None = None,
+        model: str | None = None,
+        timeout: float | None = None,
+    ) -> None:
         settings = get_settings()
-        provider = (settings.llm_provider or "default").lower().strip() or "default"
+        provider = (provider if provider is not None else settings.llm_provider or "default").lower().strip() or "default"
 
         if provider == "default":
             base_url = settings.llm_base_url
-            model = settings.llm_model
+            configured_model = settings.llm_model
             api_key = settings.llm_api_key
             field_names = {
                 "api_key": "LLM_API_KEY",
@@ -40,7 +45,7 @@ class LLMClient:
             }
         elif provider == "deepseek":
             base_url = settings.deepseek_base_url
-            model = settings.deepseek_model
+            configured_model = settings.deepseek_model
             api_key = settings.deepseek_api_key
             field_names = {
                 "api_key": "DEEPSEEK_API_KEY",
@@ -49,7 +54,7 @@ class LLMClient:
             }
         elif provider == "mimo":
             base_url = settings.mimo_base_url
-            model = settings.mimo_model
+            configured_model = settings.mimo_model
             api_key = settings.mimo_api_key
             field_names = {
                 "api_key": "MIMO_API_KEY",
@@ -58,7 +63,7 @@ class LLMClient:
             }
         elif provider == "kimi":
             base_url = settings.kimi_base_url
-            model = settings.kimi_model
+            configured_model = settings.kimi_model
             api_key = settings.kimi_api_key
             field_names = {
                 "api_key": "KIMI_API_KEY",
@@ -67,7 +72,7 @@ class LLMClient:
             }
         elif provider == "minimax":
             base_url = settings.minimax_base_url
-            model = settings.minimax_model
+            configured_model = settings.minimax_model
             api_key = settings.minimax_api_key
             field_names = {
                 "api_key": "MINIMAX_API_KEY",
@@ -75,7 +80,12 @@ class LLMClient:
                 "model": "MINIMAX_MODEL",
             }
         else:
-            raise ValueError("LLM_PROVIDER only supports 'default', 'deepseek', 'mimo', 'kimi', or 'minimax'.")
+            raise ValueError(
+                f"LLM provider '{provider}' is not supported. "
+                "Supported providers: default, deepseek, mimo, kimi, minimax."
+            )
+
+        selected_model = model.strip() if model is not None else configured_model
 
         missing_fields = []
 
@@ -83,15 +93,17 @@ class LLMClient:
             missing_fields.append(field_names["api_key"])
         if not base_url:
             missing_fields.append(field_names["base_url"])
-        if not model:
+        if not selected_model:
             missing_fields.append(field_names["model"])
 
         if missing_fields:
-            raise ValueError(f"Missing required LLM configuration: {', '.join(missing_fields)}")
+            raise ValueError(
+                f"Missing required LLM configuration for provider '{provider}': {', '.join(missing_fields)}"
+            )
 
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
-        self.model = model
+        self.model = selected_model
         self.provider = provider
         self.temperature = _PROVIDER_DEFAULT_TEMPERATURE[provider]
         self.timeout = timeout if timeout is not None else _PROVIDER_DEFAULT_TIMEOUT_SECONDS[provider]

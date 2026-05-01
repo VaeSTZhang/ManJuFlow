@@ -165,7 +165,7 @@ def generate_image_prompt_llm(input_data: ImagePromptInput) -> ImagePromptOutput
         },
     ]
 
-    content = LLMClient().chat(messages)
+    content = LLMClient(provider=input_data.llm_provider, model=input_data.llm_model).chat(messages)
     return parse_image_prompt_llm_response(content)
 
 

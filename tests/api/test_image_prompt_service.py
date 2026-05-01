@@ -37,6 +37,19 @@ def make_image_prompt_input() -> ImagePromptInput:
     )
 
 
+def make_image_prompt_input_with_request_model() -> ImagePromptInput:
+    return ImagePromptInput(
+        project_title="测试短剧：雨夜重逢",
+        storyboard_summary="雨夜医院门口重逢，情绪从压抑到对峙。",
+        storyboard_text="S001_SH001 雨夜医院门口，林晚撑着黑伞站在台阶边，顾沉从车里下来，两人在雨幕和冷色车灯中对视。",
+        target_model="general",
+        aspect_ratio="9:16",
+        style_preset="cinematic realistic",
+        llm_provider="kimi",
+        llm_model="kimi-k2.5",
+    )
+
+
 def patch_image_prompt_generation_mode(monkeypatch, mode: str) -> None:
     class FakeSettings:
         image_prompt_generation_mode = mode
@@ -144,6 +157,16 @@ def test_generate_image_prompt_returns_mock_output(monkeypatch) -> None:
     assert len(result.items) >= 2
 
 
+def test_generate_image_prompt_mock_mode_ignores_request_level_llm_fields(monkeypatch) -> None:
+    set_image_prompt_generation_mode(monkeypatch, "mock")
+
+    result = generate_image_prompt(make_image_prompt_input_with_request_model())
+
+    assert isinstance(result, ImagePromptOutput)
+    assert result.project_title == "测试短剧：雨夜重逢"
+    assert len(result.items) >= 2
+
+
 def test_generate_image_prompt_uses_mock_mode(monkeypatch) -> None:
     patch_image_prompt_generation_mode(monkeypatch, "mock")
 
@@ -159,6 +182,10 @@ def test_generate_image_prompt_llm_mode_uses_llm_client(monkeypatch) -> None:
     returned_messages = []
 
     class FakeLLMClient:
+        def __init__(self, provider=None, model=None):
+            self.provider = provider
+            self.model = model
+
         def chat(self, messages):
             returned_messages.extend(messages)
             return json.dumps(make_image_prompt_output_data(), ensure_ascii=False)
@@ -196,6 +223,10 @@ def test_generate_image_prompt_llm_calls_parser(monkeypatch) -> None:
     parsed_payloads = []
 
     class FakeLLMClient:
+        def __init__(self, provider=None, model=None):
+            self.provider = provider
+            self.model = model
+
         def chat(self, messages):
             return raw_response
 
@@ -214,4 +245,28 @@ def test_generate_image_prompt_llm_calls_parser(monkeypatch) -> None:
 
     assert isinstance(result, ImagePromptOutput)
     assert parsed_payloads == [raw_response]
+    assert result.items[0].prompt_id == "P001"
+
+
+def test_generate_image_prompt_llm_passes_request_level_provider_and_model(monkeypatch) -> None:
+    raw_response = json.dumps(make_image_prompt_output_data(), ensure_ascii=False)
+    captured_clients = []
+
+    class FakeLLMClient:
+        def __init__(self, provider=None, model=None):
+            self.provider = provider
+            self.model = model
+            captured_clients.append(self)
+
+        def chat(self, messages):
+            return raw_response
+
+    monkeypatch.setattr(image_prompt_service, "LLMClient", FakeLLMClient)
+
+    result = generate_image_prompt_llm(make_image_prompt_input_with_request_model())
+
+    assert isinstance(result, ImagePromptOutput)
+    assert len(captured_clients) == 1
+    assert captured_clients[0].provider == "kimi"
+    assert captured_clients[0].model == "kimi-k2.5"
     assert result.items[0].prompt_id == "P001"

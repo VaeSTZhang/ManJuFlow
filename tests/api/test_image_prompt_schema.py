@@ -54,6 +54,28 @@ def test_image_prompt_input_accepts_storyboard_text_source() -> None:
     assert data.storyboard_text is not None
 
 
+def test_image_prompt_input_accepts_optional_request_level_llm_provider_and_model() -> None:
+    data = ImagePromptInput(
+        project_title="测试短剧：雨夜重逢",
+        storyboard_text="S001_SH001 雨夜医院门口，男女主角在冷色车灯中对视。",
+        llm_provider="kimi",
+        llm_model="kimi-k2.5",
+    )
+
+    assert data.llm_provider == "kimi"
+    assert data.llm_model == "kimi-k2.5"
+
+
+def test_image_prompt_input_keeps_old_request_shape_compatible() -> None:
+    data = ImagePromptInput(
+        project_title="测试短剧：雨夜重逢",
+        storyboard_text="S001_SH001 雨夜医院门口，男女主角在冷色车灯中对视。",
+    )
+
+    assert data.llm_provider is None
+    assert data.llm_model is None
+
+
 def test_image_prompt_item_required_fields_are_valid() -> None:
     item = make_valid_image_prompt_item()
 

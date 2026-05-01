@@ -136,6 +136,61 @@ def test_llm_client_uses_minimax_provider_config(monkeypatch) -> None:
     assert client.timeout == 60.0
 
 
+def test_llm_client_explicit_provider_overrides_settings_provider(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "deepseek")
+    monkeypatch.setenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("DEEPSEEK_MODEL", "deepseek-chat")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-key")
+    monkeypatch.setenv("KIMI_BASE_URL", "https://api.moonshot.cn")
+    monkeypatch.setenv("KIMI_MODEL", "kimi-k2.5")
+    monkeypatch.setenv("KIMI_API_KEY", "kimi-key")
+    get_settings.cache_clear()
+
+    client = LLMClient(provider="kimi")
+
+    assert client.provider == "kimi"
+    assert client.base_url == "https://api.moonshot.cn"
+    assert client.model == "kimi-k2.5"
+    assert client.api_key == "kimi-key"
+    assert client.temperature == 1.0
+    assert client.timeout == 120.0
+
+
+def test_llm_client_explicit_minimax_provider_uses_minimax_config(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "deepseek")
+    monkeypatch.setenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("DEEPSEEK_MODEL", "deepseek-chat")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-key")
+    monkeypatch.setenv("MINIMAX_BASE_URL", "https://api.minimaxi.com")
+    monkeypatch.setenv("MINIMAX_MODEL", "MiniMax-M2.7")
+    monkeypatch.setenv("MINIMAX_API_KEY", "minimax-key")
+    get_settings.cache_clear()
+
+    client = LLMClient(provider="minimax")
+
+    assert client.provider == "minimax"
+    assert client.base_url == "https://api.minimaxi.com"
+    assert client.model == "MiniMax-M2.7"
+    assert client.api_key == "minimax-key"
+    assert client.temperature == 0.7
+    assert client.timeout == 60.0
+
+
+def test_llm_client_explicit_model_overrides_provider_default_model(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "kimi")
+    monkeypatch.setenv("KIMI_BASE_URL", "https://api.moonshot.cn")
+    monkeypatch.setenv("KIMI_MODEL", "kimi-k2.5")
+    monkeypatch.setenv("KIMI_API_KEY", "kimi-key")
+    get_settings.cache_clear()
+
+    client = LLMClient(model="kimi-k2.6")
+
+    assert client.provider == "kimi"
+    assert client.model == "kimi-k2.6"
+    assert client.temperature == 1.0
+    assert client.timeout == 120.0
+
+
 def test_llm_client_explicit_timeout_overrides_provider_default(monkeypatch) -> None:
     monkeypatch.setenv("LLM_PROVIDER", "kimi")
     monkeypatch.setenv("KIMI_BASE_URL", "https://api.moonshot.cn")
@@ -157,6 +212,19 @@ def test_llm_client_rejects_invalid_provider(monkeypatch) -> None:
         LLMClient()
 
     message = str(exc_info.value)
+    assert "default" in message
+    assert "deepseek" in message
+    assert "mimo" in message
+    assert "kimi" in message
+    assert "minimax" in message
+
+
+def test_llm_client_rejects_invalid_explicit_provider() -> None:
+    with pytest.raises(ValueError) as exc_info:
+        LLMClient(provider="unknown")
+
+    message = str(exc_info.value)
+    assert "unknown" in message
     assert "default" in message
     assert "deepseek" in message
     assert "mimo" in message

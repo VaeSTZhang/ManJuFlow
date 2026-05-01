@@ -13,6 +13,8 @@ class ImagePromptInput(BaseModel):
     style_preset: str = Field("cinematic realistic", min_length=1, description="整体绘图风格预设。")
     language: str = Field("en", min_length=1, description="生成 Prompt 使用的语言。")
     extra_requirements: str | None = Field(None, description="额外绘图 Prompt 要求。")
+    llm_provider: str | None = Field(None, description="请求级 LLM provider 覆盖；不传时使用后端默认配置。")
+    llm_model: str | None = Field(None, description="请求级 LLM model 覆盖；不传时使用当前 provider 默认模型。")
 
     @model_validator(mode="after")
     def validate_storyboard_source(self) -> "ImagePromptInput":

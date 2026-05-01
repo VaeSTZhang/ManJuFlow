@@ -175,6 +175,9 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - `mock` 模式用于本地稳定开发和前端联调，主要使用 `storyboard_text` 生成稳定示例输出。
 - `llm` 模式会通过 `LLMClient` 调用真实模型，并使用 `parse_image_prompt_llm_response` 校验模型输出。
 - `llm` 模式要求模型输出符合 `ImagePromptOutput`。
+- 请求体可选传入 `llm_provider` / `llm_model` 做请求级模型选择。
+- 不传 `llm_provider` / `llm_model` 时，继续使用后端 `.env` 默认配置。
+- `llm_provider` / `llm_model` 仅在 `IMAGE_PROMPT_GENERATION_MODE=llm` 时生效；`mock` 模式下字段会保留但不会调用真实 LLM。
 - 当前仍不调用文生图、ComfyUI 或视频生成能力。
 
 `storyboard` 和 `storyboard_text` 至少需要提供一种。
@@ -194,6 +197,8 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 | `style_preset` | string | 否 | `cinematic realistic` | 整体绘图风格预设 |
 | `language` | string | 否 | `en` | 生成 Prompt 使用的语言 |
 | `extra_requirements` | string/null | 否 | `null` | 额外绘图 Prompt 要求 |
+| `llm_provider` | string/null | 否 | `null` | 请求级 LLM provider 覆盖；不传时使用后端默认配置 |
+| `llm_model` | string/null | 否 | `null` | 请求级 LLM model 覆盖；不传时使用当前 provider 默认模型 |
 
 ### 响应体核心字段
 

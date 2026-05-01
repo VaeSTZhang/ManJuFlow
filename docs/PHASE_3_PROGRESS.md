@@ -53,6 +53,8 @@ Service：
 - ImagePrompt mock 相关测试已显式隔离 `IMAGE_PROMPT_GENERATION_MODE=mock`，避免受本地 `.env` 中 `llm` 模式污染
 - ImagePrompt parser 已接入 `clean_chinese_spacing`
 - Kimi / MiniMax ImagePrompt 中文异常空格问题已完成代码层修复，后续继续在更多样本中观察
+- ImagePrompt 请求级 provider/model 选择后端基础已完成，`ImagePromptInput` 支持 `llm_provider` / `llm_model`
+- `generate_image_prompt_llm` 会将请求级 provider/model 传入 `LLMClient`
 
 API：
 
@@ -111,6 +113,7 @@ API：
 - Kimi provider-specific timeout 已修复
 - ImagePrompt 测试隔离已修复
 - ImagePrompt 中文异常空格清洗已接入 parser
+- 请求级 provider/model 选择后端基础已完成
 - 本地后端启动 / 端口清理脚本已完成：
   - `scripts/dev_api.sh`
   - `scripts/kill_api_port.sh`
@@ -130,7 +133,7 @@ API：
 - ImagePrompt 中文异常空格清洗已接入，后续继续观察更多样本
 - 四家文本 LLM provider 已完成 ImagePrompt S001 小样本验收，但尚未做多题材、多镜头、批量质量对比
 - 尚未实现前端模型选择器
-- 尚未实现请求级 provider/model 动态选择
+- 请求级 provider/model 动态选择已先在 ImagePrompt 后端链路完成，前端入口尚未实现
 - 尚未完成第三阶段最终总结
 - 还没有接入 ComfyUI
 - 还没有文生图 / 图生图
@@ -146,11 +149,10 @@ API：
 1. 继续保持 mock 版稳定基线；
 2. 继续完成 S002-S004 四模型 ImagePrompt 对比；
 3. 汇总 DeepSeek / Mimo / Kimi / MiniMax 输出质量对比；
-4. 设计请求级 provider/model 选择；
-5. 设计前端模型选择器；
-6. 完成第三阶段最终总结；
-7. 后续再进入第四阶段：文生图 / 远端 GPU / ComfyUI；
-9. 在主要功能稳定后，安排前端 UI 信息架构整理和美化。
+4. 设计前端模型选择器；
+5. 完成第三阶段最终总结；
+6. 后续再进入第四阶段：文生图 / 远端 GPU / ComfyUI；
+7. 在主要功能稳定后，安排前端 UI 信息架构整理和美化。
 
 ## 质量原则
 
