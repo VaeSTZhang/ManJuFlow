@@ -84,6 +84,7 @@ const defaultStoryboardForm: StoryboardInput = {
 
 const defaultImagePromptForm: ImagePromptInput = {
   project_title: "测试短剧：雨夜重逢",
+  storyboard_summary: "医院门口雨夜重逢，男女主在冷色车灯和雨幕中对峙。",
   storyboard_text:
     "第1场｜医院门口｜雨夜。镜头1：林晚撑着黑伞站在医院门口台阶边，雨水打湿地面。镜头2：顾沉从黑色轿车里下来，两人在车灯和雨幕中对视。",
   target_model: "general",
@@ -137,34 +138,6 @@ function formatScriptForStoryboard(script: ScriptOutput): string {
     "分集与场景：",
     episodes || "无",
   ].join("\n\n");
-}
-
-function formatStoryboardForImagePrompt(storyboard: StoryboardOutput): string {
-  const scenes = storyboard.scenes
-    .map((scene) => {
-      const shots = scene.shots
-        .map((shot) =>
-          [
-            `镜头 ${shot.shot_number}｜${shot.shot_id}`,
-            `景别：${shot.shot_type}`,
-            `机位：${shot.camera_angle}`,
-            `运动：${shot.camera_movement}`,
-            `画面：${shot.visual_description}`,
-            `绘图提示：${shot.ai_image_prompt_hint || "无"}`,
-          ].join("\n"),
-        )
-        .join("\n\n");
-
-      return [
-        `场景 ${scene.scene_number}｜${scene.scene_id}｜${scene.location}｜${scene.time}`,
-        `摘要：${scene.scene_summary}`,
-        `冲突：${scene.scene_conflict}`,
-        shots,
-      ].join("\n");
-    })
-    .join("\n\n");
-
-  return [`项目标题：${storyboard.project_title}`, `分镜说明：${storyboard.storyboard_summary}`, scenes].join("\n\n");
 }
 
 function sanitizeFileName(value: string): string {
@@ -342,12 +315,13 @@ function App() {
       ...current,
       project_title: storyboardResult.project_title,
       storyboard_summary: storyboardResult.storyboard_summary,
-      storyboard_text: formatStoryboardForImagePrompt(storyboardResult),
+      storyboard_text: JSON.stringify(storyboardResult, null, 2),
     }));
-    setImagePromptTransferStatus("已带入绘图 Prompt 生成区域");
+    setImagePromptTransferStatus("已将分镜结果带入绘图 Prompt 输入区。");
     setImagePromptError("");
     setImagePromptCopyStatus("");
     setImagePromptExportStatus("");
+    document.getElementById("image-prompt-workspace")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleStoryboardSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -422,6 +396,7 @@ function App() {
       const data = await generateImagePrompts({
         ...imagePromptForm,
         project_title: imagePromptForm.project_title.trim(),
+        storyboard_summary: imagePromptForm.storyboard_summary?.trim() || null,
         storyboard_text: imagePromptForm.storyboard_text.trim(),
         target_model: imagePromptForm.target_model || "general",
         aspect_ratio: imagePromptForm.aspect_ratio || "9:16",
@@ -734,7 +709,7 @@ function App() {
                 onClick={transferStoryboardToImagePrompt}
                 type="button"
               >
-                带入绘图 Prompt
+                带入绘图 Prompt 生成
               </button>
               <button className="secondary-button" disabled={!storyboardResult} onClick={copyStoryboardJson} type="button">
                 复制分镜 JSON
@@ -843,7 +818,7 @@ function App() {
         </section>
       </section>
 
-      <section className="image-prompt-workspace">
+      <section className="image-prompt-workspace" id="image-prompt-workspace">
         <form className="panel form-panel" onSubmit={handleImagePromptSubmit}>
           <div className="panel-heading">
             <p>第三阶段</p>
@@ -855,6 +830,15 @@ function App() {
             <input
               value={imagePromptForm.project_title}
               onChange={(event) => updateImagePromptField("project_title", event.target.value)}
+            />
+          </label>
+
+          <label className="field field-wide">
+            <span>分镜摘要</span>
+            <textarea
+              value={imagePromptForm.storyboard_summary || ""}
+              onChange={(event) => updateImagePromptField("storyboard_summary", event.target.value)}
+              rows={3}
             />
           </label>
 
@@ -923,6 +907,7 @@ function App() {
           </button>
 
           {imagePromptError && <p className="error-message">{imagePromptError}</p>}
+          {imagePromptTransferStatus && <p className="copy-status">{imagePromptTransferStatus}</p>}
         </form>
 
         <section className="panel result-panel">
