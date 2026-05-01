@@ -22,6 +22,12 @@ LLM_ENV_NAMES = [
     "MIMO_BASE_URL",
     "MIMO_MODEL",
     "MIMO_API_KEY",
+    "KIMI_BASE_URL",
+    "KIMI_MODEL",
+    "KIMI_API_KEY",
+    "MINIMAX_BASE_URL",
+    "MINIMAX_MODEL",
+    "MINIMAX_API_KEY",
 ]
 
 
@@ -90,21 +96,79 @@ def test_llm_client_uses_mimo_provider_config(monkeypatch) -> None:
     assert client.api_key == "mimo-key"
 
 
+def test_llm_client_uses_kimi_provider_config(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "kimi")
+    monkeypatch.setenv("KIMI_BASE_URL", "https://api.moonshot.cn/")
+    monkeypatch.setenv("KIMI_MODEL", "moonshot-v1-8k")
+    monkeypatch.setenv("KIMI_API_KEY", "kimi-key")
+    get_settings.cache_clear()
+
+    client = LLMClient()
+
+    assert client.base_url == "https://api.moonshot.cn"
+    assert client.model == "moonshot-v1-8k"
+    assert client.api_key == "kimi-key"
+
+
+def test_llm_client_uses_minimax_provider_config(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "minimax")
+    monkeypatch.setenv("MINIMAX_BASE_URL", "https://api.minimax.io/")
+    monkeypatch.setenv("MINIMAX_MODEL", "MiniMax-M2.7")
+    monkeypatch.setenv("MINIMAX_API_KEY", "minimax-key")
+    get_settings.cache_clear()
+
+    client = LLMClient()
+
+    assert client.base_url == "https://api.minimax.io"
+    assert client.model == "MiniMax-M2.7"
+    assert client.api_key == "minimax-key"
+
+
 def test_llm_client_rejects_invalid_provider(monkeypatch) -> None:
     monkeypatch.setenv("LLM_PROVIDER", "unknown")
     get_settings.cache_clear()
 
-    with pytest.raises(ValueError, match="LLM_PROVIDER only supports"):
+    with pytest.raises(ValueError) as exc_info:
         LLMClient()
+
+    message = str(exc_info.value)
+    assert "default" in message
+    assert "deepseek" in message
+    assert "mimo" in message
+    assert "kimi" in message
+    assert "minimax" in message
 
 
 def test_llm_client_rejects_missing_provider_api_key(monkeypatch) -> None:
     monkeypatch.setenv("LLM_PROVIDER", "mimo")
     monkeypatch.setenv("MIMO_BASE_URL", "https://api.xiaomimimo.com")
     monkeypatch.setenv("MIMO_MODEL", "mimo-v2.5-pro")
+    monkeypatch.setenv("MIMO_API_KEY", "")
     get_settings.cache_clear()
 
     with pytest.raises(ValueError, match="MIMO_API_KEY"):
+        LLMClient()
+
+
+def test_llm_client_rejects_missing_kimi_api_key(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "kimi")
+    monkeypatch.setenv("KIMI_BASE_URL", "https://api.moonshot.cn")
+    monkeypatch.setenv("KIMI_MODEL", "moonshot-v1-8k")
+    monkeypatch.setenv("KIMI_API_KEY", "")
+    get_settings.cache_clear()
+
+    with pytest.raises(ValueError, match="KIMI_API_KEY"):
+        LLMClient()
+
+
+def test_llm_client_rejects_missing_minimax_api_key(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "minimax")
+    monkeypatch.setenv("MINIMAX_BASE_URL", "https://api.minimax.io")
+    monkeypatch.setenv("MINIMAX_MODEL", "MiniMax-M2.7")
+    monkeypatch.setenv("MINIMAX_API_KEY", "")
+    get_settings.cache_clear()
+
+    with pytest.raises(ValueError, match="MINIMAX_API_KEY"):
         LLMClient()
 
 
@@ -118,3 +182,27 @@ def test_llm_client_strips_trailing_slash_from_base_url(monkeypatch) -> None:
     client = LLMClient()
 
     assert client.base_url == "https://api.deepseek.com"
+
+
+def test_llm_client_strips_trailing_slash_from_kimi_base_url(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "kimi")
+    monkeypatch.setenv("KIMI_BASE_URL", "https://api.moonshot.cn///")
+    monkeypatch.setenv("KIMI_MODEL", "moonshot-v1-8k")
+    monkeypatch.setenv("KIMI_API_KEY", "kimi-key")
+    get_settings.cache_clear()
+
+    client = LLMClient()
+
+    assert client.base_url == "https://api.moonshot.cn"
+
+
+def test_llm_client_strips_trailing_slash_from_minimax_base_url(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "minimax")
+    monkeypatch.setenv("MINIMAX_BASE_URL", "https://api.minimax.io///")
+    monkeypatch.setenv("MINIMAX_MODEL", "MiniMax-M2.7")
+    monkeypatch.setenv("MINIMAX_API_KEY", "minimax-key")
+    get_settings.cache_clear()
+
+    client = LLMClient()
+
+    assert client.base_url == "https://api.minimax.io"

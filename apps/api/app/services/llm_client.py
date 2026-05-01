@@ -39,8 +39,26 @@ class LLMClient:
                 "base_url": "MIMO_BASE_URL",
                 "model": "MIMO_MODEL",
             }
+        elif provider == "kimi":
+            base_url = settings.kimi_base_url
+            model = settings.kimi_model
+            api_key = settings.kimi_api_key
+            field_names = {
+                "api_key": "KIMI_API_KEY",
+                "base_url": "KIMI_BASE_URL",
+                "model": "KIMI_MODEL",
+            }
+        elif provider == "minimax":
+            base_url = settings.minimax_base_url
+            model = settings.minimax_model
+            api_key = settings.minimax_api_key
+            field_names = {
+                "api_key": "MINIMAX_API_KEY",
+                "base_url": "MINIMAX_BASE_URL",
+                "model": "MINIMAX_MODEL",
+            }
         else:
-            raise ValueError("LLM_PROVIDER only supports 'default', 'deepseek', or 'mimo'.")
+            raise ValueError("LLM_PROVIDER only supports 'default', 'deepseek', 'mimo', 'kimi', or 'minimax'.")
 
         missing_fields = []
 
