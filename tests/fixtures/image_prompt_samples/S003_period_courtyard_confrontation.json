@@ -1,0 +1,10 @@
+{
+  "project_title": "测试短剧：旧宅雨夜",
+  "storyboard_summary": "民国旧宅雨夜，女主在庭院中与归来的故人对峙，隐藏旧案即将揭开。",
+  "storyboard_text": "第1场｜民国旧宅庭院｜雨夜。镜头1：雨夜旧宅庭院，青石板积水，红灯笼在风中轻晃。镜头2：女主穿深色旗袍站在廊下，手中握着一封被雨水打湿的旧信。镜头3：一名穿长衫的男人推开木门，两人在灯笼红光和雨幕中沉默对视。",
+  "target_model": "general",
+  "aspect_ratio": "9:16",
+  "style_preset": "period drama cinematic realistic",
+  "language": "en",
+  "extra_requirements": "突出民国年代感、旧宅、旗袍、红灯笼、雨夜、压抑情绪。只输出合法 JSON。"
+}

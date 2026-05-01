@@ -24,6 +24,9 @@
 
 建议至少准备 4 类样本：
 
+标准样本已落地到 `tests/fixtures/image_prompt_samples/`。
+样本说明文档为 `docs/MODEL_COMPARISON_SAMPLES.md`。
+
 1. 都市情感雨夜重逢
 
    - 用当前“雨夜医院门口”样本作为基线；

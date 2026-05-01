@@ -1,0 +1,10 @@
+{
+  "project_title": "测试短剧：雨夜重逢",
+  "storyboard_summary": "医院门口雨夜重逢，男女主在冷色车灯和雨幕中对峙。",
+  "storyboard_text": "第1场｜医院门口｜雨夜。镜头1：林晚撑着黑伞站在医院门口台阶边，雨水打湿地面。镜头2：顾沉从黑色轿车里下来，两人在车灯和雨幕中对视。",
+  "target_model": "general",
+  "aspect_ratio": "9:16",
+  "style_preset": "cinematic realistic",
+  "language": "en",
+  "extra_requirements": "保持雨夜、冷色光影、电影感写实风格。只输出合法 JSON。"
+}

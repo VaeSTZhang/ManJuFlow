@@ -1,0 +1,10 @@
+{
+  "project_title": "测试短剧：会议室暗证",
+  "storyboard_summary": "主角在深夜公司会议室发现隐藏证据，对手试图掩盖真相。",
+  "storyboard_text": "第1场｜公司会议室｜深夜。镜头1：深夜会议室只剩一盏冷白灯，主角翻看投影仪旁的文件。镜头2：主角在文件夹夹层中发现一枚带血指纹的 U 盘。镜头3：玻璃门外，对手的倒影一闪而过，主角猛然抬头。",
+  "target_model": "general",
+  "aspect_ratio": "9:16",
+  "style_preset": "cinematic suspense realistic",
+  "language": "en",
+  "extra_requirements": "突出悬疑、冷光、文件细节、玻璃反射和反转钩子。只输出合法 JSON。"
+}

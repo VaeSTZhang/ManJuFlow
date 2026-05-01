@@ -1,0 +1,10 @@
+{
+  "project_title": "测试短剧：饭桌风暴",
+  "storyboard_summary": "家庭饭桌上，隐藏多年的亲子关系真相被揭开，众人情绪爆发。",
+  "storyboard_text": "第1场｜家庭餐厅｜夜晚。镜头1：圆桌饭局，五名家庭成员围坐，桌上菜还冒着热气，气氛却僵硬。镜头2：年轻女人把亲子鉴定报告拍在桌上，众人表情瞬间凝固。镜头3：父亲低头沉默，母亲起身想夺报告，哥哥伸手拦住她。镜头4：年轻女人含泪站起，背景中所有人都看向她，饭桌成为情绪爆点中心。",
+  "target_model": "general",
+  "aspect_ratio": "9:16",
+  "style_preset": "modern family drama cinematic realistic",
+  "language": "en",
+  "extra_requirements": "保持五名角色空间关系清晰，避免人物混乱，突出家庭冲突、饭桌构图和情绪爆发。只输出合法 JSON。"
+}
