@@ -191,6 +191,7 @@ IMAGE_PROMPT_GENERATION_MODE=mock
 - [MVP Roadmap](docs/MVP_ROADMAP.md)
 - [Phase 3 Progress](docs/PHASE_3_PROGRESS.md)
 - [Phase 3 Summary](docs/PHASE_3_SUMMARY.md)
+- [Cooperation Tech Asset Boundary Draft](docs/COOPERATION_TECH_ASSET_BOUNDARY_DRAFT.md)
 - [API Contract](docs/API_CONTRACT.md)
 - [Local Development](docs/LOCAL_DEV.md)
 - [Model Comparison Plan](docs/MODEL_COMPARISON_PLAN.md)
@@ -215,6 +216,14 @@ IMAGE_PROMPT_GENERATION_MODE=mock
 - 不提交合作方敏感信息。
 - 不在代码、文档、日志或测试样例中写入真实密钥。
 - 真实部署需要单独配置环境变量、密钥管理、权限控制和数据隔离。
+
+## 许可证与使用说明
+
+当前仓库仅用于技术评审、项目展示和合作沟通，暂未授予开源许可证。未经项目所有者书面许可，不得用于商业使用、再分发、转授权或生产部署。
+
+License / Usage Notice:
+
+This repository is currently published for technical review, demonstration, and collaboration discussion only. No open-source license has been granted yet. Commercial use, redistribution, sublicensing, or production deployment requires prior written permission from the project owner.
 
 ## 项目状态声明
 
