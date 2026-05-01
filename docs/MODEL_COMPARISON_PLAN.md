@@ -103,6 +103,8 @@
 
 ## 5. 推荐记录表
 
+对比结果记录文档为 `docs/MODEL_COMPARISON_RESULTS.md`。
+
 | sample_id | sample_type | provider | model | json_valid | item_count | visual_score | fidelity_score | consistency_score | camera_score | negative_prompt_score | language_score | latency_seconds | cost_note | overall_score | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | S001 | 都市情感雨夜重逢 | deepseek | deepseek-chat | yes | 2 |  |  |  |  |  |  |  |  |  |  |

@@ -20,7 +20,7 @@
 - 每次只切换一个 provider；
 - 修改 `.env` 后需要重启后端；
 - 测试后切回 `IMAGE_PROMPT_GENERATION_MODE=mock`；
-- 输出结果可记录到后续模型对比表。
+- 对比输出和评分记录到 `docs/MODEL_COMPARISON_RESULTS.md`。
 
 ## 4. 暂不做
 
