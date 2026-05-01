@@ -201,6 +201,63 @@ Key 类型说明：
 - 后续需要更多题材、多镜头、多角色一致性测试
 - 后续可比较 DeepSeek 与 Mimo 在画面感、格式稳定性、角色一致性、中文理解、成本和速度上的差异
 
+## ImagePrompt Kimi LLM 小样本测试记录
+
+- 测试阶段：第三阶段，分镜转 AI 绘图 Prompt
+- 测试接口：`POST /api/prompts/generate`
+- 测试 provider：`kimi`
+- 测试模型：`kimi-k2.5`
+- 实际返回 model 曾显示 `kimi-k2.6`
+- 测试模式：`IMAGE_PROMPT_GENERATION_MODE=llm`
+
+认证与参数记录：
+
+- `KIMI_BASE_URL=https://api.moonshot.cn`
+- `KIMI_MODEL=kimi-k2.5`
+- `KIMI_API_KEY` 已配置，但不记录真实 key
+- Kimi 最小认证探测通过
+- Kimi k2.x 对 `temperature` 有限制，`temperature=0.1` 时返回 `invalid temperature`
+- `temperature=1` 时请求通过
+- `LLMClient` 已为 `kimi` provider 使用 `temperature=1.0`
+
+`/api/prompts/generate` 测试结果：
+
+- 返回合法 `ImagePromptOutput`
+- 包含 2 条 `ImagePromptItem`
+- `positive_prompt` 正常
+- `negative_prompt` 正常
+
+结论：
+
+- Kimi `llm` 模式小样本通过
+
+## ImagePrompt MiniMax LLM 小样本测试记录
+
+- 测试阶段：第三阶段，分镜转 AI 绘图 Prompt
+- 测试接口：`POST /api/prompts/generate`
+- 测试 provider：`minimax`
+- 测试模型：`MiniMax-M2.7`
+- 测试模式：`IMAGE_PROMPT_GENERATION_MODE=llm`
+
+Endpoint 记录：
+
+- `MINIMAX_MODEL=MiniMax-M2.7`
+- `MINIMAX_API_KEY` 已配置，但不记录真实 key
+- 使用 `https://api.minimax.io` 返回 `401 invalid api key`
+- 使用 `https://api.minimaxi.com` 返回 200
+- 当前用户 MiniMax Key 对应中国区 endpoint：`MINIMAX_BASE_URL=https://api.minimaxi.com`
+
+`/api/prompts/generate` 测试结果：
+
+- 返回合法 `ImagePromptOutput`
+- 包含 2 条 `ImagePromptItem`
+- `positive_prompt` 正常
+- `negative_prompt` 正常
+
+结论：
+
+- MiniMax `llm` 模式小样本通过
+
 ## 下一步建议
 
 - 优化 `idea_to_script_v1.md`

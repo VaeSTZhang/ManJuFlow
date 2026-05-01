@@ -48,12 +48,16 @@
 - `LLM_PROVIDER=deepseek / mimo` 配置支持已完成
 - Mimo / 小米大模型 ImagePrompt 小样本测试已通过
 - Mimo `sk-` API Key 可用于后端直连 API
+- Kimi ImagePrompt 小样本测试已通过
+- MiniMax ImagePrompt 小样本测试已通过
+- 四家 provider：DeepSeek / Mimo / Kimi / MiniMax 均已通过 ImagePrompt 小样本验收
 
 ## 下一步计划
 
 - 补充第三阶段进展文档
 - 后续接入真实 LLM 前，继续保持 mock 小闭环可测试
-- 模型效果对比
+- 四模型输出质量对比方案
+- 前端模型选择器设计
 - 更多样本测试
 - 第三阶段总结
 - `LLM_TEST_LOG` 更新
