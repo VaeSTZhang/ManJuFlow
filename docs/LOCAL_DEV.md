@@ -49,6 +49,46 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+## 后端重启与端口占用处理
+
+以下情况需要重启后端：
+
+- 修改 `.env`
+- 修改 `LLM_PROVIDER`
+- 修改 `*_GENERATION_MODE`
+- 修改后端 Python 代码
+- 修改依赖
+- 遇到 `Address already in use`
+- 后端状态疑似没读到最新配置
+
+推荐使用脚本启动后端：
+
+```bash
+bash scripts/dev_api.sh
+```
+
+如果遇到端口占用：
+
+```bash
+bash scripts/kill_api_port.sh
+bash scripts/dev_api.sh
+```
+
+也可以使用原始手动命令：
+
+```bash
+cd apps/api
+source .venv/bin/activate 2>/dev/null || source ../../.venv/bin/activate
+uvicorn app.main:app --reload
+```
+
+说明：
+
+- 前端代码未变化时，前端不需要重启。
+- 只切换后端 provider / `.env` 时，通常只需要重启后端。
+- 当前模型对比流程中，每次切换 `LLM_PROVIDER` 后都需要重启后端。
+- 测试结束后切回 `IMAGE_PROMPT_GENERATION_MODE=mock` 后，也需要重启后端恢复安全状态。
+
 ## 后端访问地址
 
 - `http://127.0.0.1:8000/health`
