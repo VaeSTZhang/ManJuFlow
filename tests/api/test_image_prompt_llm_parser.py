@@ -83,6 +83,28 @@ def test_parse_image_prompt_llm_response_extracts_json_from_surrounding_text() -
     assert result.items[0].shot_id == "S001_SH001"
 
 
+def test_parse_image_prompt_llm_response_cleans_abnormal_chinese_spacing() -> None:
+    data = make_image_prompt_output_data()
+    data["prompt_summary"] = "根据雨夜医院 门口分镜，生成绘图 Prompt。"
+    data["items"][0]["lighting"] = "保持 冷色车灯与雨夜氛围。"
+    data["items"][0]["color_palette"] = "蓝灰 色主调。"
+    data["items"][0]["environment"] = "雨夜医院 门口。"
+    data["items"][0]["notes"] = "保持 冷色车灯。"
+
+    raw_text = json.dumps(data, ensure_ascii=False)
+
+    result = parse_image_prompt_llm_response(raw_text)
+
+    assert "医院 门口" not in result.prompt_summary
+    assert "保持 冷色" not in result.items[0].lighting
+    assert "蓝灰 色" not in result.items[0].color_palette
+    assert "医院 门口" not in result.items[0].environment
+    assert "保持 冷色" not in result.items[0].notes
+    assert "医院门口" in result.prompt_summary
+    assert "保持冷色" in result.items[0].lighting
+    assert "蓝灰色" in result.items[0].color_palette
+
+
 def test_parse_image_prompt_llm_response_rejects_empty_text() -> None:
     with pytest.raises(ValueError, match="ImagePrompt LLM response is empty"):
         parse_image_prompt_llm_response("   ")

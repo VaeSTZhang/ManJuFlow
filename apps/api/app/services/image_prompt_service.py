@@ -4,6 +4,7 @@ from pathlib import Path
 from app.config import get_settings
 from app.schemas.image_prompt import ImagePromptInput, ImagePromptItem, ImagePromptOutput
 from app.services.llm_client import LLMClient
+from app.services.text_cleaner import clean_chinese_spacing
 from pydantic import ValidationError
 
 
@@ -61,8 +62,10 @@ def parse_image_prompt_llm_response(raw_text: str) -> ImagePromptOutput:
     except json.JSONDecodeError as exc:
         raise ValueError(f"ImagePrompt LLM response is not valid JSON: {exc}") from exc
 
+    cleaned_data = clean_chinese_spacing(data)
+
     try:
-        return ImagePromptOutput.model_validate(data)
+        return ImagePromptOutput.model_validate(cleaned_data)
     except ValidationError as exc:
         raise ValueError(f"ImagePrompt LLM response does not match ImagePromptOutput schema: {exc}") from exc
 
