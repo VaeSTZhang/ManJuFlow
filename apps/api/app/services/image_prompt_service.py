@@ -1,11 +1,38 @@
+import json
 from pathlib import Path
 
 from app.schemas.image_prompt import ImagePromptInput, ImagePromptItem, ImagePromptOutput
+from pydantic import ValidationError
 
 
 NEGATIVE_PROMPT = (
     "low quality, blurry, bad anatomy, extra fingers, distorted face, watermark, text, logo"
 )
+
+
+def _strip_markdown_code_fence(raw_text: str) -> str:
+    text = raw_text.strip()
+
+    if not text.startswith("```"):
+        return text
+
+    lines = text.splitlines()
+    if lines and lines[0].strip().startswith("```"):
+        lines = lines[1:]
+    if lines and lines[-1].strip() == "```":
+        lines = lines[:-1]
+
+    return "\n".join(lines).strip()
+
+
+def _extract_json_object(raw_text: str) -> str:
+    start = raw_text.find("{")
+    end = raw_text.rfind("}")
+
+    if start == -1 or end == -1 or end < start:
+        return raw_text
+
+    return raw_text[start : end + 1]
 
 
 def load_image_prompt_template(
@@ -18,6 +45,24 @@ def load_image_prompt_template(
         raise FileNotFoundError(f"Image prompt file not found: {prompt_name}")
 
     return prompt_path.read_text(encoding="utf-8")
+
+
+def parse_image_prompt_llm_response(raw_text: str) -> ImagePromptOutput:
+    if not raw_text or not raw_text.strip():
+        raise ValueError("ImagePrompt LLM response is empty.")
+
+    cleaned_text = _strip_markdown_code_fence(raw_text)
+    json_text = _extract_json_object(cleaned_text)
+
+    try:
+        data = json.loads(json_text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"ImagePrompt LLM response is not valid JSON: {exc}") from exc
+
+    try:
+        return ImagePromptOutput.model_validate(data)
+    except ValidationError as exc:
+        raise ValueError(f"ImagePrompt LLM response does not match ImagePromptOutput schema: {exc}") from exc
 
 
 def _get_source_visual_description(input_data: ImagePromptInput) -> str:
