@@ -258,6 +258,40 @@ Endpoint 记录：
 
 - MiniMax `llm` 模式小样本通过
 
+## ImagePrompt S001 四模型对比记录
+
+- 测试阶段：第三阶段，分镜转 AI 绘图 Prompt
+- 测试样本：S001 都市情感雨夜重逢
+- 样本路径：`tests/fixtures/image_prompt_samples/S001_urban_rain_reunion.json`
+- 结果记录：`docs/MODEL_COMPARISON_RESULTS.md`
+- 输出文件目录：`tests/fixtures/image_prompt_outputs/`
+- 安全记录：不记录任何 API Key
+
+测试结果摘要：
+
+- DeepSeek 返回合法 `ImagePromptOutput`
+- Mimo 返回合法 `ImagePromptOutput`
+- Kimi 返回合法 `ImagePromptOutput`
+- MiniMax 返回合法 `ImagePromptOutput`
+- 四家 provider 均返回 2 条 `ImagePromptItem`
+- 四家 provider 均包含 `positive_prompt` / `negative_prompt`
+- 四家 provider 的 `negative_prompt` 均覆盖常用负面词
+
+问题与修复：
+
+- Kimi 曾出现 `httpx.ReadTimeout`，后端表现为 `/api/prompts/generate` 返回 500
+- 直接 httpx 请求 Kimi 使用更长 timeout 可返回 200
+- 已通过 provider-specific timeout 修复：`kimi` provider 使用更长默认 timeout
+- Kimi / MiniMax 中文字段存在少量异常空格
+- 后续计划在 ImagePrompt parser 中接入 `clean_chinese_spacing` 处理中文异常空格
+
+当前结论：
+
+- S001 第一轮四模型 ImagePrompt 对比已完成
+- DeepSeek / Mimo / Kimi / MiniMax 均可支撑基础 `ImagePromptOutput` 生成
+- 当前不根据单个 S001 样本确定最终默认模型
+- 后续继续跑 S002-S004，再综合判断质量、稳定性、成本和速度
+
 ## 下一步建议
 
 - 优化 `idea_to_script_v1.md`

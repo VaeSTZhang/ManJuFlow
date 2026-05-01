@@ -51,18 +51,21 @@
 - Kimi ImagePrompt 小样本测试已通过
 - MiniMax ImagePrompt 小样本测试已通过
 - 四家 provider：DeepSeek / Mimo / Kimi / MiniMax 均已通过 ImagePrompt 小样本验收
+- S001 四模型 ImagePrompt 对比完成
+- ImagePrompt 输出文件已保存到 `tests/fixtures/image_prompt_outputs/`
+- provider-specific timeout 已完成，Kimi provider 使用更长 timeout
+- ImagePrompt 测试隔离已修复，后端 `tests/api` 当前为 58 passed
+- 本地后端启动脚本已完成：`scripts/dev_api.sh`
+- 本地后端端口清理脚本已完成：`scripts/kill_api_port.sh`
 
 ## 下一步计划
 
-- 补充第三阶段进展文档
-- 后续接入真实 LLM 前，继续保持 mock 小闭环可测试
-- 四模型输出质量对比方案
-- 建立四模型 ImagePrompt 输出质量对比表
-- 准备标准测试样本
-- 暂缓前端模型选择器实现，先完成后端质量对比
-- 更多样本测试
+- ImagePrompt 中文空格清洗
+- S002-S004 模型对比
+- 请求级 provider/model 选择
+- 前端模型选择器
 - 第三阶段总结
-- `LLM_TEST_LOG` 更新
+- 之后进入第四阶段：文生图 / 远端 GPU / ComfyUI
 
 ## 当前暂不做
 

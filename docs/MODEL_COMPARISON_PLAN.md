@@ -135,6 +135,9 @@
 - Kimi 可用，但 k2.x 对 temperature 有限制，`LLMClient` 已适配 `temperature=1.0`；
 - MiniMax 可用，但 endpoint 需要注意区域，中国区使用 `https://api.minimaxi.com`；
 - 四家都能输出合法 `ImagePromptOutput`；
+- S001 第一轮四模型对比已完成；
+- S001 结果已记录到 `docs/MODEL_COMPARISON_RESULTS.md`；
+- 当前不应根据单个 S001 样本确定最终默认模型；
 - 仍需更多题材和更多镜头数量验证。
 
 ## 8. 暂不做
@@ -149,9 +152,9 @@
 
 ## 9. 下一步建议
 
-- 准备 4 个标准测试样本；
-- 为每个样本生成统一 `ImagePromptInput` JSON；
+- S001 第一轮对比已完成，继续完成 S002-S004；
+- 持续使用统一 `ImagePromptInput` JSON；
 - 逐个 provider 跑小样本；
-- 形成 DeepSeek / Mimo / Kimi / MiniMax 对比表；
+- 形成完整 DeepSeek / Mimo / Kimi / MiniMax 对比表；
 - 具体运行步骤参考 `docs/MODEL_COMPARISON_RUNBOOK.md`；
 - 再决定前端模型选择器和默认模型策略。

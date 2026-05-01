@@ -23,6 +23,21 @@
 5. 每次真实测试后必须切回 mock；
 6. 修改 `.env` 后必须重启后端；
 7. 前端不需要重启，除非本轮测试涉及前端代码。
+8. 每次切换 `LLM_PROVIDER` 后需要重启后端。
+9. 测试完成后切回 `IMAGE_PROMPT_GENERATION_MODE=mock` 后，也需要重启后端。
+
+推荐后端启动命令：
+
+```bash
+bash scripts/dev_api.sh
+```
+
+如果 8000 端口被旧 uvicorn 进程占用：
+
+```bash
+bash scripts/kill_api_port.sh
+bash scripts/dev_api.sh
+```
 
 ## 4. 推荐执行策略
 
@@ -68,13 +83,13 @@ S004_minimax_output.json
 
 1. 设置 `LLM_PROVIDER`；
 2. 设置 `IMAGE_PROMPT_GENERATION_MODE=llm`；
-3. 重启后端；
+3. 使用 `bash scripts/dev_api.sh` 重启后端；
 4. 使用 fixture JSON 调用 `/api/prompts/generate`；
 5. 将返回结果保存为输出 JSON；
 6. 检查是否为合法 `ImagePromptOutput`；
 7. 记录 latency / error / notes；
 8. 切回 `IMAGE_PROMPT_GENERATION_MODE=mock`；
-9. 重启后端恢复安全状态。
+9. 再次使用 `bash scripts/dev_api.sh` 重启后端恢复安全状态。
 
 ## 7. 推荐 curl 模板
 
