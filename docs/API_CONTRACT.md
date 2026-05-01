@@ -178,6 +178,7 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 - 请求体可选传入 `llm_provider` / `llm_model` 做请求级模型选择。
 - 不传 `llm_provider` / `llm_model` 时，继续使用后端 `.env` 默认配置。
 - `llm_provider` / `llm_model` 仅在 `IMAGE_PROMPT_GENERATION_MODE=llm` 时生效；`mock` 模式下字段会保留但不会调用真实 LLM。
+- 前端 ImagePrompt 模型选择器会使用 `llm_provider` / `llm_model` 进行请求级 provider/model 覆盖。
 - 当前仍不调用文生图、ComfyUI 或视频生成能力。
 
 `storyboard` 和 `storyboard_text` 至少需要提供一种。

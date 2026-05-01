@@ -60,14 +60,17 @@
 - 本地后端启动脚本已完成：`scripts/dev_api.sh`
 - 后端启动脚本兼容性修复已完成：`scripts/dev_api.sh` 直接使用 venv python 启动 uvicorn
 - 本地后端端口清理脚本已完成：`scripts/kill_api_port.sh`
+- 请求级 provider/model 选择完成
+- 前端 ImagePrompt 模型选择器完成
+- 前端模型选择器浏览器验收通过
+- README 公开项目展示优化完成
 
 ## 下一步计划
 
 - S002-S004 模型对比
-- 请求级 provider/model 选择
-- 前端模型选择器
 - 第三阶段总结
-- 之后进入第四阶段：文生图 / 远端 GPU / ComfyUI
+- 合作技术资产与权属边界说明文档
+- 第四阶段文生图 / 远端 GPU / ComfyUI 方案文档
 
 ## 当前暂不做
 

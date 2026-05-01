@@ -76,6 +76,10 @@ API：
 - 导出绘图 Prompt JSON
 - 分镜结果一键带入绘图 Prompt 生成
 - 前端完整链路“灵感 → 剧本 → 分镜 → 绘图 Prompt”已通过本地浏览器验收
+- 前端 ImagePrompt 模型选择器已完成
+- 前端已支持选择：后端默认 / DeepSeek / Mimo / Kimi / MiniMax
+- mock 模式下模型选择器不会消耗 API 额度
+- 浏览器验收通过：生成、展示、复制、导出流程仍正常
 
 文档：
 
@@ -94,9 +98,10 @@ API：
 
 当前已知稳定结果：
 
-- `python -m pytest tests/api` 通过，59 passed
+- `python -m pytest tests/api` 通过，67 passed
 - `npm run build` 通过
 - 浏览器完整链路验收通过
+- 前端 ImagePrompt 模型选择器浏览器验收通过
 - DeepSeek 真实 LLM 小样本测试已通过
 - Mimo / 小米大模型 ImagePrompt 小样本测试已通过
 - Kimi ImagePrompt 小样本测试已通过
@@ -114,6 +119,8 @@ API：
 - ImagePrompt 测试隔离已修复
 - ImagePrompt 中文异常空格清洗已接入 parser
 - 请求级 provider/model 选择后端基础已完成
+- 前端 ImagePrompt 模型选择器已完成
+- README 已完成公开项目展示优化
 - 本地后端启动 / 端口清理脚本已完成：
   - `scripts/dev_api.sh`
   - `scripts/kill_api_port.sh`
@@ -132,8 +139,8 @@ API：
 - S002-S004 四模型 ImagePrompt 对比尚未完成
 - ImagePrompt 中文异常空格清洗已接入，后续继续观察更多样本
 - 四家文本 LLM provider 已完成 ImagePrompt S001 小样本验收，但尚未做多题材、多镜头、批量质量对比
-- 尚未实现前端模型选择器
-- 请求级 provider/model 动态选择已先在 ImagePrompt 后端链路完成，前端入口尚未实现
+- 前端模型选择器已完成，后续可继续优化 UI 和模型说明文案
+- 请求级 provider/model 动态选择已在 ImagePrompt 后端链路和前端入口完成
 - 尚未完成第三阶段最终总结
 - 还没有接入 ComfyUI
 - 还没有文生图 / 图生图
@@ -149,10 +156,9 @@ API：
 1. 继续保持 mock 版稳定基线；
 2. 继续完成 S002-S004 四模型 ImagePrompt 对比；
 3. 汇总 DeepSeek / Mimo / Kimi / MiniMax 输出质量对比；
-4. 设计前端模型选择器；
-5. 完成第三阶段最终总结；
-6. 后续再进入第四阶段：文生图 / 远端 GPU / ComfyUI；
-7. 在主要功能稳定后，安排前端 UI 信息架构整理和美化。
+4. 完成第三阶段最终总结；
+5. 后续再进入第四阶段：文生图 / 远端 GPU / ComfyUI；
+6. 在主要功能稳定后，安排前端 UI 信息架构整理和美化。
 
 ## 质量原则
 

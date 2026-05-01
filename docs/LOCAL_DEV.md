@@ -90,6 +90,10 @@ uvicorn app.main:app --reload
 - 只切换后端 provider / `.env` 时，通常只需要重启后端。
 - 当前模型对比流程中，每次切换 `LLM_PROVIDER` 后都需要重启后端。
 - 测试结束后切回 `IMAGE_PROMPT_GENERATION_MODE=mock` 后，也需要重启后端恢复安全状态。
+- 前端 ImagePrompt 模型选择器可用于本地选择 provider。
+- 切换前端模型选择器本身不需要重启后端。
+- mock 模式下前端模型选择器不会调用真实 LLM。
+- llm 模式下需要后端 `.env` 配置对应 provider 的 API Key。
 
 ## 后端访问地址
 

@@ -103,6 +103,7 @@ scripts/               本地开发辅助脚本
 - 公开仓库不包含任何真实密钥。
 - 不传请求级 provider / model 时，后端使用 `.env` 中的默认 `LLM_PROVIDER`。
 - ImagePrompt 请求可传 `llm_provider` / `llm_model` 做单次调用级覆盖。
+- The web UI includes an ImagePrompt model selector for request-level provider/model override.
 
 ## 本地启动方式
 
