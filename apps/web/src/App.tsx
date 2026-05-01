@@ -167,6 +167,15 @@ function formatStoryboardForImagePrompt(storyboard: StoryboardOutput): string {
   return [`项目标题：${storyboard.project_title}`, `分镜说明：${storyboard.storyboard_summary}`, scenes].join("\n\n");
 }
 
+function sanitizeFileName(value: string): string {
+  return value
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 60);
+}
+
 const stages = [
   {
     title: "灵感输入",
@@ -207,6 +216,8 @@ function App() {
   const [imagePromptLoading, setImagePromptLoading] = useState(false);
   const [imagePromptError, setImagePromptError] = useState("");
   const [imagePromptTransferStatus, setImagePromptTransferStatus] = useState("");
+  const [imagePromptCopyStatus, setImagePromptCopyStatus] = useState("");
+  const [imagePromptExportStatus, setImagePromptExportStatus] = useState("");
 
   useEffect(() => {
     const loadSystemStatus = async () => {
@@ -241,6 +252,8 @@ function App() {
   const updateImagePromptField = <K extends keyof ImagePromptInput>(field: K, value: ImagePromptInput[K]) => {
     setImagePromptForm((current) => ({ ...current, [field]: value }));
     setImagePromptTransferStatus("");
+    setImagePromptCopyStatus("");
+    setImagePromptExportStatus("");
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -333,6 +346,8 @@ function App() {
     }));
     setImagePromptTransferStatus("已带入绘图 Prompt 生成区域");
     setImagePromptError("");
+    setImagePromptCopyStatus("");
+    setImagePromptExportStatus("");
   };
 
   const handleStoryboardSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -400,6 +415,8 @@ function App() {
     setImagePromptLoading(true);
     setImagePromptError("");
     setImagePromptTransferStatus("");
+    setImagePromptCopyStatus("");
+    setImagePromptExportStatus("");
 
     try {
       const data = await generateImagePrompts({
@@ -417,6 +434,44 @@ function App() {
     } finally {
       setImagePromptLoading(false);
     }
+  };
+
+  const copyImagePromptJson = async () => {
+    if (!imagePromptResult) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(imagePromptResult, null, 2));
+      setImagePromptCopyStatus("已复制绘图 Prompt JSON");
+      setImagePromptExportStatus("");
+      setImagePromptError("");
+    } catch {
+      setImagePromptError("复制绘图 Prompt JSON 失败，请检查浏览器剪贴板权限。");
+    }
+  };
+
+  const exportImagePromptJson = () => {
+    if (!imagePromptResult) {
+      return;
+    }
+
+    const json = JSON.stringify(imagePromptResult, null, 2);
+    const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const safeTitle = sanitizeFileName(imagePromptResult.project_title) || "output";
+
+    link.href = url;
+    link.download = `image-prompts-${safeTitle}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    setImagePromptExportStatus("已导出绘图 Prompt JSON");
+    setImagePromptCopyStatus("");
+    setImagePromptError("");
   };
 
   return (
@@ -876,7 +931,28 @@ function App() {
               <p>输出预览</p>
               <h2>绘图 Prompt</h2>
             </div>
+            <div className="result-actions">
+              <button
+                className="secondary-button"
+                disabled={!imagePromptResult}
+                onClick={copyImagePromptJson}
+                type="button"
+              >
+                复制绘图 Prompt JSON
+              </button>
+              <button
+                className="secondary-button"
+                disabled={!imagePromptResult}
+                onClick={exportImagePromptJson}
+                type="button"
+              >
+                导出绘图 Prompt JSON
+              </button>
+            </div>
           </div>
+
+          {imagePromptCopyStatus && <p className="copy-status">{imagePromptCopyStatus}</p>}
+          {imagePromptExportStatus && <p className="copy-status">{imagePromptExportStatus}</p>}
 
           {!imagePromptResult ? (
             <div className="empty-state">输入分镜文本后，绘图 Prompt 结果将在这里展示。</div>
