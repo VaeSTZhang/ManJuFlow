@@ -93,6 +93,7 @@ API：
 - `docs/MODEL_COMPARISON_SAMPLES.md` 已完成标准样本说明
 - `docs/MODEL_COMPARISON_RESULTS.md` 已记录 S001 四模型对比结果
 - `docs/MODEL_COMPARISON_RUNBOOK.md` 已完成对比运行手册
+- `docs/PHASE_3_SUMMARY.md` 已创建，第三阶段进入最终收口状态
 
 ## 当前验证结果
 
@@ -121,6 +122,8 @@ API：
 - 请求级 provider/model 选择后端基础已完成
 - 前端 ImagePrompt 模型选择器已完成
 - README 已完成公开项目展示优化
+- `docs/PHASE_3_SUMMARY.md` 已创建
+- 第三阶段核心能力已进入最终收口状态
 - 本地后端启动 / 端口清理脚本已完成：
   - `scripts/dev_api.sh`
   - `scripts/kill_api_port.sh`
@@ -137,6 +140,7 @@ API：
 当前还没有做：
 
 - S002-S004 四模型 ImagePrompt 对比尚未完成
+- S002-S004 未完成不阻碍第三阶段核心能力收口，可作为后续模型质量补充对比
 - ImagePrompt 中文异常空格清洗已接入，后续继续观察更多样本
 - 四家文本 LLM provider 已完成 ImagePrompt S001 小样本验收，但尚未做多题材、多镜头、批量质量对比
 - 前端模型选择器已完成，后续可继续优化 UI 和模型说明文案

@@ -190,6 +190,7 @@ IMAGE_PROMPT_GENERATION_MODE=mock
 
 - [MVP Roadmap](docs/MVP_ROADMAP.md)
 - [Phase 3 Progress](docs/PHASE_3_PROGRESS.md)
+- [Phase 3 Summary](docs/PHASE_3_SUMMARY.md)
 - [API Contract](docs/API_CONTRACT.md)
 - [Local Development](docs/LOCAL_DEV.md)
 - [Model Comparison Plan](docs/MODEL_COMPARISON_PLAN.md)
