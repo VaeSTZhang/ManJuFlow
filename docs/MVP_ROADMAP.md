@@ -43,13 +43,16 @@
 - ImagePrompt mock / llm 模式切换已完成
 - `IMAGE_PROMPT_GENERATION_MODE` 已加入配置
 - 后端 `tests/api` 已扩展到 44 passed
+- ImagePrompt DeepSeek 真实 LLM 小样本测试已通过
+- `/api/prompts/generate` llm 模式已通过小样本验收
 
 ## 下一步计划
 
 - 补充第三阶段进展文档
 - 后续接入真实 LLM 前，继续保持 mock 小闭环可测试
-- 小样本真实 LLM 测试
-- Mimo / 小米大模型接入规划
+- Mimo / 小米大模型接入前准备
+- 更多样本测试
+- 第三阶段总结
 - `LLM_TEST_LOG` 更新
 
 ## 当前暂不做
