@@ -52,6 +52,7 @@ def test_llm_client_uses_default_provider_config(monkeypatch) -> None:
     assert client.base_url == "https://legacy.example.com"
     assert client.model == "legacy-model"
     assert client.api_key == "legacy-key"
+    assert client.temperature == 0.7
 
 
 def test_llm_client_empty_provider_uses_default_config(monkeypatch) -> None:
@@ -66,6 +67,7 @@ def test_llm_client_empty_provider_uses_default_config(monkeypatch) -> None:
     assert client.base_url == "https://legacy.example.com"
     assert client.model == "legacy-model"
     assert client.api_key == "legacy-key"
+    assert client.temperature == 0.7
 
 
 def test_llm_client_uses_deepseek_provider_config(monkeypatch) -> None:
@@ -80,6 +82,7 @@ def test_llm_client_uses_deepseek_provider_config(monkeypatch) -> None:
     assert client.base_url == "https://api.deepseek.com"
     assert client.model == "deepseek-chat"
     assert client.api_key == "deepseek-key"
+    assert client.temperature == 0.7
 
 
 def test_llm_client_uses_mimo_provider_config(monkeypatch) -> None:
@@ -94,6 +97,7 @@ def test_llm_client_uses_mimo_provider_config(monkeypatch) -> None:
     assert client.base_url == "https://api.xiaomimimo.com"
     assert client.model == "mimo-v2.5-pro"
     assert client.api_key == "mimo-key"
+    assert client.temperature == 0.7
 
 
 def test_llm_client_uses_kimi_provider_config(monkeypatch) -> None:
@@ -108,6 +112,7 @@ def test_llm_client_uses_kimi_provider_config(monkeypatch) -> None:
     assert client.base_url == "https://api.moonshot.cn"
     assert client.model == "moonshot-v1-8k"
     assert client.api_key == "kimi-key"
+    assert client.temperature == 1.0
 
 
 def test_llm_client_uses_minimax_provider_config(monkeypatch) -> None:
@@ -122,6 +127,7 @@ def test_llm_client_uses_minimax_provider_config(monkeypatch) -> None:
     assert client.base_url == "https://api.minimax.io"
     assert client.model == "MiniMax-M2.7"
     assert client.api_key == "minimax-key"
+    assert client.temperature == 0.7
 
 
 def test_llm_client_rejects_invalid_provider(monkeypatch) -> None:

@@ -5,6 +5,15 @@ import httpx
 from app.config import get_settings
 
 
+_PROVIDER_DEFAULT_TEMPERATURE = {
+    "default": 0.7,
+    "deepseek": 0.7,
+    "mimo": 0.7,
+    "kimi": 1.0,
+    "minimax": 0.7,
+}
+
+
 class LLMClient:
     """OpenAI-compatible chat completions client."""
 
@@ -75,6 +84,8 @@ class LLMClient:
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.model = model
+        self.provider = provider
+        self.temperature = _PROVIDER_DEFAULT_TEMPERATURE[provider]
         self.timeout = timeout
 
     def chat(self, messages: list[dict[str, str]]) -> str:
@@ -88,7 +99,7 @@ class LLMClient:
                 json={
                     "model": self.model,
                     "messages": messages,
-                    "temperature": 0.7,
+                    "temperature": self.temperature,
                 },
                 timeout=self.timeout,
             )
