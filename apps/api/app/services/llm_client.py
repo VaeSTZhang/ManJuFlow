@@ -10,21 +10,53 @@ class LLMClient:
 
     def __init__(self, timeout: float = 60.0) -> None:
         settings = get_settings()
+        provider = (settings.llm_provider or "default").lower().strip() or "default"
+
+        if provider == "default":
+            base_url = settings.llm_base_url
+            model = settings.llm_model
+            api_key = settings.llm_api_key
+            field_names = {
+                "api_key": "LLM_API_KEY",
+                "base_url": "LLM_BASE_URL",
+                "model": "LLM_MODEL",
+            }
+        elif provider == "deepseek":
+            base_url = settings.deepseek_base_url
+            model = settings.deepseek_model
+            api_key = settings.deepseek_api_key
+            field_names = {
+                "api_key": "DEEPSEEK_API_KEY",
+                "base_url": "DEEPSEEK_BASE_URL",
+                "model": "DEEPSEEK_MODEL",
+            }
+        elif provider == "mimo":
+            base_url = settings.mimo_base_url
+            model = settings.mimo_model
+            api_key = settings.mimo_api_key
+            field_names = {
+                "api_key": "MIMO_API_KEY",
+                "base_url": "MIMO_BASE_URL",
+                "model": "MIMO_MODEL",
+            }
+        else:
+            raise ValueError("LLM_PROVIDER only supports 'default', 'deepseek', or 'mimo'.")
+
         missing_fields = []
 
-        if not settings.llm_api_key:
-            missing_fields.append("LLM_API_KEY")
-        if not settings.llm_base_url:
-            missing_fields.append("LLM_BASE_URL")
-        if not settings.llm_model:
-            missing_fields.append("LLM_MODEL")
+        if not api_key:
+            missing_fields.append(field_names["api_key"])
+        if not base_url:
+            missing_fields.append(field_names["base_url"])
+        if not model:
+            missing_fields.append(field_names["model"])
 
         if missing_fields:
             raise ValueError(f"Missing required LLM configuration: {', '.join(missing_fields)}")
 
-        self.api_key = settings.llm_api_key
-        self.base_url = settings.llm_base_url.rstrip("/")
-        self.model = settings.llm_model
+        self.api_key = api_key
+        self.base_url = base_url.rstrip("/")
+        self.model = model
         self.timeout = timeout
 
     def chat(self, messages: list[dict[str, str]]) -> str:
