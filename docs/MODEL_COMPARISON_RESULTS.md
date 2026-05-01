@@ -17,6 +17,7 @@
 - 每次测试后切回 mock；
 - 所有 provider 使用同一份样本 JSON；
 - 保存输出时不要记录真实 API Key。
+- 运行前参考 `docs/MODEL_COMPARISON_RUNBOOK.md`。
 
 ## 3. Provider 配置记录
 
@@ -77,3 +78,5 @@
 4. 汇总最佳默认 provider；
 5. 决定是否进入前端模型选择器设计；
 6. 若发现某 provider 输出异常，优先优化 Prompt 或 parser，再考虑 provider 特化。
+
+运行前参考 `docs/MODEL_COMPARISON_RUNBOOK.md`。

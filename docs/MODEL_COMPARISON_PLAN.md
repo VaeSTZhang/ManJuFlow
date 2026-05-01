@@ -124,6 +124,8 @@
 9. 测试后切回 mock；
 10. 将结论写入 `LLM_TEST_LOG` 或后续专门的模型对比记录文档。
 
+具体运行步骤见 `docs/MODEL_COMPARISON_RUNBOOK.md`。
+
 ## 7. 初步观察
 
 根据目前小样本测试，先记录初步观察，不做过度结论：
@@ -151,4 +153,5 @@
 - 为每个样本生成统一 `ImagePromptInput` JSON；
 - 逐个 provider 跑小样本；
 - 形成 DeepSeek / Mimo / Kimi / MiniMax 对比表；
+- 具体运行步骤参考 `docs/MODEL_COMPARISON_RUNBOOK.md`；
 - 再决定前端模型选择器和默认模型策略。
