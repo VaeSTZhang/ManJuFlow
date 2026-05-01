@@ -85,6 +85,7 @@ API：
 - `npm run build` 通过
 - 浏览器完整链路验收通过
 - DeepSeek 真实 LLM 小样本测试已通过
+- Mimo / 小米大模型 ImagePrompt 小样本测试已通过
 - `/api/prompts/generate` 在 `llm` 模式下已返回合法 `ImagePromptOutput`
 - 后端日志出现：
   - `POST /api/scripts/generate 200 OK`
@@ -96,7 +97,7 @@ API：
 
 当前还没有做：
 
-- DeepSeek 已完成小样本验收，Mimo 尚未接入和验收
+- DeepSeek 和 Mimo 已完成 ImagePrompt 小样本验收，但尚未做多题材、多镜头、批量质量对比
 - 还没有接入 ComfyUI
 - 还没有文生图 / 图生图
 - 还没有文生视频 / 图生视频
@@ -111,9 +112,10 @@ API：
 1. 继续保持 mock 版稳定基线；
 2. Mimo / 小米大模型接入规划；
 3. 更多题材、多镜头、多角色一致性测试；
-4. 更新 `LLM_TEST_LOG`；
-5. 后续再考虑 ComfyUI / 文生图；
-6. 在主要功能稳定后，安排前端 UI 信息架构整理和美化。
+4. DeepSeek vs Mimo 输出质量对比；
+5. 更新 `LLM_TEST_LOG`；
+6. 后续再考虑 ComfyUI / 文生图；
+7. 在主要功能稳定后，安排前端 UI 信息架构整理和美化。
 
 ## 质量原则
 

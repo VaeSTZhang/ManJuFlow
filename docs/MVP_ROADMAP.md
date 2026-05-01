@@ -45,12 +45,15 @@
 - 后端 `tests/api` 已扩展到 44 passed
 - ImagePrompt DeepSeek 真实 LLM 小样本测试已通过
 - `/api/prompts/generate` llm 模式已通过小样本验收
+- `LLM_PROVIDER=deepseek / mimo` 配置支持已完成
+- Mimo / 小米大模型 ImagePrompt 小样本测试已通过
+- Mimo `sk-` API Key 可用于后端直连 API
 
 ## 下一步计划
 
 - 补充第三阶段进展文档
 - 后续接入真实 LLM 前，继续保持 mock 小闭环可测试
-- Mimo / 小米大模型接入前准备
+- 模型效果对比
 - 更多样本测试
 - 第三阶段总结
 - `LLM_TEST_LOG` 更新

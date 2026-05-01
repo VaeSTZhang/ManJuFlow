@@ -22,6 +22,8 @@
 - OpenAI-compatible 请求地址：`https://api.xiaomimimo.com/v1/chat/completions`
 - 当前额度：700,000,000 Credits
 - 不记录真实 API Key。
+- 当前实测：`sk-` 开头 API Key 可用于 ManJuFlow 后端直连 Mimo API。
+- 当前实测：`tp-` 开头 Token Plan Key 直连 API 返回 `401 Invalid API Key`，后续更适合用于编程工具 / Agent 工具方向，不作为当前后端 API Key。
 
 可用模型包括：
 
@@ -63,30 +65,41 @@ TTS 系列暂不接入当前文本生成链路，留到配音阶段评估。
 
 当前不建议大重构。
 
-第一阶段 Mimo 接入方式：
+第一阶段 Mimo 接入方式已完成小样本验证：
 
 - 复用现有 `LLMClient`。
 - 通过 `.env` 临时切换：
 
 ```env
-LLM_BASE_URL=https://api.xiaomimimo.com/v1
-LLM_MODEL=mimo-v2.5-pro
-LLM_API_KEY=真实 token，不提交
+LLM_PROVIDER=mimo
+MIMO_BASE_URL=https://api.xiaomimimo.com
+MIMO_MODEL=mimo-v2.5-pro
+MIMO_API_KEY=真实 sk token，不提交
 IMAGE_PROMPT_GENERATION_MODE=llm
 ```
 
 注意：
 
-- 如果当前 `LLMClient` 内部拼接的是 `/chat/completions`，则 `LLM_BASE_URL` 应配置为 `https://api.xiaomimimo.com/v1`。
+- 当前 `LLMClient` 内部拼接的是 `/v1/chat/completions`，因此 `MIMO_BASE_URL` 应配置为 `https://api.xiaomimimo.com`。
 - 如果 `LLMClient` 要求完整 endpoint，则以当前代码实现为准。
+- 当前推荐 ManJuFlow 后端直连 Mimo API 使用 `sk-` Key。
+- `tp-` Key 后续可用于编程工具 / Agent 工具方向，不作为当前后端 API Key。
 
 第二阶段再考虑：
 
-- `LLM_PROVIDER=deepseek / mimo`
 - `DEEPSEEK_API_KEY`
 - `MIMO_API_KEY`
 - 多模型路由
 - 不同模块指定不同模型
+
+当前实测结果：
+
+- `tp-` 开头 Token Plan Key 直连 API 返回 `401 Invalid API Key`
+- `sk-` 开头 API Key 最小认证探测返回 200
+- 最小认证探测返回 model 为 `mimo-v2.5-pro`
+- 最小认证探测返回 content 为 `{"ok": true}`
+- `sk-` Key 已成功用于 `/api/prompts/generate`
+- `/api/prompts/generate` 已返回合法 `ImagePromptOutput`
 
 ## 6. 最小测试顺序
 
