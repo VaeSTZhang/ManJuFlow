@@ -2,10 +2,13 @@ import json
 from pathlib import Path
 import sys
 
+import pytest
+
 
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
+from app.config import get_settings
 from app.schemas.image_prompt import ImagePromptInput, ImagePromptOutput
 from app.services import image_prompt_service
 from app.services.image_prompt_service import (
@@ -14,6 +17,13 @@ from app.services.image_prompt_service import (
     generate_image_prompt_mock,
     load_image_prompt_template,
 )
+
+
+@pytest.fixture(autouse=True)
+def reset_settings_cache():
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
 
 
 def make_image_prompt_input() -> ImagePromptInput:
@@ -32,6 +42,11 @@ def patch_image_prompt_generation_mode(monkeypatch, mode: str) -> None:
         image_prompt_generation_mode = mode
 
     monkeypatch.setattr(image_prompt_service, "get_settings", lambda: FakeSettings())
+
+
+def set_image_prompt_generation_mode(monkeypatch, mode: str) -> None:
+    monkeypatch.setenv("IMAGE_PROMPT_GENERATION_MODE", mode)
+    get_settings.cache_clear()
 
 
 def make_image_prompt_output_data() -> dict:
@@ -119,7 +134,9 @@ def test_generate_image_prompt_mock_negative_prompt_contains_common_terms() -> N
         assert "watermark" in item.negative_prompt
 
 
-def test_generate_image_prompt_returns_mock_output() -> None:
+def test_generate_image_prompt_returns_mock_output(monkeypatch) -> None:
+    set_image_prompt_generation_mode(monkeypatch, "mock")
+
     result = generate_image_prompt(make_image_prompt_input())
 
     assert isinstance(result, ImagePromptOutput)

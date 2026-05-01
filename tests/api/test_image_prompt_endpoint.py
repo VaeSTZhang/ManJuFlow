@@ -1,13 +1,22 @@
 from pathlib import Path
 import sys
 
+import pytest
 from fastapi.testclient import TestClient
 
 
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
+from app.config import get_settings
 from app.main import app
+
+
+@pytest.fixture(autouse=True)
+def reset_settings_cache():
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
 
 
 def make_request_payload() -> dict:
@@ -22,7 +31,10 @@ def make_request_payload() -> dict:
     }
 
 
-def test_generate_image_prompt_endpoint_returns_stable_prompt_fields() -> None:
+def test_generate_image_prompt_endpoint_returns_stable_prompt_fields(monkeypatch) -> None:
+    monkeypatch.setenv("IMAGE_PROMPT_GENERATION_MODE", "mock")
+    get_settings.cache_clear()
+
     client = TestClient(app)
 
     response = client.post("/api/prompts/generate", json=make_request_payload())

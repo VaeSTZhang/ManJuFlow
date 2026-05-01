@@ -13,11 +13,19 @@ _PROVIDER_DEFAULT_TEMPERATURE = {
     "minimax": 0.7,
 }
 
+_PROVIDER_DEFAULT_TIMEOUT_SECONDS = {
+    "default": 60.0,
+    "deepseek": 60.0,
+    "mimo": 60.0,
+    "kimi": 120.0,
+    "minimax": 60.0,
+}
+
 
 class LLMClient:
     """OpenAI-compatible chat completions client."""
 
-    def __init__(self, timeout: float = 60.0) -> None:
+    def __init__(self, timeout: float | None = None) -> None:
         settings = get_settings()
         provider = (settings.llm_provider or "default").lower().strip() or "default"
 
@@ -86,7 +94,7 @@ class LLMClient:
         self.model = model
         self.provider = provider
         self.temperature = _PROVIDER_DEFAULT_TEMPERATURE[provider]
-        self.timeout = timeout
+        self.timeout = timeout if timeout is not None else _PROVIDER_DEFAULT_TIMEOUT_SECONDS[provider]
 
     def chat(self, messages: list[dict[str, str]]) -> str:
         try:

@@ -11,7 +11,7 @@
 
 - `deepseek`：已通过 ImagePrompt 小样本；
 - `mimo`：已通过 ImagePrompt 小样本；
-- `kimi`：已通过 ImagePrompt 小样本，`temperature=1.0` 已适配；
+- `kimi`：已通过 ImagePrompt 小样本，`temperature=1.0` 已适配；k2.x 可能响应较慢，`LLMClient` 已为 kimi provider 使用更长 timeout；
 - `minimax`：已通过 ImagePrompt 小样本，中国区 endpoint 为 `https://api.minimaxi.com`。
 
 ## 3. 安全前置检查
@@ -100,7 +100,7 @@ curl -s -X POST http://127.0.0.1:8000/api/prompts/generate \
 - 400：模型参数、模型名或请求体问题；
 - 500：后端 parser / schema 校验 / LLM 输出不稳定；
 - JSON tool 报 `Expecting value`：后端可能返回非 JSON，查看后端日志；
-- 超时：记录 provider、sample_id、请求耗时，暂不重试太多次。
+- 超时：记录 provider、sample_id、请求耗时，暂不重试太多次；Kimi k2.x 已使用更长默认 timeout。
 
 ## 9. 暂不自动化
 
