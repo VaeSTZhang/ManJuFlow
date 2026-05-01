@@ -1,7 +1,9 @@
 import json
 from pathlib import Path
 
+from app.config import get_settings
 from app.schemas.image_prompt import ImagePromptInput, ImagePromptItem, ImagePromptOutput
+from app.services.llm_client import LLMClient
 from pydantic import ValidationError
 
 
@@ -146,5 +148,31 @@ def generate_image_prompt_mock(input_data: ImagePromptInput) -> ImagePromptOutpu
     )
 
 
+def generate_image_prompt_llm(input_data: ImagePromptInput) -> ImagePromptOutput:
+    prompt_template = load_image_prompt_template()
+    input_json = json.dumps(input_data.model_dump(), ensure_ascii=False)
+    messages = [
+        {
+            "role": "system",
+            "content": prompt_template,
+        },
+        {
+            "role": "user",
+            "content": f"请根据以下输入生成结构化绘图 Prompt JSON：\n{input_json}",
+        },
+    ]
+
+    content = LLMClient().chat(messages)
+    return parse_image_prompt_llm_response(content)
+
+
 def generate_image_prompt(input_data: ImagePromptInput) -> ImagePromptOutput:
-    return generate_image_prompt_mock(input_data)
+    mode = get_settings().image_prompt_generation_mode.lower()
+
+    if mode == "mock":
+        return generate_image_prompt_mock(input_data)
+
+    if mode == "llm":
+        return generate_image_prompt_llm(input_data)
+
+    raise ValueError("IMAGE_PROMPT_GENERATION_MODE only supports 'mock' or 'llm'.")
