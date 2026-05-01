@@ -67,6 +67,8 @@ uvicorn app.main:app --reload
 bash scripts/dev_api.sh
 ```
 
+`scripts/dev_api.sh` 当前会直接定位虚拟环境中的 Python，并执行 `python -m uvicorn app.main:app --reload`。它不再依赖 `source activate`，避免严格 shell 选项下激活脚本提前退出。
+
 如果遇到端口占用：
 
 ```bash

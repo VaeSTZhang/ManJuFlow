@@ -55,12 +55,14 @@
 - ImagePrompt 输出文件已保存到 `tests/fixtures/image_prompt_outputs/`
 - provider-specific timeout 已完成，Kimi provider 使用更长 timeout
 - ImagePrompt 测试隔离已修复，后端 `tests/api` 当前为 58 passed
+- ImagePrompt 中文空格清洗已完成
+- 后端 `tests/api` 当前为 59 passed
 - 本地后端启动脚本已完成：`scripts/dev_api.sh`
+- 后端启动脚本兼容性修复已完成：`scripts/dev_api.sh` 直接使用 venv python 启动 uvicorn
 - 本地后端端口清理脚本已完成：`scripts/kill_api_port.sh`
 
 ## 下一步计划
 
-- ImagePrompt 中文空格清洗
 - S002-S004 模型对比
 - 请求级 provider/model 选择
 - 前端模型选择器

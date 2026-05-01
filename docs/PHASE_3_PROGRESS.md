@@ -51,6 +51,8 @@ Service：
 - mock service、llm parser、generation mode 测试已通过
 - Kimi provider-specific timeout 已修复，`kimi` provider 使用更长 timeout，避免 ImagePrompt 调用偶发 `ReadTimeout`
 - ImagePrompt mock 相关测试已显式隔离 `IMAGE_PROMPT_GENERATION_MODE=mock`，避免受本地 `.env` 中 `llm` 模式污染
+- ImagePrompt parser 已接入 `clean_chinese_spacing`
+- Kimi / MiniMax ImagePrompt 中文异常空格问题已完成代码层修复，后续继续在更多样本中观察
 
 API：
 
@@ -78,6 +80,7 @@ API：
 - `docs/API_CONTRACT.md` 已补充 `/api/prompts/generate`
 - `docs/LOCAL_DEV.md` 已补充绘图 Prompt 接口测试和完整前端流水线测试
 - `scripts/dev_api.sh` 已新增，用于本地启动 FastAPI 后端
+- `scripts/dev_api.sh` 已修复为直接使用 venv python 执行 `python -m uvicorn app.main:app --reload`
 - `scripts/kill_api_port.sh` 已新增，用于清理被 uvicorn 占用的 8000 端口
 - `docs/MVP_ROADMAP.md` 已更新第三阶段进展
 - `docs/MODEL_COMPARISON_PLAN.md` 已完成四模型 ImagePrompt 输出质量对比方案
@@ -89,7 +92,7 @@ API：
 
 当前已知稳定结果：
 
-- `python -m pytest tests/api` 通过，58 passed
+- `python -m pytest tests/api` 通过，59 passed
 - `npm run build` 通过
 - 浏览器完整链路验收通过
 - DeepSeek 真实 LLM 小样本测试已通过
@@ -107,9 +110,12 @@ API：
 - `/api/prompts/generate` 在 `llm` 模式下已返回合法 `ImagePromptOutput`
 - Kimi provider-specific timeout 已修复
 - ImagePrompt 测试隔离已修复
+- ImagePrompt 中文异常空格清洗已接入 parser
 - 本地后端启动 / 端口清理脚本已完成：
   - `scripts/dev_api.sh`
   - `scripts/kill_api_port.sh`
+- `scripts/dev_api.sh` 已修复为直接使用 venv python 启动 uvicorn
+- 后端 health 已验证正常：`GET /health` 返回 `{"status":"ok","stage":"mvp-idea-to-script"}`
 - 后端日志出现：
   - `POST /api/scripts/generate 200 OK`
   - `POST /api/storyboards/generate 200 OK`
@@ -121,7 +127,7 @@ API：
 当前还没有做：
 
 - S002-S004 四模型 ImagePrompt 对比尚未完成
-- ImagePrompt 中文异常空格清洗尚未接入
+- ImagePrompt 中文异常空格清洗已接入，后续继续观察更多样本
 - 四家文本 LLM provider 已完成 ImagePrompt S001 小样本验收，但尚未做多题材、多镜头、批量质量对比
 - 尚未实现前端模型选择器
 - 尚未实现请求级 provider/model 动态选择
@@ -138,13 +144,12 @@ API：
 建议按以下优先级继续推进：
 
 1. 继续保持 mock 版稳定基线；
-2. 为 ImagePrompt parser 接入中文异常空格清洗；
-3. 继续完成 S002-S004 四模型 ImagePrompt 对比；
-4. 汇总 DeepSeek / Mimo / Kimi / MiniMax 输出质量对比；
-5. 设计请求级 provider/model 选择；
-6. 设计前端模型选择器；
-7. 完成第三阶段最终总结；
-8. 后续再进入第四阶段：文生图 / 远端 GPU / ComfyUI；
+2. 继续完成 S002-S004 四模型 ImagePrompt 对比；
+3. 汇总 DeepSeek / Mimo / Kimi / MiniMax 输出质量对比；
+4. 设计请求级 provider/model 选择；
+5. 设计前端模型选择器；
+6. 完成第三阶段最终总结；
+7. 后续再进入第四阶段：文生图 / 远端 GPU / ComfyUI；
 9. 在主要功能稳定后，安排前端 UI 信息架构整理和美化。
 
 ## 质量原则

@@ -283,7 +283,9 @@ Endpoint 记录：
 - 直接 httpx 请求 Kimi 使用更长 timeout 可返回 200
 - 已通过 provider-specific timeout 修复：`kimi` provider 使用更长默认 timeout
 - Kimi / MiniMax 中文字段存在少量异常空格
-- 后续计划在 ImagePrompt parser 中接入 `clean_chinese_spacing` 处理中文异常空格
+- Kimi / MiniMax 中文异常空格问题已通过 ImagePrompt parser 接入 `clean_chinese_spacing` 处理
+- 后续仍需要在 S002-S004 中观察清洗效果
+- 本记录不保存任何 API Key
 
 当前结论：
 
