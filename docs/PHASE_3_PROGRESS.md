@@ -41,9 +41,14 @@ Service：
 - `apps/api/app/services/image_prompt_service.py`
 - `generate_image_prompt_mock`
 - `generate_image_prompt`
+- `generate_image_prompt_llm`
 - `load_image_prompt_template`
+- `parse_image_prompt_llm_response`
 - `tests/api/test_image_prompt_service.py`
-- mock service 测试已通过
+- `tests/api/test_image_prompt_llm_parser.py`
+- 第 69 步：ImagePrompt LLM parser 已完成
+- 第 70 步：ImagePrompt mock / llm 模式切换已完成
+- mock service、llm parser、generation mode 测试已通过
 
 API：
 
@@ -75,7 +80,7 @@ API：
 
 当前已知稳定结果：
 
-- `python -m pytest tests/api` 通过，31 passed
+- `python -m pytest tests/api` 通过，44 passed
 - `npm run build` 通过
 - 浏览器完整链路验收通过
 - 后端日志出现：
@@ -88,8 +93,7 @@ API：
 
 当前还没有做：
 
-- 还没有接入真实 LLM 生成 `ImagePromptOutput`
-- 还没有实现 image prompt LLM parser
+- 虽然 `llm` 模式代码已具备，但还没有进行真实 DeepSeek / Mimo 调用验收
 - 还没有接入 Mimo / 小米大模型
 - 还没有接入 ComfyUI
 - 还没有文生图 / 图生图
@@ -103,13 +107,11 @@ API：
 建议按以下优先级继续推进：
 
 1. 继续保持 mock 版稳定基线；
-2. 补充 ImagePrompt LLM parser；
-3. 实现 `IMAGE_PROMPT_GENERATION_MODE=mock / llm`；
-4. 真实 DeepSeek 小样本测试；
-5. 按 Mimo 官方文档接入 Mimo / 小米大模型；
-6. 更新 `LLM_TEST_LOG`；
-7. 后续再考虑 ComfyUI / 文生图；
-8. 在主要功能稳定后，安排前端 UI 信息架构整理和美化。
+2. 真实 DeepSeek 小样本测试；
+3. 按 Mimo 官方文档接入 Mimo / 小米大模型；
+4. 更新 `LLM_TEST_LOG`；
+5. 后续再考虑 ComfyUI / 文生图；
+6. 在主要功能稳定后，安排前端 UI 信息架构整理和美化。
 
 ## 质量原则
 

@@ -29,9 +29,17 @@ cp .env.example .env
 ```env
 SCRIPT_GENERATION_MODE=mock
 STORYBOARD_GENERATION_MODE=mock
+IMAGE_PROMPT_GENERATION_MODE=mock
 ```
 
 `STORYBOARD_GENERATION_MODE` 支持 `mock` / `llm`。当前 Storyboard 真实 LLM 尚未正式接入，即使配置为 `llm`，服务层也会暂时 fallback 到 mock；后续接真实 LLM 时再补充 JSON 解析、Schema 校验与修复逻辑。
+
+`IMAGE_PROMPT_GENERATION_MODE` 支持：
+
+- `mock`：默认，本地 mock 输出，不调用真实 LLM，适合前端联调。
+- `llm`：调用 `LLMClient`，并解析为 `ImagePromptOutput`。
+
+修改 `.env` 后需要重启后端 `uvicorn`。`llm` 模式需要确保已有 LLM API 配置可用，建议先用小样本测试，不要直接大批量调用。
 
 ## 后端启动方式
 

@@ -39,12 +39,18 @@
 - 绘图 Prompt JSON 复制 / 导出已完成
 - 分镜结果一键带入绘图 Prompt 生成已完成
 - 前端完整链路“灵感 → 剧本 → 分镜 → 绘图 Prompt”已通过本地验收
+- ImagePrompt LLM parser 已完成
+- ImagePrompt mock / llm 模式切换已完成
+- `IMAGE_PROMPT_GENERATION_MODE` 已加入配置
+- 后端 `tests/api` 已扩展到 44 passed
 
 ## 下一步计划
 
 - 补充第三阶段进展文档
 - 后续接入真实 LLM 前，继续保持 mock 小闭环可测试
-- 规划第三阶段真实 LLM 接入方式和输出校验策略
+- 小样本真实 LLM 测试
+- Mimo / 小米大模型接入规划
+- `LLM_TEST_LOG` 更新
 
 ## 当前暂不做
 

@@ -170,7 +170,12 @@ curl -X POST "http://127.0.0.1:8000/api/storyboards/generate" \
 
 用途：根据分镜文本或结构化分镜生成 AI 绘图 Prompt JSON。
 
-当前说明：此接口当前使用 mock service，暂未接入真实 LLM、数据库或图片生成能力。当前 mock 接口主要使用 `storyboard_text` 生成稳定示例输出，后续会接入真实 LLM。
+当前说明：此接口支持 `IMAGE_PROMPT_GENERATION_MODE=mock / llm`，接口契约保持不变。
+
+- `mock` 模式用于本地稳定开发和前端联调，主要使用 `storyboard_text` 生成稳定示例输出。
+- `llm` 模式会通过 `LLMClient` 调用真实模型，并使用 `parse_image_prompt_llm_response` 校验模型输出。
+- `llm` 模式要求模型输出符合 `ImagePromptOutput`。
+- 当前仍不调用文生图、ComfyUI 或视频生成能力。
 
 `storyboard` 和 `storyboard_text` 至少需要提供一种。
 
@@ -246,4 +251,4 @@ curl -X POST "http://127.0.0.1:8000/api/prompts/generate" \
 
 ## 后续说明
 
-后续会将当前 mock 逻辑替换为真实 LLM 调用层，并保持接口契约尽量稳定。
+后续会继续加固真实 LLM 调用层和输出质量，并保持接口契约尽量稳定。
