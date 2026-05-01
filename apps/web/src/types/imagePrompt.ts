@@ -8,6 +8,8 @@ export type ImagePromptInput = {
   style_preset?: string;
   language?: string;
   extra_requirements?: string | null;
+  llm_provider?: string;
+  llm_model?: string;
 };
 
 export type ImagePromptItem = {

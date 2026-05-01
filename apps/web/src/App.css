@@ -319,6 +319,27 @@ select {
   font-weight: 700;
 }
 
+.model-selection-note {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #d8e6f8;
+  border-radius: 8px;
+  background: #f7fbff;
+}
+
+.model-selection-note strong {
+  color: #172033;
+  font-size: 14px;
+}
+
+.model-selection-note p {
+  margin: 0;
+  color: #607087;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .empty-state {
   display: grid;
   min-height: 320px;

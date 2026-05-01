@@ -64,6 +64,13 @@ type SystemStatus = {
   status: string;
 };
 
+type ImagePromptModelOption = {
+  value: string;
+  label: string;
+  provider?: string;
+  model?: string;
+};
+
 const defaultForm: IdeaInput = {
   idea_text: "一个被裁员的中年男人，意外发现公司老板用AI伪造财报",
   script_type: "短剧",
@@ -93,6 +100,14 @@ const defaultImagePromptForm: ImagePromptInput = {
   language: "en",
   extra_requirements: "保持雨夜、冷色光影、电影感写实风格。",
 };
+
+const imagePromptModelOptions: ImagePromptModelOption[] = [
+  { value: "default", label: "使用后端默认" },
+  { value: "deepseek", label: "DeepSeek / deepseek-chat", provider: "deepseek", model: "deepseek-chat" },
+  { value: "mimo", label: "Mimo / mimo-v2.5-pro", provider: "mimo", model: "mimo-v2.5-pro" },
+  { value: "kimi", label: "Kimi / kimi-k2.5", provider: "kimi", model: "kimi-k2.5" },
+  { value: "minimax", label: "MiniMax / MiniMax-M2.7", provider: "minimax", model: "MiniMax-M2.7" },
+];
 
 function formatScriptForStoryboard(script: ScriptOutput): string {
   const characters = script.characters
@@ -192,6 +207,10 @@ function App() {
   const [imagePromptCopyStatus, setImagePromptCopyStatus] = useState("");
   const [imagePromptExportStatus, setImagePromptExportStatus] = useState("");
 
+  const selectedImagePromptModel =
+    imagePromptModelOptions.find((option) => option.provider === imagePromptForm.llm_provider) ||
+    imagePromptModelOptions[0];
+
   useEffect(() => {
     const loadSystemStatus = async () => {
       try {
@@ -224,6 +243,19 @@ function App() {
 
   const updateImagePromptField = <K extends keyof ImagePromptInput>(field: K, value: ImagePromptInput[K]) => {
     setImagePromptForm((current) => ({ ...current, [field]: value }));
+    setImagePromptTransferStatus("");
+    setImagePromptCopyStatus("");
+    setImagePromptExportStatus("");
+  };
+
+  const updateImagePromptModel = (value: string) => {
+    const option = imagePromptModelOptions.find((item) => item.value === value) || imagePromptModelOptions[0];
+
+    setImagePromptForm((current) => ({
+      ...current,
+      llm_provider: option.provider,
+      llm_model: option.model,
+    }));
     setImagePromptTransferStatus("");
     setImagePromptCopyStatus("");
     setImagePromptExportStatus("");
@@ -393,6 +425,8 @@ function App() {
     setImagePromptExportStatus("");
 
     try {
+      const selectedProvider = imagePromptForm.llm_provider?.trim();
+      const selectedModel = imagePromptForm.llm_model?.trim();
       const data = await generateImagePrompts({
         ...imagePromptForm,
         project_title: imagePromptForm.project_title.trim(),
@@ -402,6 +436,8 @@ function App() {
         aspect_ratio: imagePromptForm.aspect_ratio || "9:16",
         style_preset: imagePromptForm.style_preset || "cinematic realistic",
         language: imagePromptForm.language || "en",
+        llm_provider: selectedProvider || undefined,
+        llm_model: selectedModel || undefined,
       });
       setImagePromptResult(data);
     } catch {
@@ -853,6 +889,17 @@ function App() {
 
           <div className="field-grid">
             <label className="field">
+              <span>LLM 模型</span>
+              <select value={selectedImagePromptModel.value} onChange={(event) => updateImagePromptModel(event.target.value)}>
+                {imagePromptModelOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="field">
               <span>目标模型</span>
               <input
                 value={imagePromptForm.target_model || "general"}
@@ -901,6 +948,16 @@ function App() {
               rows={3}
             />
           </label>
+
+          <div className="model-selection-note">
+            <strong>
+              当前模型：
+              {selectedImagePromptModel.provider
+                ? ` ${selectedImagePromptModel.label}`
+                : " 使用后端默认"}
+            </strong>
+            <p>模型选择仅在后端 IMAGE_PROMPT_GENERATION_MODE=llm 时生效。mock 模式下不会消耗 API 额度。</p>
+          </div>
 
           <button className="primary-button" disabled={imagePromptLoading} type="submit">
             {imagePromptLoading ? "生成中..." : "生成绘图 Prompt"}
