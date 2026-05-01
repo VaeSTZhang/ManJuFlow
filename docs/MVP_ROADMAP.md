@@ -34,12 +34,17 @@
 - ImagePrompt mock service 已完成
 - `/api/prompts/generate` 已完成
 - mock 模式 curl 测试已通过
+- 前端 ImagePrompt 类型和 API 封装已完成
+- 前端“生成绘图 Prompt”区域已完成
+- 绘图 Prompt JSON 复制 / 导出已完成
+- 分镜结果一键带入绘图 Prompt 生成已完成
+- 前端完整链路“灵感 → 剧本 → 分镜 → 绘图 Prompt”已通过本地验收
 
 ## 下一步计划
 
 - 补充第三阶段进展文档
 - 后续接入真实 LLM 前，继续保持 mock 小闭环可测试
-- 规划前端调用 `/api/prompts/generate` 的 UI 流程
+- 规划第三阶段真实 LLM 接入方式和输出校验策略
 
 ## 当前暂不做
 

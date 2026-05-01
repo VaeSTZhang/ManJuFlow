@@ -162,19 +162,56 @@ npm run dev
 - 查看分镜结果
 - 测试“复制分镜 JSON”和“导出分镜 JSON”
 
-## 前端流水线测试：灵感 → 剧本 → 分镜
+## 前端完整流水线测试：灵感 → 剧本 → 分镜 → 绘图 Prompt
 
-- 启动后端，确保服务运行在 `http://127.0.0.1:8000`
-- 启动前端，确保页面运行在 `http://localhost:5173`
-- 打开 `http://localhost:5173`
-- 在灵感输入区域填写或使用默认内容
-- 点击“生成结构化剧本”
-- 在结构化剧本结果区域点击“带入分镜生成”
-- 检查“生成分镜”区域的项目标题和剧本文本是否已自动填入
-- 点击“生成分镜”
-- 检查分镜结果是否正常展示 scenes / shots
-- 测试结构化剧本的“复制 JSON”和“导出 JSON”
-- 测试分镜结果的“复制分镜 JSON”和“导出分镜 JSON”
+启动后端：
+
+```bash
+cd apps/api
+source .venv/bin/activate 2>/dev/null || source ../../.venv/bin/activate
+uvicorn app.main:app --reload
+```
+
+启动前端：
+
+```bash
+cd apps/web
+npm run dev
+```
+
+访问：
+
+- `http://localhost:5173/`
+
+测试步骤：
+
+1. 在灵感输入区填写或使用默认内容。
+2. 点击“生成结构化剧本”。
+3. 检查剧本结果正常展示。
+4. 点击“带入分镜生成”。
+5. 检查分镜生成区已自动填入项目标题和剧本文本。
+6. 点击“生成分镜”。
+7. 检查分镜结果正常展示 scenes / shots。
+8. 点击“带入绘图 Prompt 生成”或“用此分镜生成绘图 Prompt”。
+9. 检查绘图 Prompt 输入区已自动填入项目标题、分镜摘要、分镜文本 / JSON。
+10. 点击“生成绘图 Prompt”。
+11. 检查绘图 Prompt 结果正常展示 items、positive_prompt、negative_prompt。
+12. 测试复制绘图 Prompt JSON。
+13. 测试导出绘图 Prompt JSON。
+
+后端日志应看到：
+
+- `POST /api/scripts/generate 200 OK`
+- `POST /api/storyboards/generate 200 OK`
+- `POST /api/prompts/generate 200 OK`
+
+补充说明：
+
+- 当前第三阶段仍是 mock 模式。
+- 不会调用真实图片生成模型。
+- 不会调用 ComfyUI。
+- 当前 `ImagePromptOutput` 用于验证数据协议和前端闭环。
+- 后续再接入真实 LLM 和 Mimo / 小米大模型。
 
 ## 常见问题
 
