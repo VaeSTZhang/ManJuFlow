@@ -94,6 +94,17 @@
 - 不在代码、文档、测试、截图或日志中写入真实值。
 - 切换到真实 provider 前，必须完成私有部署 checklist。
 
+未来不应假设只有一个 ComfyUI workflow。`COMFYUI_WORKFLOW_NAME` 仅作为默认 workflow 占位。多 workflow 场景下，应在私有环境维护 workflow registry 或 workflow mapping。
+
+workflow registry 可以在私有配置中维护，例如：
+
+- 逻辑名称 → 私有 workflow 文件；
+- 逻辑名称 → 私有 workflow id；
+- 逻辑名称 → 参数 preset；
+- 逻辑名称 → workflow version。
+
+公开仓库不提交 workflow registry 的真实内容，只记录抽象设计。真实 registry、workflow 文件、workflow id、参数 preset 和模型路径都应保留在私有部署环境。
+
 ## 7. 最小私有联调流程草案
 
 未来私有联调可按以下顺序准备，但本公开文档不记录任何真实 IP、真实 token、真实 workflow 或真实模型路径：

@@ -186,7 +186,33 @@ mock service 应保持确定性：相同输入在本地开发和 CI 中返回稳
 
 公开仓库可放 interface、placeholder、mock provider 和不含敏感信息的测试替身。真实 ComfyUI workflow、server_url、auth、模型路径应放在私有部署环境，通过环境变量、私有配置或私有 runbook 管理。
 
-## 10. 远端 GPU / ComfyUI 私有部署策略
+## 10. 多 workflow 设计预留
+
+未来 ComfyUI workflow 不应假设只有一个。真实图片生产可能需要多个 workflow / preset / version，例如：
+
+- `text_to_image_basic`
+- `image_to_image_basic`
+- `character_consistency`
+- `scene_concept`
+- `storyboard_preview`
+- `upscale`
+- `inpaint`
+- `video_preprocess`
+
+当前公开仓库不保存真实 workflow 文件，只保存公开安全的抽象字段和 mock 示例：
+
+- `workflow_name`
+- `workflow_version`
+- `workflow_preset`
+- `workflow_parameters`
+- provider 抽象
+- mock 示例
+
+未来 `ImageGenerationInput` 中的 `workflow_name` 只是逻辑名称，不等同于真实私有 workflow 文件路径。真实 ComfyUI provider 应在私有环境中把逻辑 workflow 名称映射到私有 workflow 文件、workflow id、参数 preset 或版本配置。
+
+公开仓库只描述多 workflow 设计边界，不提交真实 workflow registry、workflow 文件、模型路径或私有参数。
+
+## 11. 远端 GPU / ComfyUI 私有部署策略
 
 未来私有部署时应重点考虑：
 
@@ -204,7 +230,7 @@ mock service 应保持确定性：相同输入在本地开发和 CI 中返回稳
 
 真实图片生成通常涉及较高成本、较大文件、较长任务时间和更复杂的失败状态。正式接入前应先在私有环境完成小样本联调，再决定是否引入队列、对象存储、任务表和生产监控。
 
-## 11. 安全风险
+## 12. 安全风险
 
 第四阶段及后续真实部署至少存在以下风险：
 
@@ -220,7 +246,7 @@ mock service 应保持确定性：相同输入在本地开发和 CI 中返回稳
 
 第四阶段公开仓库不应包含任何真实部署信息，以降低误提交和外部滥用风险。
 
-## 12. 测试策略
+## 13. 测试策略
 
 第四阶段测试应覆盖：
 
@@ -234,7 +260,7 @@ mock service 应保持确定性：相同输入在本地开发和 CI 中返回稳
 
 公开仓库测试应默认运行在 mock 模式，不依赖远端 GPU、真实 ComfyUI、真实 API Key、私有 workflow 或对象存储。真实 ComfyUI 联调应作为私有环境验收流程，不进入公开 CI。
 
-## 13. 第四阶段建议步骤
+## 14. 第四阶段建议步骤
 
 建议以当前项目步数继续推进：
 
@@ -253,7 +279,7 @@ mock service 应保持确定性：相同输入在本地开发和 CI 中返回稳
 
 每一步都应保持“小闭环、可测试、可回滚、无敏感信息”的推进原则。
 
-## 14. 验收标准
+## 15. 验收标准
 
 第 102 步验收标准：
 
@@ -267,7 +293,7 @@ mock service 应保持确定性：相同输入在本地开发和 CI 中返回稳
 
 本步骤完成后不进行 commit。
 
-## 15. 当前完成进度
+## 16. 当前完成进度
 
 截至第 108 步，第四阶段已完成以下 mock 小闭环：
 

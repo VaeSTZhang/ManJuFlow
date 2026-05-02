@@ -83,7 +83,9 @@
 - 第四阶段接口与本地开发文档更新
 - 第四阶段进度文档补全
 - 设计 ComfyUI adapter interface
+- 设计多 workflow registry / workflow preset 抽象
 - 新增私有部署 runbook 草案
+- README 项目主页展示优化
 - S002-S004 可作为后续模型质量补充对比
 
 ## 当前暂不做
