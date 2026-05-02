@@ -36,7 +36,8 @@ select {
 .stage-grid,
 .workspace,
 .storyboard-workspace,
-.image-prompt-workspace {
+.image-prompt-workspace,
+.image-generation-workspace {
   width: min(1180px, 100%);
   margin-right: auto;
   margin-left: auto;
@@ -175,6 +176,14 @@ select {
 }
 
 .image-prompt-workspace {
+  display: grid;
+  grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.image-generation-workspace {
   display: grid;
   grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
   gap: 20px;
@@ -614,6 +623,7 @@ select {
 }
 
 .image-prompt-meta,
+.image-generation-meta,
 .prompt-detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -627,7 +637,15 @@ select {
   background: #f7fbff;
 }
 
+.image-generation-meta {
+  padding: 14px;
+  border: 1px solid #d8e6f8;
+  border-radius: 8px;
+  background: #f7fbff;
+}
+
 .image-prompt-meta div,
+.image-generation-meta div,
 .prompt-detail-grid div {
   min-width: 0;
   padding: 10px;
@@ -637,6 +655,7 @@ select {
 }
 
 .image-prompt-meta span,
+.image-generation-meta span,
 .prompt-detail-grid dt,
 .prompt-text-block span {
   display: block;
@@ -647,6 +666,7 @@ select {
 }
 
 .image-prompt-meta strong,
+.image-generation-meta strong,
 .prompt-detail-grid dd {
   margin: 0;
   color: #243149;
@@ -658,6 +678,58 @@ select {
   border: 1px solid #d8e6f8;
   border-radius: 8px;
   background: #ffffff;
+}
+
+.image-generation-items {
+  padding: 16px;
+  border: 1px solid #d8e6f8;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.image-generation-items h4 {
+  margin-bottom: 12px;
+  color: #172033;
+  font-size: 18px;
+}
+
+.image-generation-list {
+  display: grid;
+  gap: 14px;
+}
+
+.image-generation-card {
+  padding: 14px;
+  border: 1px solid #e1e9f3;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.mock-image-placeholder {
+  display: grid;
+  min-height: 190px;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 18px;
+  border: 1px dashed #9bb2cc;
+  border-radius: 8px;
+  color: #2a3a52;
+  background: linear-gradient(180deg, #f7fbff, #eef5ff);
+  text-align: center;
+}
+
+.mock-image-placeholder strong {
+  color: #1d4ed8;
+  font-size: 18px;
+}
+
+.mock-image-placeholder span,
+.mock-image-placeholder small {
+  max-width: 100%;
+  color: #536276;
+  overflow-wrap: anywhere;
 }
 
 .image-prompt-items h4 {
@@ -741,7 +813,8 @@ select {
   .stage-grid,
   .workspace,
   .storyboard-workspace,
-  .image-prompt-workspace {
+  .image-prompt-workspace,
+  .image-generation-workspace {
     grid-template-columns: 1fr;
   }
 

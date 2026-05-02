@@ -1,7 +1,13 @@
 import { FormEvent, useEffect, useState } from "react";
+import { generateImages } from "./api/imageGenerations";
 import { generateImagePrompts } from "./api/imagePrompts";
 import { generateStoryboard } from "./api/storyboards";
 import "./App.css";
+import type {
+  ImageGenerationInput,
+  ImageGenerationOutput,
+  ImageGenerationPromptItem,
+} from "./types/imageGeneration";
 import type { ImagePromptInput, ImagePromptOutput } from "./types/imagePrompt";
 import type { StoryboardInput, StoryboardOutput } from "./types/storyboard";
 
@@ -101,6 +107,29 @@ const defaultImagePromptForm: ImagePromptInput = {
   extra_requirements: "保持雨夜、冷色光影、电影感写实风格。",
 };
 
+const defaultImageGenerationPromptItems: ImageGenerationPromptItem[] = [
+  {
+    prompt_id: "P001",
+    shot_id: "S001_SH001",
+    positive_prompt:
+      "cinematic realistic rain night hospital entrance, two characters facing each other, cold headlights",
+    negative_prompt: "low quality, blurry, distorted hands, watermark",
+    style_preset: "cinematic realistic",
+    aspect_ratio: "9:16",
+  },
+];
+
+const defaultImageGenerationForm: ImageGenerationInput = {
+  project_title: "测试短剧：雨夜重逢",
+  prompt_items: defaultImageGenerationPromptItems,
+  provider: "mock",
+  workflow_name: "mock_image_generation_v1",
+  aspect_ratio: "9:16",
+  style_preset: "cinematic realistic",
+  output_count: 1,
+  seed: null,
+};
+
 const imagePromptModelOptions: ImagePromptModelOption[] = [
   { value: "default", label: "使用后端默认" },
   { value: "deepseek", label: "DeepSeek / deepseek-chat", provider: "deepseek", model: "deepseek-chat" },
@@ -164,6 +193,10 @@ function sanitizeFileName(value: string): string {
     .slice(0, 60);
 }
 
+function formatPromptItemsJson(items: ImageGenerationPromptItem[]): string {
+  return JSON.stringify(items, null, 2);
+}
+
 const stages = [
   {
     title: "灵感输入",
@@ -206,6 +239,14 @@ function App() {
   const [imagePromptTransferStatus, setImagePromptTransferStatus] = useState("");
   const [imagePromptCopyStatus, setImagePromptCopyStatus] = useState("");
   const [imagePromptExportStatus, setImagePromptExportStatus] = useState("");
+  const [imageGenerationForm, setImageGenerationForm] =
+    useState<ImageGenerationInput>(defaultImageGenerationForm);
+  const [imageGenerationPromptItemsText, setImageGenerationPromptItemsText] = useState(
+    formatPromptItemsJson(defaultImageGenerationPromptItems),
+  );
+  const [imageGenerationLoading, setImageGenerationLoading] = useState(false);
+  const [imageGenerationError, setImageGenerationError] = useState("");
+  const [imageGenerationResult, setImageGenerationResult] = useState<ImageGenerationOutput | null>(null);
 
   const selectedImagePromptModel =
     imagePromptModelOptions.find((option) => option.provider === imagePromptForm.llm_provider) ||
@@ -259,6 +300,14 @@ function App() {
     setImagePromptTransferStatus("");
     setImagePromptCopyStatus("");
     setImagePromptExportStatus("");
+  };
+
+  const updateImageGenerationField = <K extends keyof ImageGenerationInput>(
+    field: K,
+    value: ImageGenerationInput[K],
+  ) => {
+    setImageGenerationForm((current) => ({ ...current, [field]: value }));
+    setImageGenerationError("");
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -483,6 +532,128 @@ function App() {
     setImagePromptExportStatus("已导出绘图 Prompt JSON");
     setImagePromptCopyStatus("");
     setImagePromptError("");
+  };
+
+  const buildImageGenerationRequest = (
+    promptItems: ImageGenerationPromptItem[],
+    formData: ImageGenerationInput = imageGenerationForm,
+  ): ImageGenerationInput | null => {
+    const projectTitle = formData.project_title.trim();
+
+    if (!projectTitle) {
+      setImageGenerationError("请先填写项目标题。");
+      return null;
+    }
+
+    if (promptItems.length === 0) {
+      setImageGenerationError("请至少提供 1 条 prompt_items。");
+      return null;
+    }
+
+    const outputCount = Number(formData.output_count) || 1;
+
+    if (outputCount < 1 || outputCount > 4) {
+      setImageGenerationError("output_count 需要在 1 到 4 之间。");
+      return null;
+    }
+
+    return {
+      ...formData,
+      project_title: projectTitle,
+      prompt_items: promptItems,
+      provider: formData.provider?.trim() || "mock",
+      workflow_name: formData.workflow_name?.trim() || "mock_image_generation_v1",
+      aspect_ratio: formData.aspect_ratio || "9:16",
+      style_preset: formData.style_preset?.trim() || "cinematic realistic",
+      output_count: outputCount,
+      seed: formData.seed ?? null,
+    };
+  };
+
+  const requestImageGeneration = async (input: ImageGenerationInput) => {
+    setImageGenerationLoading(true);
+    setImageGenerationError("");
+
+    try {
+      const data = await generateImages(input);
+      setImageGenerationResult(data);
+    } catch {
+      setImageGenerationError("生成 mock 图片失败，请确认后端服务已启动：http://127.0.0.1:8000");
+    } finally {
+      setImageGenerationLoading(false);
+    }
+  };
+
+  const handleImageGenerationSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    let promptItems: ImageGenerationPromptItem[];
+
+    try {
+      const parsed = JSON.parse(imageGenerationPromptItemsText) as unknown;
+
+      if (!Array.isArray(parsed)) {
+        setImageGenerationError("prompt_items JSON 必须是数组。");
+        return;
+      }
+
+      promptItems = parsed as ImageGenerationPromptItem[];
+    } catch {
+      setImageGenerationError("prompt_items JSON 解析失败，请检查格式。");
+      return;
+    }
+
+    const input = buildImageGenerationRequest(promptItems);
+
+    if (!input) {
+      return;
+    }
+
+    await requestImageGeneration(input);
+  };
+
+  const generateImagesFromImagePromptResult = async () => {
+    if (!imagePromptResult?.items.length) {
+      setImageGenerationError("当前没有可用的绘图 Prompt 结果。");
+      return;
+    }
+
+    const promptItems = imagePromptResult.items.map(
+      (item): ImageGenerationPromptItem => ({
+        prompt_id: item.prompt_id,
+        shot_id: item.shot_id,
+        positive_prompt: item.positive_prompt,
+        negative_prompt: item.negative_prompt,
+        style_preset: item.style_preset,
+        aspect_ratio: item.aspect_ratio,
+        model_hint: item.model_hint,
+        seed: item.seed,
+        metadata: {
+          scene_id: item.scene_id,
+          shot_number: item.shot_number,
+          scene_number: item.scene_number,
+        },
+      }),
+    );
+
+    const nextForm = {
+      ...imageGenerationForm,
+      project_title: imagePromptResult.project_title,
+      prompt_items: promptItems,
+      aspect_ratio: imagePromptResult.aspect_ratio,
+      style_preset: imagePromptResult.style_preset,
+    };
+
+    setImageGenerationForm(nextForm);
+    setImageGenerationPromptItemsText(formatPromptItemsJson(promptItems));
+
+    const input = buildImageGenerationRequest(promptItems, nextForm);
+
+    if (!input) {
+      return;
+    }
+
+    await requestImageGeneration(input);
   };
 
   return (
@@ -1063,6 +1234,217 @@ function App() {
                           <dd>{item.model_hint || "未设置"}</dd>
                         </div>
                       </dl>
+                    </section>
+                  ))}
+                </div>
+              </section>
+            </article>
+          )}
+        </section>
+      </section>
+
+      <section className="image-generation-workspace">
+        <form className="panel form-panel" onSubmit={handleImageGenerationSubmit}>
+          <div className="panel-heading">
+            <p>第四阶段</p>
+            <h2>生成图片</h2>
+          </div>
+
+          <label className="field field-wide">
+            <span>项目标题</span>
+            <input
+              value={imageGenerationForm.project_title}
+              onChange={(event) => updateImageGenerationField("project_title", event.target.value)}
+            />
+          </label>
+
+          <div className="field-grid">
+            <label className="field">
+              <span>Provider</span>
+              <select
+                value={imageGenerationForm.provider || "mock"}
+                onChange={(event) => updateImageGenerationField("provider", event.target.value)}
+              >
+                <option value="mock">mock</option>
+              </select>
+            </label>
+
+            <label className="field">
+              <span>Workflow</span>
+              <input
+                value={imageGenerationForm.workflow_name || "mock_image_generation_v1"}
+                onChange={(event) => updateImageGenerationField("workflow_name", event.target.value)}
+              />
+            </label>
+
+            <label className="field">
+              <span>画面比例</span>
+              <select
+                value={imageGenerationForm.aspect_ratio || "9:16"}
+                onChange={(event) => updateImageGenerationField("aspect_ratio", event.target.value)}
+              >
+                <option value="9:16">9:16</option>
+                <option value="16:9">16:9</option>
+                <option value="1:1">1:1</option>
+              </select>
+            </label>
+
+            <label className="field">
+              <span>生成数量</span>
+              <input
+                max={4}
+                min={1}
+                type="number"
+                value={imageGenerationForm.output_count || 1}
+                onChange={(event) =>
+                  updateImageGenerationField("output_count", Number(event.target.value) || 1)
+                }
+              />
+            </label>
+
+            <label className="field">
+              <span>风格预设</span>
+              <input
+                value={imageGenerationForm.style_preset || "cinematic realistic"}
+                onChange={(event) => updateImageGenerationField("style_preset", event.target.value)}
+              />
+            </label>
+
+            <label className="field">
+              <span>Seed</span>
+              <input
+                type="number"
+                value={imageGenerationForm.seed ?? ""}
+                onChange={(event) =>
+                  updateImageGenerationField(
+                    "seed",
+                    event.target.value === "" ? null : Number(event.target.value),
+                  )
+                }
+              />
+            </label>
+          </div>
+
+          <label className="field field-wide">
+            <span>prompt_items JSON</span>
+            <textarea
+              value={imageGenerationPromptItemsText}
+              onChange={(event) => {
+                setImageGenerationPromptItemsText(event.target.value);
+                setImageGenerationError("");
+              }}
+              rows={9}
+            />
+          </label>
+
+          <button
+            className="secondary-button"
+            disabled={!imagePromptResult?.items.length || imageGenerationLoading}
+            onClick={generateImagesFromImagePromptResult}
+            type="button"
+          >
+            使用绘图 Prompt 结果生成 mock 图片
+          </button>
+
+          <button className="primary-button" disabled={imageGenerationLoading} type="submit">
+            {imageGenerationLoading ? "生成中..." : "生成 mock 图片"}
+          </button>
+
+          {imageGenerationError && <p className="error-message">{imageGenerationError}</p>}
+        </form>
+
+        <section className="panel result-panel">
+          <div className="result-header">
+            <div>
+              <p>输出预览</p>
+              <h2>Image Generation</h2>
+            </div>
+          </div>
+
+          {!imageGenerationResult ? (
+            <div className="empty-state">生成图片 mock 结果将在这里展示。</div>
+          ) : (
+            <article className="script-output image-generation-output">
+              <section className="result-summary">
+                <span>项目标题</span>
+                <h3>{imageGenerationResult.project_title}</h3>
+              </section>
+
+              <section className="image-generation-meta">
+                <div>
+                  <span>Provider</span>
+                  <strong>{imageGenerationResult.provider}</strong>
+                </div>
+                <div>
+                  <span>Status</span>
+                  <strong>{imageGenerationResult.status}</strong>
+                </div>
+                <div>
+                  <span>Items</span>
+                  <strong>{imageGenerationResult.items.length}</strong>
+                </div>
+              </section>
+
+              <section className="image-generation-items">
+                <h4>Mock 图片结果</h4>
+                <div className="image-generation-list">
+                  {imageGenerationResult.items.map((item) => (
+                    <section className="image-generation-card" key={item.task_id}>
+                      <div className="mock-image-placeholder">
+                        <strong>Mock Image</strong>
+                        <span>{item.mock_url || "无 mock_url"}</span>
+                        <small>
+                          {item.width ?? "?"} x {item.height ?? "?"} · {item.shot_id} · {item.prompt_id}
+                        </small>
+                      </div>
+
+                      <div className="prompt-card-header">
+                        <span>{item.task_id}</span>
+                        <h5>{item.status}</h5>
+                      </div>
+
+                      <dl className="prompt-detail-grid">
+                        <div>
+                          <dt>Prompt ID</dt>
+                          <dd>{item.prompt_id}</dd>
+                        </div>
+                        <div>
+                          <dt>Shot ID</dt>
+                          <dd>{item.shot_id}</dd>
+                        </div>
+                        <div>
+                          <dt>Mock URL</dt>
+                          <dd>{item.mock_url || "未设置"}</dd>
+                        </div>
+                        <div>
+                          <dt>Local Path</dt>
+                          <dd>{item.local_path || "未设置"}</dd>
+                        </div>
+                        <div>
+                          <dt>尺寸</dt>
+                          <dd>
+                            {item.width ?? "?"} x {item.height ?? "?"}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Seed</dt>
+                          <dd>{item.seed ?? "未设置"}</dd>
+                        </div>
+                        <div>
+                          <dt>Metadata Source</dt>
+                          <dd>{String(item.metadata?.source ?? "未设置")}</dd>
+                        </div>
+                      </dl>
+
+                      <div className="prompt-text-block positive-prompt">
+                        <span>Positive Prompt</span>
+                        <p>{item.positive_prompt}</p>
+                      </div>
+
+                      <div className="prompt-text-block negative-prompt">
+                        <span>Negative Prompt</span>
+                        <p>{item.negative_prompt}</p>
+                      </div>
                     </section>
                   ))}
                 </div>
