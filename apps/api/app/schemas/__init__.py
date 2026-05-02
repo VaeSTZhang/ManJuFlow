@@ -1,3 +1,4 @@
+from app.schemas.asset import AssetCollection, AssetItem
 from app.schemas.idea import IdeaInput
 from app.schemas.image_prompt import (
     ImagePromptInput,
@@ -10,6 +11,7 @@ from app.schemas.image_generation import (
     ImageGenerationOutput,
     ImageGenerationPromptItem,
 )
+from app.schemas.render_task import RenderTaskItem, RenderTaskOutput
 from app.schemas.script import (
     CharacterProfile,
     DialogueLine,
@@ -25,6 +27,8 @@ from app.schemas.storyboard import (
 )
 
 __all__ = [
+    "AssetCollection",
+    "AssetItem",
     "CharacterProfile",
     "DialogueLine",
     "EpisodeScript",
@@ -39,6 +43,8 @@ __all__ = [
     "SceneScript",
     "SceneStoryboard",
     "ShotStoryboard",
+    "RenderTaskItem",
+    "RenderTaskOutput",
     "ScriptOutput",
     "StoryboardInput",
     "StoryboardOutput",
