@@ -28,6 +28,10 @@
 - 第 111 步：补充 `.env.example` 的 ImageGeneration / ComfyUI 占位变量；
 - 第 112 步：补充多 workflow / workflow registry 设计说明；
 - 第 113 步：优化 GitHub README 项目主页展示。
+- 第 114 步：新增 `docs/PHASE_4_PROGRESS.md`；
+- 第 115 步：新增 `docs/WORKFLOW_REGISTRY_DESIGN.md`；
+- 第 116 步：新增 `docs/COMFYUI_PROVIDER_TECHNICAL_DESIGN.md`；
+- 第 117 步：新增 `docs/COMFYUI_PRIVATE_INTEGRATION_CHECKLIST.md`。
 
 ## 3. 当前已完成的技术能力
 
@@ -56,7 +60,11 @@
 文档：
 
 - `docs/PHASE_4_IMAGE_GENERATION_PLAN.md`
+- `docs/PHASE_4_PROGRESS.md`
+- `docs/WORKFLOW_REGISTRY_DESIGN.md`
+- `docs/COMFYUI_PROVIDER_TECHNICAL_DESIGN.md`
 - `docs/COMFYUI_PRIVATE_DEPLOYMENT_RUNBOOK_DRAFT.md`
+- `docs/COMFYUI_PRIVATE_INTEGRATION_CHECKLIST.md`
 - `docs/API_CONTRACT.md`
 - `docs/LOCAL_DEV.md`
 - `docs/MVP_ROADMAP.md`
@@ -140,21 +148,21 @@
 - runbook 完成；
 - `.env.example` 占位完成；
 - workflow registry 设计明确；
+- ComfyUI 私有小样本联调 checklist 已完成且全部满足；
 - 准备做真实 ComfyUI 小样本联调；
 - 已确认不会把真实配置提交公开仓库。
+
+未满足 checklist 前，不进入真实远端 GPU / ComfyUI 联调。当前仍不需要购买服务器。
 
 ## 8. 下一步建议
 
 建议后续步骤：
 
-- 第 115 步：补充真实 ComfyUI provider 技术方案文档，但不写真实配置；
-- 第 116 步：设计 workflow registry / preset mapping 文档；
-- 第 117 步：整理私有小样本联调 checklist；
-- 第 118 步：评估是否需要进入真实远端 GPU 准备；
-- 第 119 步：如仍不买服务器，则继续做 asset manager / task status mock；
+- 第 119 步：评估是否进入远端 GPU 准备；
+- 如果 checklist 未全部满足，则继续做 asset manager / task status mock；
 - 第 120 步：第四阶段阶段总结。
 
-下一阶段仍不建议直接接真实服务器。应先把真实 provider 技术方案、workflow registry、私有联调 checklist 和安全边界写清楚。
+下一阶段仍不建议直接接真实服务器。应先确认 checklist、成本、安全和私有配置边界。
 
 ## 9. 质量原则
 

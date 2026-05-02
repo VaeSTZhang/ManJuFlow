@@ -74,6 +74,9 @@
 - 浏览器 mock 联调已通过
 - 手动 `prompt_items` JSON → `/api/images/generate` → mock 图片结果已通过
 - `ImagePromptResult` → `/api/images/generate` → mock 图片结果已通过
+- Workflow Registry 设计文档已完成
+- ComfyUI Provider 技术方案文档已完成
+- ComfyUI 私有小样本联调 checklist 已完成
 - 当前仍未接真实 ComfyUI / GPU
 
 ## 下一步计划

@@ -246,7 +246,11 @@ Long-term:
 - [MVP Roadmap](docs/MVP_ROADMAP.md)
 - [Phase 3 Summary](docs/PHASE_3_SUMMARY.md)
 - [Phase 4 Image Generation Plan](docs/PHASE_4_IMAGE_GENERATION_PLAN.md)
+- [Phase 4 Progress](docs/PHASE_4_PROGRESS.md)
+- [Workflow Registry Design](docs/WORKFLOW_REGISTRY_DESIGN.md)
+- [ComfyUI Provider Technical Design](docs/COMFYUI_PROVIDER_TECHNICAL_DESIGN.md)
 - [ComfyUI Private Deployment Runbook Draft](docs/COMFYUI_PRIVATE_DEPLOYMENT_RUNBOOK_DRAFT.md)
+- [ComfyUI Private Integration Checklist](docs/COMFYUI_PRIVATE_INTEGRATION_CHECKLIST.md)
 - [Cooperation Tech Asset Boundary Draft](docs/COOPERATION_TECH_ASSET_BOUNDARY_DRAFT.md)
 - [Model Comparison Results](docs/MODEL_COMPARISON_RESULTS.md)
 
