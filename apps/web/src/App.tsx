@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { generateImages } from "./api/imageGenerations";
+import { generateImageBundle, generateImages } from "./api/imageGenerations";
 import { generateImagePrompts } from "./api/imagePrompts";
 import { generateStoryboard } from "./api/storyboards";
 import "./App.css";
@@ -8,6 +8,7 @@ import type {
   ImageGenerationOutput,
   ImageGenerationPromptItem,
 } from "./types/imageGeneration";
+import type { ImageGenerationBundleOutput } from "./types/imageGenerationBundle";
 import type { ImagePromptInput, ImagePromptOutput } from "./types/imagePrompt";
 import type { StoryboardInput, StoryboardOutput } from "./types/storyboard";
 
@@ -247,6 +248,10 @@ function App() {
   const [imageGenerationLoading, setImageGenerationLoading] = useState(false);
   const [imageGenerationError, setImageGenerationError] = useState("");
   const [imageGenerationResult, setImageGenerationResult] = useState<ImageGenerationOutput | null>(null);
+  const [imageGenerationBundleLoading, setImageGenerationBundleLoading] = useState(false);
+  const [imageGenerationBundleError, setImageGenerationBundleError] = useState("");
+  const [imageGenerationBundleResult, setImageGenerationBundleResult] =
+    useState<ImageGenerationBundleOutput | null>(null);
 
   const selectedImagePromptModel =
     imagePromptModelOptions.find((option) => option.provider === imagePromptForm.llm_provider) ||
@@ -308,6 +313,7 @@ function App() {
   ) => {
     setImageGenerationForm((current) => ({ ...current, [field]: value }));
     setImageGenerationError("");
+    setImageGenerationBundleError("");
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -537,23 +543,24 @@ function App() {
   const buildImageGenerationRequest = (
     promptItems: ImageGenerationPromptItem[],
     formData: ImageGenerationInput = imageGenerationForm,
+    setRequestError: (message: string) => void = setImageGenerationError,
   ): ImageGenerationInput | null => {
     const projectTitle = formData.project_title.trim();
 
     if (!projectTitle) {
-      setImageGenerationError("请先填写项目标题。");
+      setRequestError("请先填写项目标题。");
       return null;
     }
 
     if (promptItems.length === 0) {
-      setImageGenerationError("请至少提供 1 条 prompt_items。");
+      setRequestError("请至少提供 1 条 prompt_items。");
       return null;
     }
 
     const outputCount = Number(formData.output_count) || 1;
 
     if (outputCount < 1 || outputCount > 4) {
-      setImageGenerationError("output_count 需要在 1 到 4 之间。");
+      setRequestError("output_count 需要在 1 到 4 之间。");
       return null;
     }
 
@@ -570,55 +577,30 @@ function App() {
     };
   };
 
-  const requestImageGeneration = async (input: ImageGenerationInput) => {
-    setImageGenerationLoading(true);
-    setImageGenerationError("");
-
-    try {
-      const data = await generateImages(input);
-      setImageGenerationResult(data);
-    } catch {
-      setImageGenerationError("生成 mock 图片失败，请确认后端服务已启动：http://127.0.0.1:8000");
-    } finally {
-      setImageGenerationLoading(false);
-    }
-  };
-
-  const handleImageGenerationSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    let promptItems: ImageGenerationPromptItem[];
-
+  const parseImageGenerationPromptItems = (
+    setRequestError: (message: string) => void,
+  ): ImageGenerationPromptItem[] | null => {
     try {
       const parsed = JSON.parse(imageGenerationPromptItemsText) as unknown;
 
       if (!Array.isArray(parsed)) {
-        setImageGenerationError("prompt_items JSON 必须是数组。");
-        return;
+        setRequestError("prompt_items JSON 必须是数组。");
+        return null;
       }
 
-      promptItems = parsed as ImageGenerationPromptItem[];
+      return parsed as ImageGenerationPromptItem[];
     } catch {
-      setImageGenerationError("prompt_items JSON 解析失败，请检查格式。");
-      return;
+      setRequestError("prompt_items JSON 解析失败，请检查格式。");
+      return null;
     }
-
-    const input = buildImageGenerationRequest(promptItems);
-
-    if (!input) {
-      return;
-    }
-
-    await requestImageGeneration(input);
   };
 
-  const generateImagesFromImagePromptResult = async () => {
+  const mapImagePromptResultToImageGenerationItems = (): ImageGenerationPromptItem[] | null => {
     if (!imagePromptResult?.items.length) {
-      setImageGenerationError("当前没有可用的绘图 Prompt 结果。");
-      return;
+      return null;
     }
 
-    const promptItems = imagePromptResult.items.map(
+    return imagePromptResult.items.map(
       (item): ImageGenerationPromptItem => ({
         prompt_id: item.prompt_id,
         shot_id: item.shot_id,
@@ -635,6 +617,85 @@ function App() {
         },
       }),
     );
+  };
+
+  const requestImageGeneration = async (input: ImageGenerationInput) => {
+    setImageGenerationLoading(true);
+    setImageGenerationError("");
+
+    try {
+      const data = await generateImages(input);
+      setImageGenerationResult(data);
+    } catch {
+      setImageGenerationError("生成 mock 图片失败，请确认后端服务已启动：http://127.0.0.1:8000");
+    } finally {
+      setImageGenerationLoading(false);
+    }
+  };
+
+  const requestImageGenerationBundle = async (input: ImageGenerationInput) => {
+    setImageGenerationBundleLoading(true);
+    setImageGenerationBundleError("");
+
+    try {
+      const data = await generateImageBundle(input);
+      setImageGenerationBundleResult(data);
+    } catch {
+      setImageGenerationBundleError("生成 Bundle 失败，请确认后端服务已启动：http://127.0.0.1:8000");
+    } finally {
+      setImageGenerationBundleLoading(false);
+    }
+  };
+
+  const handleImageGenerationSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const promptItems = parseImageGenerationPromptItems(setImageGenerationError);
+
+    if (!promptItems) {
+      return;
+    }
+
+    const input = buildImageGenerationRequest(promptItems);
+
+    if (!input) {
+      return;
+    }
+
+    await requestImageGeneration(input);
+  };
+
+  const handleGenerateImageBundleFromManualInput = async () => {
+    const promptItems = parseImageGenerationPromptItems(setImageGenerationBundleError);
+
+    if (!promptItems) {
+      return;
+    }
+
+    const input = buildImageGenerationRequest(
+      promptItems,
+      imageGenerationForm,
+      setImageGenerationBundleError,
+    );
+
+    if (!input) {
+      return;
+    }
+
+    await requestImageGenerationBundle(input);
+  };
+
+  const generateImagesFromImagePromptResult = async () => {
+    if (!imagePromptResult?.items.length) {
+      setImageGenerationError("当前没有可用的绘图 Prompt 结果。");
+      return;
+    }
+
+    const promptItems = mapImagePromptResultToImageGenerationItems();
+
+    if (!promptItems) {
+      return;
+    }
 
     const nextForm = {
       ...imageGenerationForm,
@@ -654,6 +715,38 @@ function App() {
     }
 
     await requestImageGeneration(input);
+  };
+
+  const generateImageBundleFromImagePromptResult = async () => {
+    const promptItems = mapImagePromptResultToImageGenerationItems();
+
+    if (!promptItems) {
+      setImageGenerationBundleError("当前没有可用的绘图 Prompt 结果。");
+      return;
+    }
+
+    const nextForm = {
+      ...imageGenerationForm,
+      project_title: imagePromptResult?.project_title || imageGenerationForm.project_title,
+      prompt_items: promptItems,
+      aspect_ratio: imagePromptResult?.aspect_ratio || imageGenerationForm.aspect_ratio,
+      style_preset: imagePromptResult?.style_preset || imageGenerationForm.style_preset,
+    };
+
+    setImageGenerationForm(nextForm);
+    setImageGenerationPromptItemsText(formatPromptItemsJson(promptItems));
+
+    const input = buildImageGenerationRequest(
+      promptItems,
+      nextForm,
+      setImageGenerationBundleError,
+    );
+
+    if (!input) {
+      return;
+    }
+
+    await requestImageGenerationBundle(input);
   };
 
   return (
@@ -1332,6 +1425,7 @@ function App() {
               onChange={(event) => {
                 setImageGenerationPromptItemsText(event.target.value);
                 setImageGenerationError("");
+                setImageGenerationBundleError("");
               }}
               rows={9}
             />
@@ -1346,11 +1440,30 @@ function App() {
             使用绘图 Prompt 结果生成 mock 图片
           </button>
 
+          <button
+            className="secondary-button"
+            disabled={!imagePromptResult?.items.length || imageGenerationBundleLoading}
+            onClick={generateImageBundleFromImagePromptResult}
+            type="button"
+          >
+            使用绘图 Prompt 结果生成 Bundle
+          </button>
+
+          <button
+            className="secondary-button"
+            disabled={imageGenerationBundleLoading}
+            onClick={handleGenerateImageBundleFromManualInput}
+            type="button"
+          >
+            {imageGenerationBundleLoading ? "生成 Bundle 中..." : "生成 Bundle（图片 + 资产 + 任务）"}
+          </button>
+
           <button className="primary-button" disabled={imageGenerationLoading} type="submit">
             {imageGenerationLoading ? "生成中..." : "生成 mock 图片"}
           </button>
 
           {imageGenerationError && <p className="error-message">{imageGenerationError}</p>}
+          {imageGenerationBundleError && <p className="error-message">{imageGenerationBundleError}</p>}
         </form>
 
         <section className="panel result-panel">
@@ -1360,6 +1473,42 @@ function App() {
               <h2>Image Generation</h2>
             </div>
           </div>
+
+          {imageGenerationBundleResult && (
+            <section className="image-generation-bundle-summary">
+              <div className="result-summary">
+                <span>Bundle 项目</span>
+                <h3>{imageGenerationBundleResult.project_title || "未设置"}</h3>
+              </div>
+
+              <section className="image-generation-meta">
+                <div>
+                  <span>Image Items</span>
+                  <strong>{imageGenerationBundleResult.image_generation?.items?.length ?? 0}</strong>
+                </div>
+                <div>
+                  <span>Assets</span>
+                  <strong>{imageGenerationBundleResult.assets?.assets?.length ?? 0}</strong>
+                </div>
+                <div>
+                  <span>Tasks</span>
+                  <strong>{imageGenerationBundleResult.tasks?.tasks?.length ?? 0}</strong>
+                </div>
+                <div>
+                  <span>Metadata Source</span>
+                  <strong>{String(imageGenerationBundleResult.metadata?.source ?? "未设置")}</strong>
+                </div>
+                <div>
+                  <span>Provider</span>
+                  <strong>{String(imageGenerationBundleResult.metadata?.provider ?? "未设置")}</strong>
+                </div>
+                <div>
+                  <span>Bundle Version</span>
+                  <strong>{String(imageGenerationBundleResult.metadata?.bundle_version ?? "未设置")}</strong>
+                </div>
+              </section>
+            </section>
+          )}
 
           {!imageGenerationResult ? (
             <div className="empty-state">生成图片 mock 结果将在这里展示。</div>

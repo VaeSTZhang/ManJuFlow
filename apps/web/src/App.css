@@ -687,6 +687,16 @@ select {
   background: #ffffff;
 }
 
+.image-generation-bundle-summary {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid #d8e6f8;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
 .image-generation-items h4 {
   margin-bottom: 12px;
   color: #172033;
