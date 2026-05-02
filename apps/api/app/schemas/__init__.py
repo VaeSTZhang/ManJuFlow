@@ -4,6 +4,12 @@ from app.schemas.image_prompt import (
     ImagePromptItem,
     ImagePromptOutput,
 )
+from app.schemas.image_generation import (
+    ImageGenerationInput,
+    ImageGenerationItem,
+    ImageGenerationOutput,
+    ImageGenerationPromptItem,
+)
 from app.schemas.script import (
     CharacterProfile,
     DialogueLine,
@@ -23,6 +29,10 @@ __all__ = [
     "DialogueLine",
     "EpisodeScript",
     "IdeaInput",
+    "ImageGenerationInput",
+    "ImageGenerationItem",
+    "ImageGenerationOutput",
+    "ImageGenerationPromptItem",
     "ImagePromptInput",
     "ImagePromptItem",
     "ImagePromptOutput",
