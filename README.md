@@ -1,232 +1,257 @@
-# ManJuFlow｜漫剧流 AI 影视化创作流水线平台
+# ManJuFlow｜漫剧流
 
-ManJuFlow｜漫剧流 是一个面向短剧、影视和视频内容生产的 AI 创作流水线原型。项目当前覆盖从灵感到结构化剧本、导演分镜、AI 绘图 Prompt 的核心链路，并为后续文生图、文生视频、配音字幕和成片输出预留扩展边界。
+AI 影视化创作流水线平台｜从灵感、剧本、分镜、绘图 Prompt 到图像生成的模块化创作工作台
 
-当前项目处于 actively developed prototype / MVP stage，不是最终生产系统。
+A modular AI cinematic content creation pipeline for script, storyboard, image prompt and image generation workflows.
 
-## 项目定位
+![Phase](https://img.shields.io/badge/Phase-4%20Image%20Generation%20Mock-2563eb)
+![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)
+![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-646cff)
+![Schema](https://img.shields.io/badge/Schema-Pydantic-e92063)
+![Mode](https://img.shields.io/badge/Mode-Mock%20%2F%20LLM-0f766e)
+![License](https://img.shields.io/badge/License-No%20public%20license%20yet-b42318)
 
-ManJuFlow 的目标是把内容生产流程拆成可验证、可替换、可迁移的小闭环：
+ManJuFlow｜漫剧流 是一个面向短剧、影视和视频内容生产的 AI 创作流水线 MVP。它把从创意灵感到结构化剧本、导演分镜、AI 绘图 Prompt、mock 图片生成的前期创作链路组织成可验证、可交接、可迁移的工程闭环。
+
+当前公开仓库重点展示数据协议、mock demo、接口边界、前端工作台、测试体系和私有部署安全边界。它不是最终生产系统，也不包含真实 ComfyUI / GPU 部署配置。
+
+## Why ManJuFlow
+
+AI 影视生产流程常见的问题是链路割裂：创意、剧本、分镜、Prompt、图像生成分散在不同工具中，结果难追踪，Prompt 难复用，非技术团队使用门槛高。
+
+ManJuFlow 的目标是把这些步骤拆成稳定的小闭环：
+
+- 每一步都有结构化 Schema；
+- 每一步输出都能作为下一步输入；
+- mock 模式支持本地评审和演示；
+- LLM / provider 接入保持可替换；
+- 公开仓库和私有部署边界清晰；
+- 合作方技术员和未来接手开发者可以快速理解工程结构。
+
+## Current Pipeline
 
 ```text
-Idea
-→ Script
-→ Storyboard
-→ ImagePrompt
-→ 后续：Image / Video / Voice / Subtitle / Final Output
+IdeaInput
+  -> ScriptOutput
+  -> StoryboardOutput
+  -> ImagePromptOutput
+  -> ImageGenerationOutput mock
+  -> Future ComfyUI / Video / Post-production
 ```
 
-当前重点是完成前三个文本与结构化阶段，建立稳定的数据协议、Prompt 版本化、后端服务、前端闭环、测试体系和文档体系。
+## Current Capabilities
 
-## 当前阶段成果
+| Area | Status | Notes |
+| --- | --- | --- |
+| Phase 1 Idea → Script | 已完成 | 结构化短剧剧本生成，支持前端展示、复制、导出 |
+| Phase 2 Script → Storyboard | 已完成 | 导演分镜 Schema、mock service、API 和前端闭环 |
+| Phase 3 Storyboard → ImagePrompt | 已完成 | 绘图 Prompt Schema、mock / llm、parser、前端模型选择器 |
+| Phase 4 ImagePrompt → ImageGeneration | 已完成 mock 闭环 | Schema、mock service、endpoint、前端 mock image card |
+| Multi LLM Provider | 已接入 | DeepSeek / Mimo / Kimi / MiniMax 文本 provider |
+| Model Comparison | 进行中 | S001 四模型 ImagePrompt 对比已完成 |
+| ComfyUI | 安全占位 | provider interface / placeholder / private deployment runbook |
+| Frontend | 本地可运行 | React + Vite 工作台，覆盖核心创作链路 |
+| Tests | 持续维护 | 后端 `tests/api` 覆盖 schema / service / endpoint / parser |
+| Docs | 已建立 | API 契约、本地开发、阶段总结、合作边界、私有部署草案 |
 
-### Phase 1：Idea → Script
-
-- 灵感输入
-- 结构化短剧剧本输出
-- FastAPI endpoint：`POST /api/scripts/generate`
-- 前端展示、复制和导出 JSON
-- mock / llm 模式基础能力
-
-### Phase 2：Script → Storyboard
-
-- 剧本转导演分镜
-- 结构化 `StoryboardOutput`
-- FastAPI endpoint：`POST /api/storyboards/generate`
-- 前端分镜展示
-- 剧本结果一键带入分镜生成
-- 分镜 JSON 复制 / 导出
-
-### Phase 3：Storyboard → ImagePrompt
-
-- 分镜转 AI 绘图 Prompt
-- 结构化 `ImagePromptOutput`
-- FastAPI endpoint：`POST /api/prompts/generate`
-- ImagePrompt mock / llm 模式
-- ImagePrompt LLM parser
-- 中文异常空格清洗
-- DeepSeek / Mimo / Kimi / MiniMax 四家文本 LLM provider 接入
-- 请求级 `llm_provider` / `llm_model` 选择
-- 前端 ImagePrompt 模型选择器
-- 绘图 Prompt JSON 复制 / 导出
-- S001 四模型 ImagePrompt 对比已完成
-
-## 当前能力清单
-
-- 结构化剧本生成
-- 结构化分镜生成
-- AI 绘图 Prompt 生成
-- mock / llm generation mode
-- 多 LLM provider 配置
-- 请求级 provider / model 选择
-- 前端模型选择器
-- JSON 复制 / 导出
-- Pydantic Schema 校验
-- Prompt 文件版本化
-- LLM 输出解析与基础清洗
-- 后端 API 测试
-- 本地开发文档与模型对比文档
-
-## 技术架构
+## Architecture Overview
 
 ```text
 apps/
-  api/                 FastAPI backend
+  api/                         FastAPI backend
     app/
-      schemas/         Pydantic 数据协议
-      services/        业务服务、LLMClient、parser、mock service
-      prompts/         版本化 Prompt 文件
-      routers/         API 路由
-  web/                 React + Vite frontend
+      schemas/                 Pydantic data contracts
+      services/                business services, providers, parser, mock logic
+      prompts/                 versioned prompt templates
+      routers/                 API endpoints
+  web/                         React + Vite frontend
 
 tests/
-  api/                 后端 API / service / schema 测试
-  fixtures/            标准样本与模型输出样例
+  api/                         backend schema / service / endpoint tests
+  fixtures/                    stable samples and model output examples
 
-docs/                  项目文档、阶段记录、API 契约、模型对比方案
-scripts/               本地开发辅助脚本
+docs/                          project docs, API contracts, phase plans, runbooks
+scripts/                       local development helper scripts
 ```
 
-## 支持的 LLM Providers
+## Data Contract First
 
-当前后端已支持以下 OpenAI-compatible 文本 LLM provider：
+ManJuFlow 使用结构化数据协议作为 AI 流水线边界。核心对象包括：
 
-- DeepSeek
-- Mimo / 小米大模型
-- Kimi
-- MiniMax
+- `IdeaInput`
+- `ScriptOutput`
+- `StoryboardOutput`
+- `ImagePromptOutput`
+- `ImageGenerationOutput`
 
-说明：
+每一步都尽量避免只返回不可控文本，而是返回可校验、可展示、可复制、可导出、可继续传递给下一阶段的数据结构。
 
-- API Key 通过本地 `.env` 配置。
-- `.env` 不应提交到仓库。
-- 公开仓库不包含任何真实密钥。
-- 不传请求级 provider / model 时，后端使用 `.env` 中的默认 `LLM_PROVIDER`。
-- ImagePrompt 请求可传 `llm_provider` / `llm_model` 做单次调用级覆盖。
-- The web UI includes an ImagePrompt model selector for request-level provider/model override.
+## API Overview
 
-## 本地启动方式
+当前主要 API：
 
-首次配置：
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/health` | 后端健康检查 |
+| GET | `/api/system/status` | 当前系统与生成模式状态 |
+| POST | `/api/scripts/generate` | 灵感生成结构化剧本 |
+| POST | `/api/storyboards/generate` | 剧本生成导演分镜 |
+| POST | `/api/prompts/generate` | 分镜生成 AI 绘图 Prompt |
+| POST | `/api/images/generate` | 绘图 Prompt 生成 mock 图片结果 |
+
+详细字段请看 [API Contract](docs/API_CONTRACT.md)。
+
+## Quick Start
+
+Adjust paths to your local clone when needed.
+
+Backend:
 
 ```bash
-cp .env.example .env
-```
-
-后端启动：
-
-```bash
+cd /Users/zhangtritsen/Desktop/Code/ManJuFlow
 bash scripts/dev_api.sh
 ```
 
-如果 8000 端口被旧进程占用：
+If port `8000` is already in use:
 
 ```bash
 bash scripts/kill_api_port.sh
 bash scripts/dev_api.sh
 ```
 
-前端启动：
+Frontend:
 
 ```bash
 cd apps/web
-npm install
 npm run dev
 ```
 
-访问地址：
+Open:
 
-- 后端健康检查：`http://127.0.0.1:8000/health`
-- 后端接口文档：`http://127.0.0.1:8000/docs`
-- 前端页面：`http://localhost:5173/`
+- Backend health: `http://127.0.0.1:8000/health`
+- API docs: `http://127.0.0.1:8000/docs`
+- Web app: `http://localhost:5173/`
 
-## 测试与构建
-
-后端测试：
+Backend tests:
 
 ```bash
 python -m pytest tests/api
 ```
 
-前端构建：
+Frontend build:
 
 ```bash
 cd apps/web
 npm run build
 ```
 
-当前测试状态：
+## Image Generation / ComfyUI Boundary
 
-- `tests/api` 当前为 67 passed
-- `npm run build` 已通过
+Current state:
 
-## 环境变量说明
+- `/api/images/generate` is mock only.
+- It does not call real ComfyUI.
+- It does not require remote GPU.
+- It does not generate real image files.
+- `mock_url` is a stable placeholder path for UI and contract validation.
+- `ComfyUIImageGenerationProviderPlaceholder` exists only as an extension boundary.
 
-请参考 `.env.example` 创建本地 `.env`。
+Future real ComfyUI integration must live in a private deployment environment. The following must not be committed to this public repository:
 
-核心配置包括：
+- real workflow files;
+- real server URLs;
+- auth tokens or API keys;
+- model weights or model paths;
+- customer assets;
+- production outputs.
 
-- `SCRIPT_GENERATION_MODE`
-- `STORYBOARD_GENERATION_MODE`
-- `IMAGE_PROMPT_GENERATION_MODE`
-- `LLM_PROVIDER`
-- `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY`
-- `DEEPSEEK_BASE_URL` / `DEEPSEEK_MODEL` / `DEEPSEEK_API_KEY`
-- `MIMO_BASE_URL` / `MIMO_MODEL` / `MIMO_API_KEY`
-- `KIMI_BASE_URL` / `KIMI_MODEL` / `KIMI_API_KEY`
-- `MINIMAX_BASE_URL` / `MINIMAX_MODEL` / `MINIMAX_API_KEY`
+Future workflow design must support multiple workflow names, versions, presets, and registry mapping. `workflow_name` is a logical name, not a private workflow file path.
 
-建议默认保持：
+Expected future concepts:
 
-```env
-SCRIPT_GENERATION_MODE=mock
-STORYBOARD_GENERATION_MODE=mock
-IMAGE_PROMPT_GENERATION_MODE=mock
-```
+- `workflow_name`
+- `workflow_version`
+- `workflow_preset`
+- `workflow_parameters`
+- private workflow registry
+- provider adapter normalization
 
-`llm` 模式会调用真实模型，需要本地自行配置 API Key。公开仓库不会提供任何真实密钥。
+## Public Repository Safety Boundary
 
-## 文档导航
+This public repository can contain:
 
-- [MVP Roadmap](docs/MVP_ROADMAP.md)
-- [Phase 3 Progress](docs/PHASE_3_PROGRESS.md)
-- [Phase 3 Summary](docs/PHASE_3_SUMMARY.md)
-- [Cooperation Tech Asset Boundary Draft](docs/COOPERATION_TECH_ASSET_BOUNDARY_DRAFT.md)
-- [API Contract](docs/API_CONTRACT.md)
-- [Local Development](docs/LOCAL_DEV.md)
-- [Model Comparison Plan](docs/MODEL_COMPARISON_PLAN.md)
-- [Model Comparison Results](docs/MODEL_COMPARISON_RESULTS.md)
-- [Model Comparison Runbook](docs/MODEL_COMPARISON_RUNBOOK.md)
+- Schema;
+- mock service;
+- mock endpoint;
+- provider interface;
+- ComfyUI placeholder;
+- docs and runbooks;
+- safe examples;
+- local demo code.
+
+This public repository must not contain:
+
+- API Key;
+- `.env`;
+- SSH Key;
+- real server address;
+- private ComfyUI workflow;
+- model weights;
+- customer data;
+- partner confidential materials;
+- production output assets.
+
+## Usage Notice / License Notice
+
+当前仓库暂未授予开源许可证。
+
+公开访问仅用于技术评审、项目展示、合作沟通和架构讨论。未经项目所有者书面许可，不得将本仓库或其中任何代码、文档、Prompt、Schema、架构设计用于商业使用、再分发、转授权、生产部署或作为第三方项目资产使用。
+
+Public visibility does not imply open-source authorization.
+
+This repository is currently published for technical review, demonstration, and collaboration discussion only. No open-source license has been granted yet. Commercial use, redistribution, sublicensing, production deployment, or incorporation into third-party project assets requires prior written permission from the project owner.
 
 ## Roadmap
 
-以下内容属于后续规划，尚未作为生产能力完成：
+Near-term:
 
-- 第四阶段：文生图 / 远端 GPU / ComfyUI
-- 第五阶段：文生视频 / 图生视频
-- 第六阶段：资产管理 / 任务系统
-- 第七阶段：配音 / 字幕 / BGM / 成片合成
-- 第八阶段：部署 / 产品化 / 商业化
+- ComfyUI provider design;
+- workflow registry / preset mapping;
+- private ComfyUI small-sample integration checklist;
+- `.env.example` placeholder refinement;
+- README and docs polish;
+- UI information architecture cleanup.
 
-## 安全说明
+Mid-term:
 
-- 不提交 API Key。
-- 不提交 `.env`。
-- 不提交真实客户数据。
-- 不提交合作方敏感信息。
-- 不在代码、文档、日志或测试样例中写入真实密钥。
-- 真实部署需要单独配置环境变量、密钥管理、权限控制和数据隔离。
+- asset manager;
+- task center;
+- image-to-video;
+- TTS / subtitles / BGM;
+- post-production / FFmpeg;
+- Docker and deployment later.
 
-## 许可证与使用说明
+Long-term:
 
-当前仓库仅用于技术评审、项目展示和合作沟通，暂未授予开源许可证。未经项目所有者书面许可，不得用于商业使用、再分发、转授权或生产部署。
+- private deployment templates;
+- production task queue;
+- storage and permission model;
+- collaboration and review workflows;
+- commercial productization after legal and business terms are clear.
 
-License / Usage Notice:
+## Documentation Index
 
-This repository is currently published for technical review, demonstration, and collaboration discussion only. No open-source license has been granted yet. Commercial use, redistribution, sublicensing, or production deployment requires prior written permission from the project owner.
+- [API Contract](docs/API_CONTRACT.md)
+- [Local Development](docs/LOCAL_DEV.md)
+- [MVP Roadmap](docs/MVP_ROADMAP.md)
+- [Phase 3 Summary](docs/PHASE_3_SUMMARY.md)
+- [Phase 4 Image Generation Plan](docs/PHASE_4_IMAGE_GENERATION_PLAN.md)
+- [ComfyUI Private Deployment Runbook Draft](docs/COMFYUI_PRIVATE_DEPLOYMENT_RUNBOOK_DRAFT.md)
+- [Cooperation Tech Asset Boundary Draft](docs/COOPERATION_TECH_ASSET_BOUNDARY_DRAFT.md)
+- [Model Comparison Results](docs/MODEL_COMPARISON_RESULTS.md)
 
-## 项目状态声明
+## Project Status
 
-ManJuFlow 当前是公开可评审的 MVP 原型项目，重点展示架构、数据协议、流水线闭环、多模型接入方式、测试覆盖和后续可扩展方向。
+ManJuFlow is currently in active MVP development. The public repository focuses on reviewable architecture, local mock demos, data contracts, and safe integration boundaries.
 
-该项目仍在持续开发中，文生图、文生视频、配音字幕、资产管理、任务队列和生产部署等能力将在后续阶段逐步推进。
+It is not a final production system. Real ComfyUI, remote GPU, customer assets, private workflows, model weights, production storage, and deployment credentials belong in private environments only.
