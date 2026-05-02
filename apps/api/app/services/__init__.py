@@ -1,4 +1,8 @@
 from app.services.llm_client import LLMClient
+from app.services.image_generation_service import (
+    generate_image_generation,
+    generate_image_generation_mock,
+)
 from app.services.image_prompt_service import (
     generate_image_prompt,
     generate_image_prompt_llm,
@@ -11,6 +15,8 @@ from app.services.storyboard_service import generate_storyboard, generate_storyb
 
 __all__ = [
     "LLMClient",
+    "generate_image_generation",
+    "generate_image_generation_mock",
     "generate_image_prompt",
     "generate_image_prompt_llm",
     "generate_image_prompt_mock",
