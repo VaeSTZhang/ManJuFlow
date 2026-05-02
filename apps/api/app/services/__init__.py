@@ -1,4 +1,8 @@
 from app.services.llm_client import LLMClient
+from app.services.asset_manager_service import (
+    build_asset_collection_from_image_generation,
+    build_asset_item_from_image_generation_item,
+)
 from app.services.image_generation_provider import (
     ComfyUIImageGenerationProviderPlaceholder,
     ImageGenerationProvider,
@@ -20,6 +24,8 @@ from app.services.script_service import generate_script_mock
 from app.services.storyboard_service import generate_storyboard, generate_storyboard_mock
 
 __all__ = [
+    "build_asset_collection_from_image_generation",
+    "build_asset_item_from_image_generation_item",
     "ComfyUIImageGenerationProviderPlaceholder",
     "ImageGenerationProvider",
     "LLMClient",
