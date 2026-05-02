@@ -3,6 +3,7 @@ from app.schemas.image_generation import (
     ImageGenerationItem,
     ImageGenerationOutput,
 )
+from app.services.image_generation_provider import get_image_generation_provider
 
 
 MOCK_IMAGE_NOTE = "Mock image generation result. No real GPU or ComfyUI call was made."
@@ -79,4 +80,5 @@ def generate_image_generation_mock(input_data: ImageGenerationInput) -> ImageGen
 
 
 def generate_image_generation(input_data: ImageGenerationInput) -> ImageGenerationOutput:
-    return generate_image_generation_mock(input_data)
+    provider = get_image_generation_provider(input_data.provider)
+    return provider.generate(input_data)

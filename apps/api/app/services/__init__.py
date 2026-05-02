@@ -1,4 +1,10 @@
 from app.services.llm_client import LLMClient
+from app.services.image_generation_provider import (
+    ComfyUIImageGenerationProviderPlaceholder,
+    ImageGenerationProvider,
+    MockImageGenerationProvider,
+    get_image_generation_provider,
+)
 from app.services.image_generation_service import (
     generate_image_generation,
     generate_image_generation_mock,
@@ -14,7 +20,10 @@ from app.services.script_service import generate_script_mock
 from app.services.storyboard_service import generate_storyboard, generate_storyboard_mock
 
 __all__ = [
+    "ComfyUIImageGenerationProviderPlaceholder",
+    "ImageGenerationProvider",
     "LLMClient",
+    "MockImageGenerationProvider",
     "generate_image_generation",
     "generate_image_generation_mock",
     "generate_image_prompt",
@@ -23,6 +32,7 @@ __all__ = [
     "generate_script_mock",
     "generate_storyboard",
     "generate_storyboard_mock",
+    "get_image_generation_provider",
     "load_image_prompt_template",
     "parse_image_prompt_llm_response",
 ]
