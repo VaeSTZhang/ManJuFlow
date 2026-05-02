@@ -11,6 +11,7 @@ from app.schemas.image_generation import (
     ImageGenerationOutput,
     ImageGenerationPromptItem,
 )
+from app.schemas.image_generation_bundle import ImageGenerationBundleOutput
 from app.schemas.render_task import RenderTaskItem, RenderTaskOutput
 from app.schemas.script import (
     CharacterProfile,
@@ -34,6 +35,7 @@ __all__ = [
     "EpisodeScript",
     "IdeaInput",
     "ImageGenerationInput",
+    "ImageGenerationBundleOutput",
     "ImageGenerationItem",
     "ImageGenerationOutput",
     "ImageGenerationPromptItem",

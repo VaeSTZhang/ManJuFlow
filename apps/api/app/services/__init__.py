@@ -13,6 +13,7 @@ from app.services.image_generation_service import (
     generate_image_generation,
     generate_image_generation_mock,
 )
+from app.services.image_generation_bundle_service import build_image_generation_bundle
 from app.services.image_prompt_service import (
     generate_image_prompt,
     generate_image_prompt_llm,
@@ -30,6 +31,7 @@ from app.services.storyboard_service import generate_storyboard, generate_storyb
 __all__ = [
     "build_asset_collection_from_image_generation",
     "build_asset_item_from_image_generation_item",
+    "build_image_generation_bundle",
     "build_render_task_item_from_image_generation_item",
     "build_render_tasks_from_image_generation",
     "ComfyUIImageGenerationProviderPlaceholder",
