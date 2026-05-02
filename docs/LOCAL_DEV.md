@@ -184,6 +184,68 @@ curl -X POST "http://127.0.0.1:8000/api/prompts/generate" \
 
 - `POST /api/prompts/generate`
 
+## 本地测试 Image Generation mock 接口
+
+启动后端：
+
+```bash
+cd /Users/zhangtritsen/Desktop/Code/ManJuFlow
+bash scripts/kill_api_port.sh
+bash scripts/dev_api.sh
+```
+
+测试以下地址：
+
+- `GET http://127.0.0.1:8000/health`
+- `GET http://127.0.0.1:8000/api/system/status`
+- `POST http://127.0.0.1:8000/api/images/generate`
+
+curl 示例：
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/images/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_title": "测试短剧：雨夜重逢",
+    "prompt_items": [
+      {
+        "prompt_id": "P001",
+        "shot_id": "S001_SH001",
+        "positive_prompt": "cinematic realistic portrait of a woman holding a black umbrella outside a hospital at night, heavy rain, wet ground, cold blue lighting, dramatic composition, vertical frame",
+        "negative_prompt": "low quality, blurry, bad anatomy, extra fingers, distorted face, watermark, text, logo",
+        "style_preset": "cinematic realistic",
+        "aspect_ratio": "9:16",
+        "model_hint": "general",
+        "seed": 101
+      }
+    ],
+    "provider": "mock",
+    "workflow_name": "mock_image_generation_v1",
+    "style_preset": "cinematic realistic",
+    "aspect_ratio": "9:16",
+    "output_count": 1,
+    "seed": 100,
+    "extra_parameters": {
+      "note": "local mock endpoint smoke test"
+    }
+  }'
+```
+
+打开接口文档：
+
+- `http://127.0.0.1:8000/docs`
+
+确认可以看到：
+
+- `POST /api/images/generate`
+
+说明：
+
+- 当前接口只返回 mock 图片生成结果。
+- 当前不调用真实 ComfyUI。
+- 当前不调用真实 GPU 服务器。
+- `mock_url` 是占位路径，不是真实图片文件地址。
+
 ## 前端启动方式
 
 ```bash
@@ -266,6 +328,33 @@ npm run dev
 - 不会调用 ComfyUI。
 - 当前 `ImagePromptOutput` 用于验证数据协议和前端闭环。
 - 后续再接入真实 LLM 和 Mimo / 小米大模型。
+
+## 前端 Image Generation mock 联调
+
+启动前端：
+
+```bash
+cd /Users/zhangtritsen/Desktop/Code/ManJuFlow/apps/web
+npm run dev
+```
+
+访问：
+
+- `http://localhost:5173/`
+
+测试方式：
+
+1. 在 Image Generation 区域手动输入 `prompt_items` JSON。
+2. 点击“生成 mock 图片”。
+3. 确认页面显示 mock image card、`mock_url`、`local_path`、尺寸和 seed。
+4. 先生成 `ImagePromptResult`，再点击“使用绘图 Prompt 结果生成 mock 图片”，确认链路也可用。
+
+说明：
+
+- 当前 mock 图片不是真实图片文件。
+- `mock_url` 是占位路径。
+- 前端使用 Mock Image 卡片展示结果，不依赖真实图片资源。
+- 当前不调用真实 ComfyUI / GPU。
 
 ## 常见问题
 

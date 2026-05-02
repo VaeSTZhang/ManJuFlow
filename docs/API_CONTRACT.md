@@ -255,6 +255,123 @@ curl -X POST "http://127.0.0.1:8000/api/prompts/generate" \
   }'
 ```
 
+## POST /api/images/generate
+
+用途：根据 `ImagePromptOutput.items` 或手动 `prompt_items` 生成图片生成任务结果。
+
+当前说明：此接口当前为 mock image generation，不调用真实 GPU、ComfyUI、远端服务器或对象存储。
+
+- 当前 `provider` 默认为 `mock`；
+- 当前不生成真实图片；
+- `mock_url` 是稳定占位路径；
+- 不依赖真实 ComfyUI / GPU；
+- `output_count` 当前限制为 1-4，避免未来误触发批量成本；
+- 后续会通过 provider / adapter 接入私有 ComfyUI。
+
+### 请求体字段
+
+请求体 Schema：`ImageGenerationInput`
+
+| 字段 | 类型 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- | --- |
+| `project_title` | string | 是 | 无 | 项目标题，非空 |
+| `prompt_items` | array | 是 | 无 | 绘图 Prompt 条目列表，至少 1 条 |
+| `provider` | string | 否 | `mock` | 图片生成 provider |
+| `workflow_name` | string | 否 | `mock_image_generation_v1` | 图片生成 workflow 名称或占位标识 |
+| `style_preset` | string | 否 | `cinematic realistic` | 整体图片生成风格预设 |
+| `aspect_ratio` | string | 否 | `9:16` | 目标画面比例 |
+| `output_count` | integer | 否 | `1` | 每条 Prompt 期望生成的图片数量，当前范围 1-4 |
+| `seed` | integer/null | 否 | `null` | 全局随机种子，可选 |
+| `extra_parameters` | object | 否 | `{}` | 图片生成扩展参数 |
+
+`prompt_items` 中每个 `ImageGenerationPromptItem` 包含：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `prompt_id` | string | 绘图 Prompt 唯一标识 |
+| `shot_id` | string | 对应的分镜镜头唯一标识 |
+| `positive_prompt` | string | 正向绘图 Prompt |
+| `negative_prompt` | string | 反向绘图 Prompt |
+| `style_preset` | string | 本条 Prompt 的绘图风格预设 |
+| `aspect_ratio` | string | 本条 Prompt 的画面比例 |
+| `model_hint` | string/null | 面向图片生成 provider 的模型提示 |
+| `seed` | integer/null | 本条 Prompt 的随机种子 |
+| `metadata` | object | 扩展元信息 |
+
+### 响应体核心字段
+
+响应体 Schema：`ImageGenerationOutput`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `project_title` | string | 项目标题 |
+| `provider` | string | 图片生成 provider |
+| `status` | string | 整体生成状态 |
+| `items` | array | 图片生成结果列表 |
+| `metadata` | object | 整体扩展元信息 |
+
+`items` 中每个 `ImageGenerationItem` 包含：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `task_id` | string | 图片生成任务唯一标识 |
+| `prompt_id` | string | 对应的绘图 Prompt ID |
+| `shot_id` | string | 对应的分镜镜头 ID |
+| `status` | string | 单项生成状态 |
+| `positive_prompt` | string | 本次生成使用的正向 Prompt |
+| `negative_prompt` | string | 本次生成使用的反向 Prompt |
+| `provider` | string | 图片生成 provider |
+| `workflow_name` | string | 图片生成 workflow 名称或占位标识 |
+| `image_url` | string/null | 真实图片 URL，mock 阶段通常为 `null` |
+| `mock_url` | string/null | mock 占位图片 URL |
+| `local_path` | string/null | mock 本地路径占位 |
+| `width` | integer/null | 图片宽度 |
+| `height` | integer/null | 图片高度 |
+| `seed` | integer/null | 本次生成使用的随机种子 |
+| `metadata` | object | 生成结果扩展元信息 |
+| `error_message` | string/null | 失败原因 |
+
+### curl 测试示例
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/images/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_title": "测试短剧：雨夜重逢",
+    "prompt_items": [
+      {
+        "prompt_id": "P001",
+        "shot_id": "S001_SH001",
+        "positive_prompt": "cinematic realistic portrait of a woman holding a black umbrella outside a hospital at night, heavy rain, wet ground, cold blue lighting, dramatic composition, vertical frame",
+        "negative_prompt": "low quality, blurry, bad anatomy, extra fingers, distorted face, watermark, text, logo",
+        "style_preset": "cinematic realistic",
+        "aspect_ratio": "9:16",
+        "model_hint": "general",
+        "seed": 101
+      },
+      {
+        "prompt_id": "P002",
+        "shot_id": "S001_SH002",
+        "positive_prompt": "cinematic realistic shot of a man stepping out of a black car in heavy rain, hospital entrance, headlights cutting through rain, emotional eye contact, vertical frame",
+        "negative_prompt": "low quality, blurry, bad anatomy, extra fingers, distorted face, watermark, text, logo",
+        "style_preset": "cinematic realistic",
+        "aspect_ratio": "9:16",
+        "model_hint": "general",
+        "seed": 102
+      }
+    ],
+    "provider": "mock",
+    "workflow_name": "mock_image_generation_v1",
+    "style_preset": "cinematic realistic",
+    "aspect_ratio": "9:16",
+    "output_count": 1,
+    "seed": 100,
+    "extra_parameters": {
+      "note": "local mock endpoint smoke test"
+    }
+  }'
+```
+
 ## 后续说明
 
-后续会继续加固真实 LLM 调用层和输出质量，并保持接口契约尽量稳定。
+后续会继续加固真实 LLM 调用层、Image Generation provider / adapter 抽象和输出质量，并保持接口契约尽量稳定。

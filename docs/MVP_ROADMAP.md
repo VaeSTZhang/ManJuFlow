@@ -65,19 +65,33 @@
 - 前端模型选择器浏览器验收通过
 - README 公开项目展示优化完成
 - 第三阶段总结文档已创建：`docs/PHASE_3_SUMMARY.md`
+- 第四阶段文生图 / 远端 GPU / ComfyUI 方案文档已完成：`docs/PHASE_4_IMAGE_GENERATION_PLAN.md`
+- ImageGeneration Schema 已完成
+- mock image generation service 已完成
+- `POST /api/images/generate` 已完成
+- 前端 ImageGeneration 类型和 API 封装已完成
+- 前端 Image Generation mock UI 已完成
+- 浏览器 mock 联调已通过
+- 手动 `prompt_items` JSON → `/api/images/generate` → mock 图片结果已通过
+- `ImagePromptResult` → `/api/images/generate` → mock 图片结果已通过
+- 当前仍未接真实 ComfyUI / GPU
 
 ## 下一步计划
 
 - S002-S004 模型对比
 - 合作技术资产与权属边界说明文档
-- 第四阶段文生图 / 远端 GPU / ComfyUI 方案文档
+- 第四阶段接口与本地开发文档更新
+- 第四阶段进度文档补全
+- 设计 ComfyUI adapter interface
+- 新增私有部署 runbook 草案
 - S002-S004 可作为后续模型质量补充对比
 
 ## 当前暂不做
 
-- 文生图
+- 真实文生图
 - 文生视频
-- ComfyUI
+- 真实 ComfyUI 接入
+- 真实 GPU 服务器接入
 - n8n
 - Redis
 - MinIO

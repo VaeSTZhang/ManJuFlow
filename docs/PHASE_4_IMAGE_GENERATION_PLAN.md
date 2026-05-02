@@ -266,3 +266,20 @@ mock service 应保持确定性：相同输入在本地开发和 CI 中返回稳
 - 不引入敏感信息。
 
 本步骤完成后不进行 commit。
+
+## 15. 当前完成进度
+
+截至第 108 步，第四阶段已完成以下 mock 小闭环：
+
+- 第 102 步：方案文档已完成；
+- 第 103 步：ImageGeneration Schema 已完成；
+- 第 104 步：mock image generation service 已完成；
+- 第 105 步：`POST /api/images/generate` endpoint 已完成；
+- 第 106 步：前端 ImageGeneration 类型和 API 封装已完成；
+- 第 107 步：前端 Image Generation mock UI 已完成；
+- 浏览器 mock 联调已通过；
+- 手动 `prompt_items` JSON → `/api/images/generate` → mock 图片结果已通过；
+- `ImagePromptResult` → `/api/images/generate` → mock 图片结果已通过；
+- 当前仍未接真实 ComfyUI / GPU。
+
+当前第四阶段已经具备公开仓库可评审的 ImagePrompt → ImageGeneration mock 闭环。后续重点是继续补全文档、设计 ComfyUI adapter interface，并将真实 ComfyUI workflow、服务器信息、密钥和资产存储严格留在私有部署环境。
