@@ -242,9 +242,11 @@ curl -X POST "http://127.0.0.1:8000/api/images/generate" \
 说明：
 
 - 当前接口只返回 mock 图片生成结果。
+- 本地公开 demo 默认使用 `IMAGE_GENERATION_PROVIDER=mock`。
 - 当前不调用真实 ComfyUI。
 - 当前不调用真实 GPU 服务器。
 - `mock_url` 是占位路径，不是真实图片文件地址。
+- 即使 `.env.example` 中出现 ComfyUI 占位变量，也不要在公开仓库写入真实值。
 
 ## 前端启动方式
 
