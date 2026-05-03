@@ -1544,7 +1544,7 @@ function App() {
             </label>
 
             <label className="field">
-              <span>语言</span>
+              <span>Prompt 输出语言</span>
               <select
                 value={imagePromptForm.language || "en"}
                 onChange={(event) => updateImagePromptField("language", event.target.value)}
@@ -1552,6 +1552,9 @@ function App() {
                 <option value="en">英文</option>
                 <option value="zh">中文</option>
               </select>
+              <small className="field-help-text">
+                英文 Prompt 更适合部分绘图模型；中文 Prompt 方便团队审阅和内部沟通。
+              </small>
             </label>
           </div>
 

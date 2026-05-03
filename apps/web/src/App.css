@@ -497,6 +497,12 @@ select {
   font-weight: 700;
 }
 
+.field-help-text {
+  color: #607087;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
 .field input,
 .field textarea,
 .field select {
