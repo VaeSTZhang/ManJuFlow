@@ -269,7 +269,7 @@ Planned directions:
 - Assistant suggested actions;
 - UsageLedger for usage and RMB cost estimation;
 - Prompt versioning / translate current prompt;
-- Default README landing page upgrade;
+- README maintenance and documentation synchronization;
 - Private ComfyUI small-sample integration;
 - Asset Manager / Task Center improvements;
 - Workspace / Project Context Isolation implementation;

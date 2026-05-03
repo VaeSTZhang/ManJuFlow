@@ -189,7 +189,7 @@ curl -X POST "http://127.0.0.1:8000/api/prompts/generate" \
 启动后端：
 
 ```bash
-cd /Users/zhangtritsen/Desktop/Code/ManJuFlow
+cd /path/to/ManJuFlow
 bash scripts/kill_api_port.sh
 bash scripts/dev_api.sh
 ```
@@ -347,7 +347,7 @@ npm run dev
 启动前端：
 
 ```bash
-cd /Users/zhangtritsen/Desktop/Code/ManJuFlow/apps/web
+cd /path/to/ManJuFlow/apps/web
 npm run dev
 ```
 

@@ -270,7 +270,7 @@ ManJuFlow/
 - Assistant suggested actions；
 - UsageLedger 用量与人民币成本估算；
 - Prompt 版本管理 / 当前 Prompt 翻译；
-- README 英文版与默认入口页升级；
+- README 后续维护与文档同步；
 - 私有 ComfyUI 小样本联调；
 - Asset Manager / Task Center 深化；
 - Workspace / Project Context Isolation 落地；

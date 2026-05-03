@@ -17,6 +17,10 @@ AI-powered cinematic creation workflow platform for short drama, manhua-style st
 | --- | --- |
 | [中文文档](README.zh-CN.md) | [English Docs](README.en.md) |
 
+This default README is a concise bilingual landing page. For full project details, use the language-specific pages above.
+
+当前默认 README 是简洁双语入口页。完整项目说明请进入上方中文或英文主页。
+
 ## Project Overview
 
 ManJuFlow is a modular AI cinematic creation workflow platform. It helps transform ideas or existing scripts into structured scripts, storyboards, AI image prompts, and media-generation-ready assets.
