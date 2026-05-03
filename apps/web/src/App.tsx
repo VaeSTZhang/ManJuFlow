@@ -749,6 +749,14 @@ function App() {
     await requestImageGenerationBundle(input);
   };
 
+  const formatTaskProgress = (progress?: number | null): string => {
+    if (typeof progress !== "number") {
+      return "-";
+    }
+
+    return `${Math.round(progress * 100)}%`;
+  };
+
   return (
     <main className="app">
       <header className="page-header">
@@ -1506,6 +1514,149 @@ function App() {
                   <span>Bundle Version</span>
                   <strong>{String(imageGenerationBundleResult.metadata?.bundle_version ?? "未设置")}</strong>
                 </div>
+              </section>
+
+              <section className="bundle-detail-section">
+                <h4>Assets 明细</h4>
+                {imageGenerationBundleResult.assets?.assets?.length ? (
+                  <div className="bundle-detail-list">
+                    {imageGenerationBundleResult.assets.assets.map((asset) => (
+                      <article className="bundle-detail-card asset-card" key={asset.asset_id}>
+                        <div className="mock-image-placeholder compact-placeholder">
+                          <strong>Mock Image Asset</strong>
+                          <span>{asset.mock_url || "-"}</span>
+                          <small>
+                            {asset.width ?? "?"} x {asset.height ?? "?"} · {asset.shot_id || "-"} ·{" "}
+                            {asset.prompt_id || "-"}
+                          </small>
+                        </div>
+
+                        <div className="prompt-card-header">
+                          <span>{asset.asset_id || "-"}</span>
+                          <h5>{asset.status || "-"}</h5>
+                        </div>
+
+                        <dl className="prompt-detail-grid bundle-detail-grid">
+                          <div>
+                            <dt>Asset Type</dt>
+                            <dd>{asset.asset_type || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Provider</dt>
+                            <dd>{asset.provider || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Prompt ID</dt>
+                            <dd>{asset.prompt_id || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Shot ID</dt>
+                            <dd>{asset.shot_id || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Task ID</dt>
+                            <dd>{asset.task_id || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>尺寸</dt>
+                            <dd>
+                              {asset.width ?? "?"} x {asset.height ?? "?"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Seed</dt>
+                            <dd>{asset.seed ?? "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Metadata Source</dt>
+                            <dd>{String(asset.metadata?.source ?? "-")}</dd>
+                          </div>
+                          <div>
+                            <dt>Mock URL</dt>
+                            <dd className="code-text">{asset.mock_url || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Local Path</dt>
+                            <dd className="code-text">{asset.local_path || "-"}</dd>
+                          </div>
+                        </dl>
+
+                        {asset.notes && (
+                          <div className="bundle-note">
+                            <span>Notes</span>
+                            <p>{asset.notes}</p>
+                          </div>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-state bundle-empty-state">暂无资产</div>
+                )}
+              </section>
+
+              <section className="bundle-detail-section">
+                <h4>Tasks 明细</h4>
+                {imageGenerationBundleResult.tasks?.tasks?.length ? (
+                  <div className="bundle-detail-list">
+                    {imageGenerationBundleResult.tasks.tasks.map((task) => (
+                      <article className="bundle-detail-card task-card" key={task.task_id}>
+                        <div className="prompt-card-header">
+                          <span>{task.task_id || "-"}</span>
+                          <h5>{task.status || "-"}</h5>
+                        </div>
+
+                        <dl className="prompt-detail-grid bundle-detail-grid">
+                          <div>
+                            <dt>Task Type</dt>
+                            <dd>{task.task_type || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Progress</dt>
+                            <dd className="progress-text">{formatTaskProgress(task.progress)}</dd>
+                          </div>
+                          <div>
+                            <dt>Provider</dt>
+                            <dd>{task.provider || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Workflow</dt>
+                            <dd>{task.workflow_name || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Prompt ID</dt>
+                            <dd>{task.prompt_id || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Shot ID</dt>
+                            <dd>{task.shot_id || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Asset IDs</dt>
+                            <dd className="code-text">{task.asset_ids?.length ? task.asset_ids.join(", ") : "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Error Code</dt>
+                            <dd>{task.error_code || "-"}</dd>
+                          </div>
+                          <div>
+                            <dt>Metadata Source</dt>
+                            <dd>{String(task.metadata?.source ?? "-")}</dd>
+                          </div>
+                        </dl>
+
+                        {(task.status === "failed" || task.error_message) && (
+                          <div className="bundle-note task-error-note">
+                            <span>Error Message</span>
+                            <p>{task.error_message || "-"}</p>
+                          </div>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-state bundle-empty-state">暂无任务</div>
+                )}
               </section>
             </section>
           )}

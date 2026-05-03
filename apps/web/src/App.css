@@ -697,6 +697,87 @@ select {
   background: #ffffff;
 }
 
+.bundle-detail-section {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e1e9f3;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.bundle-detail-section h4 {
+  margin: 0;
+  color: #172033;
+  font-size: 18px;
+}
+
+.bundle-detail-list {
+  display: grid;
+  gap: 12px;
+}
+
+.bundle-detail-card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #e1e9f3;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.compact-placeholder {
+  min-height: 130px;
+  padding: 14px;
+}
+
+.bundle-detail-grid dd,
+.code-text {
+  overflow-wrap: anywhere;
+}
+
+.code-text {
+  color: #334155;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+}
+
+.progress-text {
+  color: #0f766e;
+  font-weight: 800;
+}
+
+.bundle-note {
+  margin-top: 10px;
+  padding: 12px;
+  border-left: 3px solid #0f766e;
+  border-radius: 6px;
+  background: #f2fbf9;
+}
+
+.bundle-note span {
+  display: block;
+  margin-bottom: 4px;
+  color: #607087;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.bundle-note p {
+  margin: 0;
+  color: #243149;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.task-error-note {
+  border-left-color: #b42318;
+  background: #fff7f7;
+}
+
+.bundle-empty-state {
+  min-height: 110px;
+}
+
 .image-generation-items h4 {
   margin-bottom: 12px;
   color: #172033;
