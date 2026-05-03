@@ -20,6 +20,11 @@ from app.schemas.script import (
     SceneScript,
     ScriptOutput,
 )
+from app.schemas.script_segmentation import (
+    ExistingScriptInput,
+    ScriptSegment,
+    ScriptSegmentationOutput,
+)
 from app.schemas.storyboard import (
     SceneStoryboard,
     ShotStoryboard,
@@ -33,6 +38,7 @@ __all__ = [
     "CharacterProfile",
     "DialogueLine",
     "EpisodeScript",
+    "ExistingScriptInput",
     "IdeaInput",
     "ImageGenerationInput",
     "ImageGenerationBundleOutput",
@@ -47,6 +53,8 @@ __all__ = [
     "ShotStoryboard",
     "RenderTaskItem",
     "RenderTaskOutput",
+    "ScriptSegment",
+    "ScriptSegmentationOutput",
     "ScriptOutput",
     "StoryboardInput",
     "StoryboardOutput",
