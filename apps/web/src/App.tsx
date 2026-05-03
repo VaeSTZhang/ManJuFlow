@@ -3,6 +3,7 @@ import { generateImageBundle, generateImages } from "./api/imageGenerations";
 import { generateImagePrompts } from "./api/imagePrompts";
 import { segmentScript } from "./api/scriptSegmentation";
 import { generateStoryboard } from "./api/storyboards";
+import { uploadScriptMock } from "./api/uploads";
 import "./App.css";
 import { AppShell } from "./components/layout/AppShell";
 import { Sidebar } from "./components/layout/Sidebar";
@@ -19,6 +20,7 @@ import type {
   ScriptSegmentationOutput,
 } from "./types/scriptSegmentation";
 import type { StoryboardInput, StoryboardOutput } from "./types/storyboard";
+import type { ScriptUploadOutput } from "./types/upload";
 import type { SidebarItem } from "./components/layout/Sidebar";
 import type { ToastMessage, ToastType } from "./components/layout/Toast";
 
@@ -122,6 +124,8 @@ const defaultScriptSegmentationForm: ExistingScriptInput = {
     context_policy: "current_project_only",
   },
 };
+
+const maxScriptTextChars = 100_000;
 
 const defaultImagePromptForm: ImagePromptInput = {
   project_title: "测试短剧：雨夜重逢",
@@ -307,6 +311,9 @@ function App() {
   const [scriptSegmentationError, setScriptSegmentationError] = useState("");
   const [scriptSegmentationCopyStatus, setScriptSegmentationCopyStatus] = useState("");
   const [scriptSegmentationExportStatus, setScriptSegmentationExportStatus] = useState("");
+  const [scriptUploadLoading, setScriptUploadLoading] = useState(false);
+  const [scriptUploadError, setScriptUploadError] = useState("");
+  const [scriptUploadResult, setScriptUploadResult] = useState<ScriptUploadOutput | null>(null);
   const [imagePromptForm, setImagePromptForm] = useState<ImagePromptInput>(defaultImagePromptForm);
   const [imagePromptResult, setImagePromptResult] = useState<ImagePromptOutput | null>(null);
   const [imagePromptLoading, setImagePromptLoading] = useState(false);
@@ -331,6 +338,8 @@ function App() {
   const selectedImagePromptModel =
     imagePromptModelOptions.find((option) => option.provider === imagePromptForm.llm_provider) ||
     imagePromptModelOptions[0];
+  const scriptSegmentationTextLength = scriptSegmentationForm.script_text?.length || 0;
+  const isScriptSegmentationTextTooLong = scriptSegmentationTextLength > maxScriptTextChars;
 
   const dismissToast = (id: string) => {
     setToastMessages((current) => current.filter((message) => message.id !== id));
@@ -382,6 +391,9 @@ function App() {
     setScriptSegmentationError("");
     setScriptSegmentationCopyStatus("");
     setScriptSegmentationExportStatus("");
+    if (field === "script_text") {
+      setScriptUploadError("");
+    }
   };
 
   const updateImagePromptField = <K extends keyof ImagePromptInput>(field: K, value: ImagePromptInput[K]) => {
@@ -581,6 +593,12 @@ function App() {
       return;
     }
 
+    if (isScriptSegmentationTextTooLong) {
+      setScriptSegmentationError("当前文本超过 100,000 字符，请拆分后再切分。");
+      pushToast("warning", "文本过长", "当前文本超过 100,000 字符，请拆分后再切分。");
+      return;
+    }
+
     setScriptSegmentationLoading(true);
     setScriptSegmentationError("");
     setScriptSegmentationCopyStatus("");
@@ -602,6 +620,7 @@ function App() {
           ...(scriptSegmentationForm.metadata || {}),
           project_id: "mock_project_script_segmentation",
           context_policy: "current_project_only",
+          upload_source_id: scriptSegmentationForm.source_id || null,
         },
       });
 
@@ -612,6 +631,59 @@ function App() {
       pushToast("error", "切分失败", "已有剧本切分接口请求失败，请检查后端是否运行。");
     } finally {
       setScriptSegmentationLoading(false);
+    }
+  };
+
+  const handleMockScriptUpload = async () => {
+    if (!scriptSegmentationForm.project_title.trim()) {
+      setScriptUploadError("请先填写项目标题。");
+      pushToast("warning", "缺少必填项", "模拟上传 Word 文档前请先填写项目标题。");
+      return;
+    }
+
+    setScriptUploadLoading(true);
+    setScriptUploadError("");
+    setScriptSegmentationError("");
+
+    try {
+      const data = await uploadScriptMock({
+        project_title: scriptSegmentationForm.project_title.trim(),
+        source_type: "script_docx",
+        workspace_id: "mock_workspace_script_segmentation",
+        project_id: "mock_project_script_upload",
+        user_id: "mock_user_writer_001",
+        ai_account_id: "mock_ai_account_writer_001",
+        language: "zh",
+        extra_requirements: "请提取剧本文本，并保留适合后续分镜切分的段落顺序。",
+        metadata: {
+          context_policy: "current_project_only",
+          upload_mode: "mock_metadata_only",
+        },
+      });
+
+      setScriptUploadResult(data);
+      setScriptSegmentationForm((current) => ({
+        ...current,
+        project_title: data.project_title,
+        script_text: data.extracted_text,
+        source_id: data.source_id,
+        source_type: data.metadata.source_type,
+        workspace_id: "mock_workspace_script_segmentation",
+        user_id: "mock_user_writer_001",
+        ai_account_id: "mock_ai_account_writer_001",
+        metadata: {
+          ...(current.metadata || {}),
+          project_id: "mock_project_script_segmentation",
+          context_policy: "current_project_only",
+          upload_source_id: data.source_id,
+        },
+      }));
+      pushToast("success", "上传 mock 完成", "已将提取文本填入下方剧本文本框，可继续切分。");
+    } catch {
+      setScriptUploadError("模拟上传 Word 文档失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      pushToast("error", "上传失败", "上传 Word 文档 mock 接口请求失败，请检查后端是否运行。");
+    } finally {
+      setScriptUploadLoading(false);
     }
   };
 
@@ -1588,6 +1660,51 @@ function App() {
             />
           </label>
 
+          <section className="script-upload-mock-card">
+            <div>
+              <h3>上传 Word 剧本文档（Mock）</h3>
+              <p>
+                当前为 mock 上传流程，暂不读取真实文件；真实 .docx 上传将在后续小闭环接入。
+              </p>
+            </div>
+
+            <button
+              className="secondary-button"
+              disabled={scriptUploadLoading}
+              onClick={handleMockScriptUpload}
+              type="button"
+            >
+              {scriptUploadLoading ? "模拟上传中..." : "模拟上传 Word 文档"}
+            </button>
+
+            {scriptUploadError && <p className="error-message">{scriptUploadError}</p>}
+
+            {scriptUploadResult && (
+              <div className="script-upload-result">
+                <div>
+                  <span>Source ID</span>
+                  <strong>{scriptUploadResult.source_id}</strong>
+                </div>
+                <div>
+                  <span>Extraction Status</span>
+                  <strong>{scriptUploadResult.metadata.extraction_status}</strong>
+                </div>
+                <div>
+                  <span>Extracted Text Length</span>
+                  <strong>{scriptUploadResult.metadata.extracted_text_length}</strong>
+                </div>
+                <p>已将提取文本填入下方剧本文本框，可继续切分。</p>
+                {scriptUploadResult.warnings.length > 0 && (
+                  <ul className="script-upload-warnings">
+                    {scriptUploadResult.warnings.map((warning) => (
+                      <li key={warning}>{warning}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </section>
+
           <label className="field field-wide">
             <span>已有剧本文本</span>
             <textarea
@@ -1596,6 +1713,17 @@ function App() {
               rows={10}
             />
           </label>
+
+          <div className="script-text-counter">
+            <span className={isScriptSegmentationTextTooLong ? "text-limit-exceeded" : ""}>
+              当前字符数：{scriptSegmentationTextLength} / {maxScriptTextChars}
+            </span>
+            {scriptSegmentationForm.source_id && <span>Upload Source ID：{scriptSegmentationForm.source_id}</span>}
+          </div>
+
+          {isScriptSegmentationTextTooLong && (
+            <p className="error-message">当前文本超过 100,000 字符，请拆分后再切分。</p>
+          )}
 
           <div className="field-grid">
             <label className="field">
@@ -1639,7 +1767,11 @@ function App() {
             />
           </label>
 
-          <button className="primary-button" disabled={scriptSegmentationLoading} type="submit">
+          <button
+            className="primary-button"
+            disabled={scriptSegmentationLoading || isScriptSegmentationTextTooLong}
+            type="submit"
+          >
             {scriptSegmentationLoading ? "切分中..." : "切分已有剧本"}
           </button>
 

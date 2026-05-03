@@ -955,6 +955,77 @@ select {
   background: #ffffff;
 }
 
+.script-upload-mock-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #d8e6f8;
+  border-radius: 8px;
+  background: #f7fbff;
+}
+
+.script-upload-mock-card h3 {
+  margin: 0 0 6px;
+  color: #172033;
+  font-size: 17px;
+}
+
+.script-upload-mock-card p {
+  margin: 0;
+  color: #536276;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.script-upload-result {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #edf2f8;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.script-upload-result div {
+  display: grid;
+  gap: 3px;
+}
+
+.script-upload-result span,
+.script-text-counter span {
+  color: #607087;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.script-upload-result strong {
+  min-width: 0;
+  color: #243149;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.script-upload-warnings {
+  margin: 0;
+  padding-left: 18px;
+  color: #9a5b00;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.script-text-counter {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: -6px;
+}
+
+.script-text-counter .text-limit-exceeded {
+  color: #b42318;
+}
+
 .script-segmentation-items h4 {
   margin-bottom: 12px;
   color: #172033;
