@@ -26,6 +26,10 @@ from app.services.render_task_service import (
     build_render_tasks_from_image_generation,
 )
 from app.services.script_service import generate_script_mock
+from app.services.script_segmentation_service import (
+    generate_script_segmentation,
+    generate_script_segmentation_mock,
+)
 from app.services.storyboard_service import generate_storyboard, generate_storyboard_mock
 
 __all__ = [
@@ -44,6 +48,8 @@ __all__ = [
     "generate_image_prompt_llm",
     "generate_image_prompt_mock",
     "generate_script_mock",
+    "generate_script_segmentation",
+    "generate_script_segmentation_mock",
     "generate_storyboard",
     "generate_storyboard_mock",
     "get_image_generation_provider",
