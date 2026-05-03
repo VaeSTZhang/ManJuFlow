@@ -230,37 +230,37 @@ const sidebarItems: SidebarItem[] = [
   {
     id: "idea-script",
     label: "灵感创作",
-    description: "Idea → Script",
+    description: "灵感 → 剧本",
   },
   {
     id: "script-segmentation",
     label: "已有剧本",
-    description: "Import → Segments",
+    description: "导入 → 切分",
   },
   {
     id: "storyboard",
     label: "分镜生成",
-    description: "Script → Storyboard",
+    description: "剧本 → 分镜",
   },
   {
     id: "image-prompt",
     label: "绘图 Prompt",
-    description: "Storyboard → Prompt",
+    description: "分镜 → Prompt",
   },
   {
     id: "image-generation",
     label: "图片生成",
-    description: "ImageGeneration mock",
+    description: "图片生成模拟",
   },
   {
     id: "assets-tasks",
     label: "资产与任务",
-    description: "Assets / Tasks",
+    description: "资产 / 任务",
   },
   {
     id: "system-status",
     label: "系统状态",
-    description: "Runtime status",
+    description: "运行状态",
   },
 ];
 
@@ -736,7 +736,7 @@ function App() {
     setImageGenerationError("");
     setImageGenerationBundleError("");
     setActiveWorkspaceId("image-generation");
-    pushToast("success", "已切换到图片生成", "绘图 Prompt 已带入 Image Generation 工作区。");
+    pushToast("success", "已切换到图片生成", "绘图 Prompt 已带入图片生成工作区。");
   };
 
   const requestImageGeneration = async (input: ImageGenerationInput) => {
@@ -762,8 +762,8 @@ function App() {
       const data = await generateImageBundle(input);
       setImageGenerationBundleResult(data);
     } catch {
-      setImageGenerationBundleError("生成 Bundle 失败，请确认后端服务已启动：http://127.0.0.1:8000");
-      pushToast("error", "Bundle 生成失败", "generate-bundle 接口请求失败，请检查后端是否运行。");
+      setImageGenerationBundleError("生成结果包失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      pushToast("error", "结果包生成失败", "图片生成结果包接口请求失败，请检查后端是否运行。");
     } finally {
       setImageGenerationBundleLoading(false);
     }
@@ -847,7 +847,7 @@ function App() {
 
     if (!promptItems) {
       setImageGenerationBundleError("当前没有可用的绘图 Prompt 结果。");
-      pushToast("warning", "缺少绘图 Prompt", "当前没有可用的绘图 Prompt 结果，无法生成 Bundle。");
+      pushToast("warning", "缺少绘图 Prompt", "当前没有可用的绘图 Prompt 结果，无法生成结果包。");
       return;
     }
 
@@ -862,7 +862,7 @@ function App() {
     setImageGenerationForm(nextForm);
     setImageGenerationPromptItemsText(formatPromptItemsJson(promptItems));
     setActiveWorkspaceId("image-generation");
-    pushToast("success", "已切换到图片生成", "绘图 Prompt 已带入 Bundle 生成流程。");
+    pushToast("success", "已切换到图片生成", "绘图 Prompt 已带入结果包生成流程。");
 
     const input = buildImageGenerationRequest(
       promptItems,
@@ -891,7 +891,7 @@ function App() {
     if (!imageGenerationBundleResult) {
       return (
         <div className="empty-state workspace-empty">
-          暂无资产与任务，请先在 Image Generation 中生成 Bundle。
+          暂无资产与任务，请先在图片生成中生成结果包。
         </div>
       );
     }
@@ -899,37 +899,37 @@ function App() {
     return (
       <section className="image-generation-bundle-summary">
         <div className="result-summary">
-          <span>Bundle 项目</span>
+          <span>结果包项目</span>
           <h3>{imageGenerationBundleResult.project_title || "未设置"}</h3>
         </div>
 
         <section className="image-generation-meta">
           <div>
-            <span>Image Items</span>
+            <span>图片结果</span>
             <strong>{imageGenerationBundleResult.image_generation?.items?.length ?? 0}</strong>
           </div>
           <div>
-            <span>Assets</span>
+            <span>资产</span>
             <strong>{imageGenerationBundleResult.assets?.assets?.length ?? 0}</strong>
           </div>
           <div>
-            <span>Tasks</span>
+            <span>任务</span>
             <strong>{imageGenerationBundleResult.tasks?.tasks?.length ?? 0}</strong>
           </div>
           <div>
-            <span>Metadata Source</span>
+            <span>元数据来源</span>
             <strong>{String(imageGenerationBundleResult.metadata?.source ?? "未设置")}</strong>
           </div>
         </section>
 
         <section className="bundle-detail-section">
-          <h4>Assets 明细</h4>
+          <h4>资产明细</h4>
           {imageGenerationBundleResult.assets?.assets?.length ? (
             <div className="bundle-detail-list">
               {imageGenerationBundleResult.assets.assets.map((asset) => (
                 <article className="bundle-detail-card asset-card" key={asset.asset_id}>
                   <div className="mock-image-placeholder compact-placeholder">
-                    <strong>Mock Image Asset</strong>
+                    <strong>模拟图片资产</strong>
                     <span>{asset.mock_url || "-"}</span>
                     <small>
                       {asset.width ?? "?"} x {asset.height ?? "?"} · {asset.shot_id || "-"} ·{" "}
@@ -944,31 +944,31 @@ function App() {
 
                   <dl className="prompt-detail-grid bundle-detail-grid">
                     <div>
-                      <dt>Asset Type</dt>
+                      <dt>资产类型</dt>
                       <dd>{asset.asset_type || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Provider</dt>
+                      <dt>生成来源</dt>
                       <dd>{asset.provider || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Prompt ID</dt>
+                      <dt>Prompt 标识</dt>
                       <dd>{asset.prompt_id || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Shot ID</dt>
+                      <dt>镜头标识</dt>
                       <dd>{asset.shot_id || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Task ID</dt>
+                      <dt>任务标识</dt>
                       <dd>{asset.task_id || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Mock URL</dt>
+                      <dt>Mock 图片路径</dt>
                       <dd className="code-text">{asset.mock_url || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Local Path</dt>
+                      <dt>本地路径</dt>
                       <dd className="code-text">{asset.local_path || "-"}</dd>
                     </div>
                     <div>
@@ -978,18 +978,18 @@ function App() {
                       </dd>
                     </div>
                     <div>
-                      <dt>Seed</dt>
+                      <dt>种子</dt>
                       <dd>{asset.seed ?? "-"}</dd>
                     </div>
                     <div>
-                      <dt>Metadata Source</dt>
+                      <dt>元数据来源</dt>
                       <dd>{String(asset.metadata?.source ?? "-")}</dd>
                     </div>
                   </dl>
 
                   {asset.notes && (
                     <div className="bundle-note">
-                      <span>Notes</span>
+                      <span>备注</span>
                       <p>{asset.notes}</p>
                     </div>
                   )}
@@ -1002,7 +1002,7 @@ function App() {
         </section>
 
         <section className="bundle-detail-section">
-          <h4>Tasks 明细</h4>
+          <h4>任务明细</h4>
           {imageGenerationBundleResult.tasks?.tasks?.length ? (
             <div className="bundle-detail-list">
               {imageGenerationBundleResult.tasks.tasks.map((task) => (
@@ -1014,43 +1014,43 @@ function App() {
 
                   <dl className="prompt-detail-grid bundle-detail-grid">
                     <div>
-                      <dt>Task Type</dt>
+                      <dt>任务类型</dt>
                       <dd>{task.task_type || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Progress</dt>
+                      <dt>进度</dt>
                       <dd className="progress-text">{formatTaskProgress(task.progress)}</dd>
                     </div>
                     <div>
-                      <dt>Provider</dt>
+                      <dt>生成来源</dt>
                       <dd>{task.provider || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Workflow</dt>
+                      <dt>工作流</dt>
                       <dd>{task.workflow_name || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Prompt ID</dt>
+                      <dt>Prompt 标识</dt>
                       <dd>{task.prompt_id || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Shot ID</dt>
+                      <dt>镜头标识</dt>
                       <dd>{task.shot_id || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Asset IDs</dt>
+                      <dt>资产标识</dt>
                       <dd className="code-text">{task.asset_ids?.length ? task.asset_ids.join(", ") : "-"}</dd>
                     </div>
                     <div>
-                      <dt>Error Code</dt>
+                      <dt>错误码</dt>
                       <dd>{task.error_code || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Error Message</dt>
+                      <dt>错误信息</dt>
                       <dd>{task.error_message || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Metadata Source</dt>
+                      <dt>元数据来源</dt>
                       <dd>{String(task.metadata?.source ?? "-")}</dd>
                     </div>
                   </dl>
@@ -1528,10 +1528,10 @@ function App() {
                 value={imagePromptForm.aspect_ratio || "9:16"}
                 onChange={(event) => updateImagePromptField("aspect_ratio", event.target.value)}
               >
-                <option value="9:16">9:16</option>
-                <option value="16:9">16:9</option>
-                <option value="1:1">1:1</option>
-                <option value="4:5">4:5</option>
+                <option value="9:16">竖屏 9:16</option>
+                <option value="16:9">横屏 16:9</option>
+                <option value="1:1">方图 1:1</option>
+                <option value="4:5">竖图 4:5</option>
               </select>
             </label>
 
@@ -1549,8 +1549,8 @@ function App() {
                 value={imagePromptForm.language || "en"}
                 onChange={(event) => updateImagePromptField("language", event.target.value)}
               >
-                <option value="en">en</option>
-                <option value="zh">zh</option>
+                <option value="en">英文</option>
+                <option value="zh">中文</option>
               </select>
             </label>
           </div>
@@ -1571,7 +1571,7 @@ function App() {
                 ? ` ${selectedImagePromptModel.label}`
                 : " 使用后端默认"}
             </strong>
-            <p>模型选择仅在后端 IMAGE_PROMPT_GENERATION_MODE=llm 时生效。mock 模式下不会消耗 API 额度。</p>
+            <p>模型选择仅在后端绘图 Prompt 生成模式为 LLM 时生效。mock 模式下不会消耗 API 额度。</p>
           </div>
 
           <button className="primary-button" disabled={imagePromptLoading} type="submit">
@@ -1659,12 +1659,12 @@ function App() {
                       </div>
 
                       <div className="prompt-text-block positive-prompt">
-                        <span>Positive Prompt</span>
+                        <span>正向 Prompt</span>
                         <p>{item.positive_prompt}</p>
                       </div>
 
                       <div className="prompt-text-block negative-prompt">
-                        <span>Negative Prompt</span>
+                        <span>反向 Prompt</span>
                         <p>{item.negative_prompt}</p>
                       </div>
 
@@ -1714,17 +1714,17 @@ function App() {
 
           <div className="field-grid">
             <label className="field">
-              <span>Provider</span>
+              <span>生成来源</span>
               <select
                 value={imageGenerationForm.provider || "mock"}
                 onChange={(event) => updateImageGenerationField("provider", event.target.value)}
               >
-                <option value="mock">mock</option>
+                <option value="mock">Mock（本地模拟）</option>
               </select>
             </label>
 
             <label className="field">
-              <span>Workflow</span>
+              <span>工作流</span>
               <input
                 value={imageGenerationForm.workflow_name || "mock_image_generation_v1"}
                 onChange={(event) => updateImageGenerationField("workflow_name", event.target.value)}
@@ -1737,9 +1737,9 @@ function App() {
                 value={imageGenerationForm.aspect_ratio || "9:16"}
                 onChange={(event) => updateImageGenerationField("aspect_ratio", event.target.value)}
               >
-                <option value="9:16">9:16</option>
-                <option value="16:9">16:9</option>
-                <option value="1:1">1:1</option>
+                <option value="9:16">竖屏 9:16</option>
+                <option value="16:9">横屏 16:9</option>
+                <option value="1:1">方图 1:1</option>
               </select>
             </label>
 
@@ -1765,7 +1765,7 @@ function App() {
             </label>
 
             <label className="field">
-              <span>Seed</span>
+              <span>种子</span>
               <input
                 type="number"
                 value={imageGenerationForm.seed ?? ""}
@@ -1798,7 +1798,7 @@ function App() {
             onClick={generateImagesFromImagePromptResult}
             type="button"
           >
-            使用绘图 Prompt 结果生成 mock 图片
+            使用绘图 Prompt 结果生成模拟图片
           </button>
 
           <button
@@ -1807,7 +1807,7 @@ function App() {
             onClick={generateImageBundleFromImagePromptResult}
             type="button"
           >
-            使用绘图 Prompt 结果生成 Bundle
+            使用绘图 Prompt 结果生成结果包
           </button>
 
           <button
@@ -1816,11 +1816,11 @@ function App() {
             onClick={handleGenerateImageBundleFromManualInput}
             type="button"
           >
-            {imageGenerationBundleLoading ? "生成 Bundle 中..." : "生成 Bundle（图片 + 资产 + 任务）"}
+            {imageGenerationBundleLoading ? "生成结果包中..." : "生成结果包（图片 + 资产 + 任务）"}
           </button>
 
           <button className="primary-button" disabled={imageGenerationLoading} type="submit">
-            {imageGenerationLoading ? "生成中..." : "生成 mock 图片"}
+            {imageGenerationLoading ? "生成中..." : "生成模拟图片"}
           </button>
 
           {imageGenerationError && <p className="error-message">{imageGenerationError}</p>}
@@ -1831,52 +1831,52 @@ function App() {
           <div className="result-header">
             <div>
               <p>输出预览</p>
-              <h2>Image Generation</h2>
+              <h2>图片生成结果</h2>
             </div>
           </div>
 
           {imageGenerationBundleResult && (
             <section className="image-generation-bundle-summary">
               <div className="result-summary">
-                <span>Bundle 项目</span>
+                <span>结果包项目</span>
                 <h3>{imageGenerationBundleResult.project_title || "未设置"}</h3>
               </div>
 
               <section className="image-generation-meta">
                 <div>
-                  <span>Image Items</span>
+                  <span>图片结果</span>
                   <strong>{imageGenerationBundleResult.image_generation?.items?.length ?? 0}</strong>
                 </div>
                 <div>
-                  <span>Assets</span>
+                  <span>资产</span>
                   <strong>{imageGenerationBundleResult.assets?.assets?.length ?? 0}</strong>
                 </div>
                 <div>
-                  <span>Tasks</span>
+                  <span>任务</span>
                   <strong>{imageGenerationBundleResult.tasks?.tasks?.length ?? 0}</strong>
                 </div>
                 <div>
-                  <span>Metadata Source</span>
+                  <span>元数据来源</span>
                   <strong>{String(imageGenerationBundleResult.metadata?.source ?? "未设置")}</strong>
                 </div>
                 <div>
-                  <span>Provider</span>
+                  <span>生成来源</span>
                   <strong>{String(imageGenerationBundleResult.metadata?.provider ?? "未设置")}</strong>
                 </div>
                 <div>
-                  <span>Bundle Version</span>
+                  <span>结果包版本</span>
                   <strong>{String(imageGenerationBundleResult.metadata?.bundle_version ?? "未设置")}</strong>
                 </div>
               </section>
 
               <section className="bundle-detail-section">
-                <h4>Assets 明细</h4>
+                <h4>资产明细</h4>
                 {imageGenerationBundleResult.assets?.assets?.length ? (
                   <div className="bundle-detail-list">
                     {imageGenerationBundleResult.assets.assets.map((asset) => (
                       <article className="bundle-detail-card asset-card" key={asset.asset_id}>
                         <div className="mock-image-placeholder compact-placeholder">
-                          <strong>Mock Image Asset</strong>
+                          <strong>模拟图片资产</strong>
                           <span>{asset.mock_url || "-"}</span>
                           <small>
                             {asset.width ?? "?"} x {asset.height ?? "?"} · {asset.shot_id || "-"} ·{" "}
@@ -1891,23 +1891,23 @@ function App() {
 
                         <dl className="prompt-detail-grid bundle-detail-grid">
                           <div>
-                            <dt>Asset Type</dt>
+                            <dt>资产类型</dt>
                             <dd>{asset.asset_type || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Provider</dt>
+                            <dt>生成来源</dt>
                             <dd>{asset.provider || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Prompt ID</dt>
+                            <dt>Prompt 标识</dt>
                             <dd>{asset.prompt_id || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Shot ID</dt>
+                            <dt>镜头标识</dt>
                             <dd>{asset.shot_id || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Task ID</dt>
+                            <dt>任务标识</dt>
                             <dd>{asset.task_id || "-"}</dd>
                           </div>
                           <div>
@@ -1917,26 +1917,26 @@ function App() {
                             </dd>
                           </div>
                           <div>
-                            <dt>Seed</dt>
+                            <dt>种子</dt>
                             <dd>{asset.seed ?? "-"}</dd>
                           </div>
                           <div>
-                            <dt>Metadata Source</dt>
+                            <dt>元数据来源</dt>
                             <dd>{String(asset.metadata?.source ?? "-")}</dd>
                           </div>
                           <div>
-                            <dt>Mock URL</dt>
+                            <dt>Mock 图片路径</dt>
                             <dd className="code-text">{asset.mock_url || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Local Path</dt>
+                            <dt>本地路径</dt>
                             <dd className="code-text">{asset.local_path || "-"}</dd>
                           </div>
                         </dl>
 
                         {asset.notes && (
                           <div className="bundle-note">
-                            <span>Notes</span>
+                            <span>备注</span>
                             <p>{asset.notes}</p>
                           </div>
                         )}
@@ -1949,7 +1949,7 @@ function App() {
               </section>
 
               <section className="bundle-detail-section">
-                <h4>Tasks 明细</h4>
+                <h4>任务明细</h4>
                 {imageGenerationBundleResult.tasks?.tasks?.length ? (
                   <div className="bundle-detail-list">
                     {imageGenerationBundleResult.tasks.tasks.map((task) => (
@@ -1961,46 +1961,46 @@ function App() {
 
                         <dl className="prompt-detail-grid bundle-detail-grid">
                           <div>
-                            <dt>Task Type</dt>
+                            <dt>任务类型</dt>
                             <dd>{task.task_type || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Progress</dt>
+                            <dt>进度</dt>
                             <dd className="progress-text">{formatTaskProgress(task.progress)}</dd>
                           </div>
                           <div>
-                            <dt>Provider</dt>
+                            <dt>生成来源</dt>
                             <dd>{task.provider || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Workflow</dt>
+                            <dt>工作流</dt>
                             <dd>{task.workflow_name || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Prompt ID</dt>
+                            <dt>Prompt 标识</dt>
                             <dd>{task.prompt_id || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Shot ID</dt>
+                            <dt>镜头标识</dt>
                             <dd>{task.shot_id || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Asset IDs</dt>
+                            <dt>资产标识</dt>
                             <dd className="code-text">{task.asset_ids?.length ? task.asset_ids.join(", ") : "-"}</dd>
                           </div>
                           <div>
-                            <dt>Error Code</dt>
+                            <dt>错误码</dt>
                             <dd>{task.error_code || "-"}</dd>
                           </div>
                           <div>
-                            <dt>Metadata Source</dt>
+                            <dt>元数据来源</dt>
                             <dd>{String(task.metadata?.source ?? "-")}</dd>
                           </div>
                         </dl>
 
                         {(task.status === "failed" || task.error_message) && (
                           <div className="bundle-note task-error-note">
-                            <span>Error Message</span>
+                            <span>错误信息</span>
                             <p>{task.error_message || "-"}</p>
                           </div>
                         )}
@@ -2025,15 +2025,15 @@ function App() {
 
               <section className="image-generation-meta">
                 <div>
-                  <span>Provider</span>
+                  <span>生成来源</span>
                   <strong>{imageGenerationResult.provider}</strong>
                 </div>
                 <div>
-                  <span>Status</span>
+                  <span>状态</span>
                   <strong>{imageGenerationResult.status}</strong>
                 </div>
                 <div>
-                  <span>Items</span>
+                  <span>条目数量</span>
                   <strong>{imageGenerationResult.items.length}</strong>
                 </div>
               </section>
@@ -2044,7 +2044,7 @@ function App() {
                   {imageGenerationResult.items.map((item) => (
                     <section className="image-generation-card" key={item.task_id}>
                       <div className="mock-image-placeholder">
-                        <strong>Mock Image</strong>
+                        <strong>模拟图片</strong>
                         <span>{item.mock_url || "无 mock_url"}</span>
                         <small>
                           {item.width ?? "?"} x {item.height ?? "?"} · {item.shot_id} · {item.prompt_id}
@@ -2058,19 +2058,19 @@ function App() {
 
                       <dl className="prompt-detail-grid">
                         <div>
-                          <dt>Prompt ID</dt>
+                          <dt>Prompt 标识</dt>
                           <dd>{item.prompt_id}</dd>
                         </div>
                         <div>
-                          <dt>Shot ID</dt>
+                          <dt>镜头标识</dt>
                           <dd>{item.shot_id}</dd>
                         </div>
                         <div>
-                          <dt>Mock URL</dt>
+                          <dt>Mock 图片路径</dt>
                           <dd>{item.mock_url || "未设置"}</dd>
                         </div>
                         <div>
-                          <dt>Local Path</dt>
+                          <dt>本地路径</dt>
                           <dd>{item.local_path || "未设置"}</dd>
                         </div>
                         <div>
@@ -2080,22 +2080,22 @@ function App() {
                           </dd>
                         </div>
                         <div>
-                          <dt>Seed</dt>
+                          <dt>种子</dt>
                           <dd>{item.seed ?? "未设置"}</dd>
                         </div>
                         <div>
-                          <dt>Metadata Source</dt>
+                          <dt>元数据来源</dt>
                           <dd>{String(item.metadata?.source ?? "未设置")}</dd>
                         </div>
                       </dl>
 
                       <div className="prompt-text-block positive-prompt">
-                        <span>Positive Prompt</span>
+                        <span>正向 Prompt</span>
                         <p>{item.positive_prompt}</p>
                       </div>
 
                       <div className="prompt-text-block negative-prompt">
-                        <span>Negative Prompt</span>
+                        <span>反向 Prompt</span>
                         <p>{item.negative_prompt}</p>
                       </div>
                     </section>
@@ -2122,7 +2122,7 @@ function App() {
         <section className="workspace-section">
           <div className="workspace-header">
             <p>系统状态</p>
-            <h2>Runtime Status</h2>
+            <h2>运行状态</h2>
           </div>
 
           <section className="panel result-panel system-status-panel">

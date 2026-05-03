@@ -311,8 +311,8 @@ export function ScriptSegmentationWorkspace({
 
         <section className="script-upload-mock-card">
           <div>
-            <h3>上传 Word 剧本文档（Mock）</h3>
-            <p>当前为 mock 上传流程，暂不读取真实文件；真实 .docx 上传将在后续小闭环接入。</p>
+            <h3>上传 Word 剧本文档（模拟）</h3>
+            <p>当前为模拟上传流程，暂不读取真实文件；真实 .docx 上传将在后续小闭环接入。</p>
           </div>
 
           <button
@@ -329,15 +329,15 @@ export function ScriptSegmentationWorkspace({
           {scriptUploadResult && (
             <div className="script-upload-result">
               <div>
-                <span>Source ID</span>
+                <span>上传源标识</span>
                 <strong>{scriptUploadResult.source_id}</strong>
               </div>
               <div>
-                <span>Extraction Status</span>
+                <span>提取状态</span>
                 <strong>{scriptUploadResult.metadata.extraction_status}</strong>
               </div>
               <div>
-                <span>Extracted Text Length</span>
+                <span>提取文本长度</span>
                 <strong>{scriptUploadResult.metadata.extracted_text_length}</strong>
               </div>
               <p>已将提取文本填入下方剧本文本框，可继续切分。</p>
@@ -365,7 +365,7 @@ export function ScriptSegmentationWorkspace({
           <span className={isScriptSegmentationTextTooLong ? "text-limit-exceeded" : ""}>
             当前字符数：{scriptSegmentationTextLength} / {maxScriptTextChars}
           </span>
-          {scriptSegmentationForm.source_id && <span>Upload Source ID：{scriptSegmentationForm.source_id}</span>}
+          {scriptSegmentationForm.source_id && <span>上传源标识：{scriptSegmentationForm.source_id}</span>}
         </div>
 
         {isScriptSegmentationTextTooLong && (
@@ -387,9 +387,9 @@ export function ScriptSegmentationWorkspace({
               value={scriptSegmentationForm.target_segment_level || "scene"}
               onChange={(event) => updateScriptSegmentationField("target_segment_level", event.target.value)}
             >
-              <option value="scene">scene</option>
-              <option value="episode">episode</option>
-              <option value="beat">beat</option>
+              <option value="scene">按场景</option>
+              <option value="episode">按集</option>
+              <option value="beat">按节拍</option>
             </select>
           </label>
 
@@ -399,8 +399,8 @@ export function ScriptSegmentationWorkspace({
               value={scriptSegmentationForm.language || "zh"}
               onChange={(event) => updateScriptSegmentationField("language", event.target.value)}
             >
-              <option value="zh">zh</option>
-              <option value="en">en</option>
+              <option value="zh">中文</option>
+              <option value="en">英文</option>
             </select>
           </label>
         </div>
@@ -429,7 +429,7 @@ export function ScriptSegmentationWorkspace({
         <div className="result-header">
           <div>
             <p>输出预览</p>
-            <h2>Script Segmentation</h2>
+            <h2>剧本切分结果</h2>
           </div>
           <div className="result-actions">
             <button
@@ -474,27 +474,27 @@ export function ScriptSegmentationWorkspace({
 
             <section className="image-generation-meta">
               <div>
-                <span>Segments</span>
+                <span>切分片段数</span>
                 <strong>{scriptSegmentationResult.segment_count}</strong>
               </div>
               <div>
-                <span>Source ID</span>
+                <span>上传源标识</span>
                 <strong>{scriptSegmentationResult.source_id || "-"}</strong>
               </div>
               <div>
-                <span>Workspace ID</span>
+                <span>工作区标识</span>
                 <strong>{scriptSegmentationResult.workspace_id || "-"}</strong>
               </div>
               <div>
-                <span>User ID</span>
+                <span>用户标识</span>
                 <strong>{scriptSegmentationResult.user_id || "-"}</strong>
               </div>
               <div>
-                <span>AI Account</span>
+                <span>AI 功能账户</span>
                 <strong>{scriptSegmentationResult.ai_account_id || "-"}</strong>
               </div>
               <div>
-                <span>Generation Mode</span>
+                <span>生成模式</span>
                 <strong>{String(scriptSegmentationResult.metadata?.generation_mode ?? "-")}</strong>
               </div>
             </section>

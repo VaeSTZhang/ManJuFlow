@@ -15,7 +15,7 @@ export function Sidebar({ items, activeItemId, onSelect }: SidebarProps) {
     <nav className="sidebar-nav" aria-label="ManJuFlow workspace navigation">
       <div className="sidebar-brand">
         <strong>ManJuFlow｜漫剧流</strong>
-        <span>AI Cinematic Workflow</span>
+        <span>AI 影视化创作工作台</span>
       </div>
 
       <div className="sidebar-nav-list">
