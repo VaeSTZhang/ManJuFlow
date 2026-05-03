@@ -31,6 +31,12 @@ from app.schemas.storyboard import (
     StoryboardInput,
     StoryboardOutput,
 )
+from app.schemas.upload import (
+    ScriptUploadOutput,
+    UploadError,
+    UploadSourceInput,
+    UploadSourceMetadata,
+)
 
 __all__ = [
     "AssetCollection",
@@ -56,6 +62,10 @@ __all__ = [
     "ScriptSegment",
     "ScriptSegmentationOutput",
     "ScriptOutput",
+    "ScriptUploadOutput",
     "StoryboardInput",
     "StoryboardOutput",
+    "UploadError",
+    "UploadSourceInput",
+    "UploadSourceMetadata",
 ]
