@@ -251,22 +251,22 @@ const stages = [
 const sidebarItems: SidebarItem[] = [
   {
     id: "idea-script",
-    label: "灵感剧本",
+    label: "灵感创作",
     description: "Idea → Script",
   },
   {
+    id: "script-segmentation",
+    label: "已有剧本",
+    description: "Import → Segments",
+  },
+  {
     id: "storyboard",
-    label: "剧本转分镜",
+    label: "分镜生成",
     description: "Script → Storyboard",
   },
   {
-    id: "script-segmentation",
-    label: "已有剧本切分",
-    description: "Existing Script → Segments",
-  },
-  {
     id: "image-prompt",
-    label: "分镜转绘图 Prompt",
+    label: "绘图 Prompt",
     description: "Storyboard → Prompt",
   },
   {
@@ -505,6 +505,67 @@ function App() {
     setStoryboardExportStatus("");
     setActiveWorkspaceId("storyboard");
     pushToast("success", "已切换到分镜生成", "结构化剧本已带入剧本转分镜工作区。");
+  };
+
+  const formatScriptSegmentationForStoryboard = (segmentation: ScriptSegmentationOutput): string => {
+    const segmentsText = segmentation.segments
+      .map((segment) =>
+        [
+          `[${segment.segment_id}] ${segment.title}`,
+          "原文：",
+          segment.original_text,
+          "",
+          "摘要：",
+          segment.summary,
+          "",
+          "人物：",
+          segment.characters.length ? segment.characters.join("、") : "-",
+          "",
+          "场景：",
+          `${segment.location || "-"} / ${segment.time_of_day || "-"}`,
+          "",
+          "冲突：",
+          segment.conflict || "-",
+          "",
+          "情绪：",
+          segment.emotion || "-",
+          "",
+          "视觉备注：",
+          segment.visual_notes || "-",
+          "",
+          "对话：",
+          segment.dialogue_text || "-",
+        ].join("\n"),
+      )
+      .join("\n\n---\n\n");
+
+    return [
+      `项目标题：${segmentation.project_title}`,
+      "",
+      "切分摘要：",
+      segmentation.segmentation_summary,
+      "",
+      "已有剧本切分片段：",
+      segmentsText,
+    ].join("\n");
+  };
+
+  const transferScriptSegmentationToStoryboard = () => {
+    if (!scriptSegmentationResult || scriptSegmentationResult.segments.length === 0) {
+      return;
+    }
+
+    setStoryboardForm((current) => ({
+      ...current,
+      project_title: scriptSegmentationResult.project_title,
+      script_text: formatScriptSegmentationForStoryboard(scriptSegmentationResult),
+    }));
+    setStoryboardTransferStatus("已将已有剧本切分结果带入分镜生成，请确认后点击生成分镜。");
+    setStoryboardError("");
+    setStoryboardCopyStatus("");
+    setStoryboardExportStatus("");
+    setActiveWorkspaceId("storyboard");
+    pushToast("success", "已切换到分镜生成", "已有剧本切分结果已带入分镜生成，请确认后点击生成分镜。");
   };
 
   const transferStoryboardToImagePrompt = () => {
@@ -1649,7 +1710,8 @@ function App() {
         <form className="panel form-panel" onSubmit={handleScriptSegmentationSubmit}>
           <div className="panel-heading">
             <p>第五阶段</p>
-            <h2>已有剧本切分</h2>
+            <h2>已有剧本导入与切分</h2>
+            <span>支持粘贴已有剧本文本，或通过 mock 上传 Word 文档提取文本。切分后可继续进入分镜生成。</span>
           </div>
 
           <label className="field field-wide">
@@ -1801,6 +1863,14 @@ function App() {
               >
                 导出切分 JSON
               </button>
+              <button
+                className="primary-button"
+                disabled={!scriptSegmentationResult || scriptSegmentationResult.segments.length === 0}
+                onClick={transferScriptSegmentationToStoryboard}
+                type="button"
+              >
+                带入分镜生成
+              </button>
             </div>
           </div>
 
@@ -1808,7 +1878,7 @@ function App() {
           {scriptSegmentationExportStatus && <p className="copy-status">{scriptSegmentationExportStatus}</p>}
 
           {!scriptSegmentationResult ? (
-            <div className="empty-state">粘贴已有剧本后，切分结果将在这里展示。</div>
+            <div className="empty-state">粘贴已有剧本或模拟上传 Word 文档后，切分结果将在这里展示。</div>
           ) : (
             <article className="script-output script-segmentation-output">
               <section className="result-summary">
