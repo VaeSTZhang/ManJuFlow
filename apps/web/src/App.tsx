@@ -5,6 +5,7 @@ import { generateStoryboard } from "./api/storyboards";
 import "./App.css";
 import { AppShell } from "./components/layout/AppShell";
 import { Sidebar } from "./components/layout/Sidebar";
+import { Toast } from "./components/layout/Toast";
 import type {
   ImageGenerationInput,
   ImageGenerationOutput,
@@ -14,6 +15,7 @@ import type { ImageGenerationBundleOutput } from "./types/imageGenerationBundle"
 import type { ImagePromptInput, ImagePromptOutput } from "./types/imagePrompt";
 import type { StoryboardInput, StoryboardOutput } from "./types/storyboard";
 import type { SidebarItem } from "./components/layout/Sidebar";
+import type { ToastMessage, ToastType } from "./components/layout/Toast";
 
 type IdeaInput = {
   idea_text: string;
@@ -289,10 +291,22 @@ function App() {
   const [imageGenerationBundleError, setImageGenerationBundleError] = useState("");
   const [imageGenerationBundleResult, setImageGenerationBundleResult] =
     useState<ImageGenerationBundleOutput | null>(null);
+  const [toastMessages, setToastMessages] = useState<ToastMessage[]>([]);
 
   const selectedImagePromptModel =
     imagePromptModelOptions.find((option) => option.provider === imagePromptForm.llm_provider) ||
     imagePromptModelOptions[0];
+
+  const dismissToast = (id: string) => {
+    setToastMessages((current) => current.filter((message) => message.id !== id));
+  };
+
+  const pushToast = (type: ToastType, title: string, description?: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+
+    setToastMessages((current) => [...current, { id, type, title, description }]);
+    window.setTimeout(() => dismissToast(id), 3500);
+  };
 
   useEffect(() => {
     const loadSystemStatus = async () => {
@@ -309,6 +323,7 @@ function App() {
       } catch {
         setSystemStatus(null);
         setIsSystemConnected(false);
+        pushToast("warning", "后端状态未知", "系统状态接口请求失败，请确认后端服务是否已启动。");
       }
     };
 
@@ -378,6 +393,7 @@ function App() {
       setResult(data);
     } catch {
       setError("生成失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      pushToast("error", "生成失败", "剧本生成接口请求失败，请检查后端是否运行。");
     } finally {
       setIsLoading(false);
     }
@@ -391,6 +407,7 @@ function App() {
     await navigator.clipboard.writeText(JSON.stringify(result, null, 2));
     setCopyStatus("已复制");
     setExportStatus("");
+    pushToast("success", "复制成功", "结构化剧本 JSON 已复制到剪贴板。");
   };
 
   const exportJson = () => {
@@ -412,6 +429,7 @@ function App() {
 
     setExportStatus("已导出");
     setCopyStatus("");
+    pushToast("success", "导出成功", "结构化剧本 JSON 已导出。");
   };
 
   const transferScriptToStoryboard = () => {
@@ -461,6 +479,7 @@ function App() {
       setStoryboardResult(data);
     } catch {
       setStoryboardError("生成分镜失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      pushToast("error", "生成失败", "剧本转分镜接口请求失败，请检查后端是否运行。");
     } finally {
       setIsStoryboardLoading(false);
     }
@@ -474,6 +493,7 @@ function App() {
     await navigator.clipboard.writeText(JSON.stringify(storyboardResult, null, 2));
     setStoryboardCopyStatus("已复制分镜 JSON");
     setStoryboardExportStatus("");
+    pushToast("success", "复制成功", "分镜 JSON 已复制到剪贴板。");
   };
 
   const exportStoryboardJson = () => {
@@ -495,6 +515,7 @@ function App() {
 
     setStoryboardExportStatus("已导出分镜 JSON");
     setStoryboardCopyStatus("");
+    pushToast("success", "导出成功", "分镜 JSON 已导出。");
   };
 
   const handleImagePromptSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -502,11 +523,13 @@ function App() {
 
     if (!imagePromptForm.project_title.trim()) {
       setImagePromptError("请先填写项目标题。");
+      pushToast("warning", "缺少必填项", "生成绘图 Prompt 前请先填写项目标题。");
       return;
     }
 
     if (!imagePromptForm.storyboard_text?.trim()) {
       setImagePromptError("请先填写分镜文本。");
+      pushToast("warning", "缺少必填项", "生成绘图 Prompt 前请先填写分镜文本。");
       return;
     }
 
@@ -534,6 +557,7 @@ function App() {
       setImagePromptResult(data);
     } catch {
       setImagePromptError("生成绘图 Prompt 失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      pushToast("error", "生成失败", "分镜转绘图 Prompt 接口请求失败，请检查后端是否运行。");
     } finally {
       setImagePromptLoading(false);
     }
@@ -549,8 +573,10 @@ function App() {
       setImagePromptCopyStatus("已复制绘图 Prompt JSON");
       setImagePromptExportStatus("");
       setImagePromptError("");
+      pushToast("success", "复制成功", "绘图 Prompt JSON 已复制到剪贴板。");
     } catch {
       setImagePromptError("复制绘图 Prompt JSON 失败，请检查浏览器剪贴板权限。");
+      pushToast("error", "复制失败", "复制绘图 Prompt JSON 失败，请检查浏览器剪贴板权限。");
     }
   };
 
@@ -575,6 +601,7 @@ function App() {
     setImagePromptExportStatus("已导出绘图 Prompt JSON");
     setImagePromptCopyStatus("");
     setImagePromptError("");
+    pushToast("success", "导出成功", "绘图 Prompt JSON 已导出。");
   };
 
   const buildImageGenerationRequest = (
@@ -586,11 +613,13 @@ function App() {
 
     if (!projectTitle) {
       setRequestError("请先填写项目标题。");
+      pushToast("warning", "缺少必填项", "图片生成前请先填写项目标题。");
       return null;
     }
 
     if (promptItems.length === 0) {
       setRequestError("请至少提供 1 条 prompt_items。");
+      pushToast("warning", "缺少必填项", "图片生成至少需要 1 条 prompt_items。");
       return null;
     }
 
@@ -598,6 +627,7 @@ function App() {
 
     if (outputCount < 1 || outputCount > 4) {
       setRequestError("output_count 需要在 1 到 4 之间。");
+      pushToast("warning", "参数不合法", "output_count 需要在 1 到 4 之间。");
       return null;
     }
 
@@ -622,12 +652,14 @@ function App() {
 
       if (!Array.isArray(parsed)) {
         setRequestError("prompt_items JSON 必须是数组。");
+        pushToast("error", "JSON 格式错误", "prompt_items 必须是合法 JSON 数组。");
         return null;
       }
 
       return parsed as ImageGenerationPromptItem[];
     } catch {
       setRequestError("prompt_items JSON 解析失败，请检查格式。");
+      pushToast("error", "JSON 格式错误", "prompt_items JSON 解析失败，请检查格式。");
       return null;
     }
   };
@@ -665,6 +697,7 @@ function App() {
       setImageGenerationResult(data);
     } catch {
       setImageGenerationError("生成 mock 图片失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      pushToast("error", "生成失败", "图片生成接口请求失败，请检查后端是否运行。");
     } finally {
       setImageGenerationLoading(false);
     }
@@ -679,6 +712,7 @@ function App() {
       setImageGenerationBundleResult(data);
     } catch {
       setImageGenerationBundleError("生成 Bundle 失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      pushToast("error", "Bundle 生成失败", "generate-bundle 接口请求失败，请检查后端是否运行。");
     } finally {
       setImageGenerationBundleLoading(false);
     }
@@ -725,6 +759,7 @@ function App() {
   const generateImagesFromImagePromptResult = async () => {
     if (!imagePromptResult?.items.length) {
       setImageGenerationError("当前没有可用的绘图 Prompt 结果。");
+      pushToast("warning", "缺少绘图 Prompt", "当前没有可用的绘图 Prompt 结果，无法生成 mock 图片。");
       return;
     }
 
@@ -759,6 +794,7 @@ function App() {
 
     if (!promptItems) {
       setImageGenerationBundleError("当前没有可用的绘图 Prompt 结果。");
+      pushToast("warning", "缺少绘图 Prompt", "当前没有可用的绘图 Prompt 结果，无法生成 Bundle。");
       return;
     }
 
@@ -983,6 +1019,7 @@ function App() {
           onSelect={setActiveWorkspaceId}
         />
       }
+      toast={<Toast messages={toastMessages} onDismiss={dismissToast} />}
       topbar={
         <div className="workspace-topbar-content">
           <div>
