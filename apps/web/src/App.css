@@ -503,6 +503,27 @@ select {
   line-height: 1.55;
 }
 
+.character-count-hint {
+  margin: 0;
+  color: #607087;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.character-count-hint span {
+  color: inherit;
+  font-size: inherit;
+  font-weight: 800;
+}
+
+.character-count-hint-warning {
+  color: #a16207;
+}
+
+.character-count-hint-error {
+  color: #b42318;
+}
+
 .field input,
 .field textarea,
 .field select {
