@@ -64,3 +64,21 @@ def test_generate_image_prompt_endpoint_is_available_in_openapi() -> None:
 
     assert response.status_code == 200
     assert "/api/prompts/generate" in response.json()["paths"]
+
+
+def test_generate_image_prompt_endpoint_accepts_zh_language(monkeypatch) -> None:
+    monkeypatch.setenv("IMAGE_PROMPT_GENERATION_MODE", "mock")
+    get_settings.cache_clear()
+
+    client = TestClient(app)
+
+    payload = make_request_payload()
+    payload["language"] = "zh"
+    response = client.post("/api/prompts/generate", json=payload)
+
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["items"]
+    assert "电影写实" in data["items"][0]["positive_prompt"]
+    assert "雨夜医院门口" in data["items"][0]["positive_prompt"]

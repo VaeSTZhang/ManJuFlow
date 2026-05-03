@@ -50,6 +50,20 @@ function sanitizeFileName(value: string): string {
     .slice(0, 60);
 }
 
+function formatSourceTypeLabel(sourceType?: string | null): string {
+  const sourceTypeLabels: Record<string, string> = {
+    pasted_text: "粘贴文本",
+    script_docx: "Word 剧本文档",
+    uploaded_text: "上传文本",
+  };
+
+  if (!sourceType) {
+    return "未知来源";
+  }
+
+  return sourceTypeLabels[sourceType] || "未知来源";
+}
+
 function formatScriptSegmentationForStoryboard(segmentation: ScriptSegmentationOutput): string {
   const segmentsText = segmentation.segments
     .map((segment) =>
@@ -340,6 +354,10 @@ export function ScriptSegmentationWorkspace({
                 <span>提取文本长度</span>
                 <strong>{scriptUploadResult.metadata.extracted_text_length}</strong>
               </div>
+              <div>
+                <span>来源类型</span>
+                <strong>{formatSourceTypeLabel(scriptUploadResult.metadata.source_type)}</strong>
+              </div>
               <p>已将提取文本填入下方剧本文本框，可继续切分。</p>
               {scriptUploadResult.warnings.length > 0 && (
                 <ul className="script-upload-warnings">
@@ -375,10 +393,14 @@ export function ScriptSegmentationWorkspace({
         <div className="field-grid">
           <label className="field">
             <span>来源类型</span>
-            <input
+            <select
               value={scriptSegmentationForm.source_type || "pasted_text"}
               onChange={(event) => updateScriptSegmentationField("source_type", event.target.value)}
-            />
+            >
+              <option value="pasted_text">粘贴文本</option>
+              <option value="script_docx">Word 剧本文档</option>
+              <option value="uploaded_text">上传文本</option>
+            </select>
           </label>
 
           <label className="field">
@@ -473,6 +495,10 @@ export function ScriptSegmentationWorkspace({
             </section>
 
             <section className="image-generation-meta">
+              <div>
+                <span>来源类型</span>
+                <strong>{formatSourceTypeLabel(String(scriptSegmentationResult.metadata?.source_type ?? ""))}</strong>
+              </div>
               <div>
                 <span>切分片段数</span>
                 <strong>{scriptSegmentationResult.segment_count}</strong>

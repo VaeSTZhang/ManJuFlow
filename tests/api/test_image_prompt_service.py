@@ -26,7 +26,7 @@ def reset_settings_cache():
     get_settings.cache_clear()
 
 
-def make_image_prompt_input() -> ImagePromptInput:
+def make_image_prompt_input(language: str = "en") -> ImagePromptInput:
     return ImagePromptInput(
         project_title="测试短剧：雨夜重逢",
         storyboard_summary="雨夜医院门口重逢，情绪从压抑到对峙。",
@@ -34,6 +34,7 @@ def make_image_prompt_input() -> ImagePromptInput:
         target_model="general",
         aspect_ratio="9:16",
         style_preset="cinematic realistic",
+        language=language,
     )
 
 
@@ -145,6 +146,34 @@ def test_generate_image_prompt_mock_negative_prompt_contains_common_terms() -> N
         assert "low quality" in item.negative_prompt
         assert "blurry" in item.negative_prompt
         assert "watermark" in item.negative_prompt
+
+
+def test_generate_image_prompt_mock_uses_english_prompts_when_language_is_en() -> None:
+    result = generate_image_prompt_mock(make_image_prompt_input(language="en"))
+
+    assert "cinematic realistic" in result.items[0].positive_prompt
+    assert "rainy night" in result.items[0].positive_prompt
+    assert "Current mock output uses English prompts" in (result.items[0].notes or "")
+
+
+def test_generate_image_prompt_mock_uses_chinese_prompts_when_language_is_zh() -> None:
+    result = generate_image_prompt_mock(make_image_prompt_input(language="zh"))
+
+    assert "电影写实" in result.items[0].positive_prompt
+    assert "雨夜医院门口" in result.items[0].positive_prompt
+    assert "当前为中文 Prompt mock 输出" in (result.items[0].notes or "")
+
+
+def test_generate_image_prompt_mock_language_outputs_are_different() -> None:
+    english_result = generate_image_prompt_mock(make_image_prompt_input(language="en"))
+    chinese_result = generate_image_prompt_mock(make_image_prompt_input(language="zh"))
+
+    assert english_result.items[0].positive_prompt != chinese_result.items[0].positive_prompt
+    assert len(chinese_result.items) >= 2
+    assert chinese_result.items[0].negative_prompt
+    assert chinese_result.project_title == "测试短剧：雨夜重逢"
+    assert chinese_result.style_preset == "cinematic realistic"
+    assert chinese_result.aspect_ratio == "9:16"
 
 
 def test_generate_image_prompt_returns_mock_output(monkeypatch) -> None:

@@ -11,6 +11,10 @@ from pydantic import ValidationError
 NEGATIVE_PROMPT = (
     "low quality, blurry, bad anatomy, extra fingers, distorted face, watermark, text, logo"
 )
+NEGATIVE_PROMPT_ZH = (
+    "低质量、模糊、人体结构错误、多余手指、脸部变形、水印、文字、logo, "
+    "low quality, blurry, watermark"
+)
 
 
 def _strip_markdown_code_fence(raw_text: str) -> str:
@@ -80,17 +84,58 @@ def _get_source_visual_description(input_data: ImagePromptInput) -> str:
     return "雨夜医院门口，男女主角在冷色车灯和雨幕中重逢。"
 
 
+def _is_chinese_prompt_language(language: str) -> bool:
+    return language.lower() == "zh"
+
+
 def generate_image_prompt_mock(input_data: ImagePromptInput) -> ImagePromptOutput:
     load_image_prompt_template()
 
     source_description = _get_source_visual_description(input_data)
+    use_chinese_prompt = _is_chinese_prompt_language(input_data.language)
+
+    if use_chinese_prompt:
+        prompt_summary = (
+            "这是基于输入分镜生成的中文 mock 绘图 Prompt，用于验证“分镜到 AI 绘图 Prompt”"
+            "服务层结构。当前输出包含稳定可追踪的中文镜头 Prompt 条目。"
+        )
+        positive_prompt_1 = (
+            "电影写实风格，竖屏画面，雨夜医院门口，年轻女人撑着黑伞站在台阶上，"
+            "年轻男人从深色轿车里下来，冷色车灯反射在湿漉漉的地面上，久别重逢的紧张情绪，"
+            "中景，平视机位，面部细节清晰，强烈电影感明暗对比"
+        )
+        positive_prompt_2 = (
+            "电影写实特写，黑伞边缘挂着雨滴，年轻女人在冷蓝色光线下压抑克制的表情，"
+            "医院入口在背景中虚化，发丝被雨水打湿，情绪张力强，浅景深，面部结构干净自然，"
+            "冷峻电影灯光"
+        )
+        negative_prompt = NEGATIVE_PROMPT_ZH
+        notes_1 = "当前为中文 Prompt mock 输出；不要加入新角色或改变雨夜医院门口场景。"
+        notes_2 = "当前为中文 Prompt mock 输出，用于验证多条 ImagePromptItem 的结构稳定性。"
+    else:
+        prompt_summary = (
+            "This mock ImagePrompt output uses English prompts for validating the storyboard to AI image "
+            "prompt service contract. The result contains stable and traceable shot prompt items."
+        )
+        positive_prompt_1 = (
+            "cinematic realistic vertical frame, rainy night at a hospital entrance, "
+            "young woman holding a black umbrella on the steps, young man stepping out "
+            "of a dark car, cold headlights reflecting on wet pavement, tense reunion mood, "
+            "medium shot, eye-level angle, detailed faces, dramatic contrast lighting"
+        )
+        positive_prompt_2 = (
+            "cinematic realistic close-up, rain drops on a black umbrella edge, "
+            "young woman's restrained expression under cold blue light, hospital entrance "
+            "blurred in the background, wet hair strands, emotional tension, shallow depth "
+            "of field, clean facial anatomy, moody film lighting"
+        )
+        negative_prompt = NEGATIVE_PROMPT
+        notes_1 = "Current mock output uses English prompts. Do not add new characters or change the rainy hospital scene."
+        notes_2 = "Current mock output uses English prompts for validating multiple ImagePromptItem records."
 
     return ImagePromptOutput(
         project_title=input_data.project_title,
-        prompt_summary=(
-            "这是基于输入分镜生成的 mock 绘图 Prompt，用于验证“分镜到 AI 绘图 Prompt”"
-            "服务层结构。当前输出包含稳定可追踪的镜头 Prompt 条目。"
-        ),
+        prompt_summary=prompt_summary,
         target_model=input_data.target_model,
         aspect_ratio=input_data.aspect_ratio,
         style_preset=input_data.style_preset,
@@ -102,13 +147,8 @@ def generate_image_prompt_mock(input_data: ImagePromptInput) -> ImagePromptOutpu
                 shot_number=1,
                 scene_number=1,
                 source_visual_description=source_description,
-                positive_prompt=(
-                    "cinematic realistic vertical frame, rainy night at a hospital entrance, "
-                    "young woman holding a black umbrella on the steps, young man stepping out "
-                    "of a dark car, cold headlights reflecting on wet pavement, tense reunion mood, "
-                    "medium shot, eye-level angle, detailed faces, dramatic contrast lighting"
-                ),
-                negative_prompt=NEGATIVE_PROMPT,
+                positive_prompt=positive_prompt_1,
+                negative_prompt=negative_prompt,
                 style_preset=input_data.style_preset,
                 aspect_ratio=input_data.aspect_ratio,
                 camera_language="中景，平视机位，雨幕作为前景，两人隔着台阶和车灯对视。",
@@ -119,7 +159,7 @@ def generate_image_prompt_mock(input_data: ImagePromptInput) -> ImagePromptOutpu
                 composition="竖幅构图，两人分居画面两侧，雨幕和车灯形成视觉分隔。",
                 model_hint=f"{input_data.target_model} image generation, prioritize realistic cinematic detail",
                 seed=None,
-                notes="Mock 输出，不调用真实 LLM；不要加入新角色或改变雨夜医院门口场景。",
+                notes=notes_1,
             ),
             ImagePromptItem(
                 prompt_id="P002",
@@ -128,13 +168,8 @@ def generate_image_prompt_mock(input_data: ImagePromptInput) -> ImagePromptOutpu
                 shot_number=2,
                 scene_number=1,
                 source_visual_description=source_description,
-                positive_prompt=(
-                    "cinematic realistic close-up, rain drops on a black umbrella edge, "
-                    "young woman's restrained expression under cold blue light, hospital entrance "
-                    "blurred in the background, wet hair strands, emotional tension, shallow depth "
-                    "of field, clean facial anatomy, moody film lighting"
-                ),
-                negative_prompt=NEGATIVE_PROMPT,
+                positive_prompt=positive_prompt_2,
+                negative_prompt=negative_prompt,
                 style_preset=input_data.style_preset,
                 aspect_ratio=input_data.aspect_ratio,
                 camera_language="近景特写，焦点落在女主克制的表情和伞沿雨滴上。",
@@ -145,7 +180,7 @@ def generate_image_prompt_mock(input_data: ImagePromptInput) -> ImagePromptOutpu
                 composition="面部位于画面上三分之一，伞沿形成前景斜线，引导视线到眼神。",
                 model_hint=f"{input_data.target_model} image generation, emphasize facial realism and rain details",
                 seed=None,
-                notes="Mock 输出，用于验证多条 ImagePromptItem 的结构稳定性。",
+                notes=notes_2,
             ),
         ],
     )
