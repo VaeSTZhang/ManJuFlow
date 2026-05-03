@@ -7,6 +7,7 @@ from app.routers.prompts import router as prompts_router
 from app.routers.scripts import router as scripts_router
 from app.routers.storyboards import router as storyboards_router
 from app.routers.system import router as system_router
+from app.routers.uploads import router as uploads_router
 
 
 app = FastAPI(title="ManJuFlow API")
@@ -25,3 +26,4 @@ app.include_router(prompts_router)
 app.include_router(scripts_router)
 app.include_router(storyboards_router)
 app.include_router(system_router)
+app.include_router(uploads_router)
