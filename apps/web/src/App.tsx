@@ -446,6 +446,8 @@ function App() {
     setStoryboardError("");
     setStoryboardCopyStatus("");
     setStoryboardExportStatus("");
+    setActiveWorkspaceId("storyboard");
+    pushToast("success", "已切换到分镜生成", "结构化剧本已带入剧本转分镜工作区。");
   };
 
   const transferStoryboardToImagePrompt = () => {
@@ -463,7 +465,8 @@ function App() {
     setImagePromptError("");
     setImagePromptCopyStatus("");
     setImagePromptExportStatus("");
-    document.getElementById("image-prompt-workspace")?.scrollIntoView({ behavior: "smooth" });
+    setActiveWorkspaceId("image-prompt");
+    pushToast("success", "已切换到绘图 Prompt", "分镜结果已带入绘图 Prompt 工作区。");
   };
 
   const handleStoryboardSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -779,6 +782,8 @@ function App() {
 
     setImageGenerationForm(nextForm);
     setImageGenerationPromptItemsText(formatPromptItemsJson(promptItems));
+    setActiveWorkspaceId("image-generation");
+    pushToast("success", "已切换到图片生成", "绘图 Prompt 已带入图片生成工作区。");
 
     const input = buildImageGenerationRequest(promptItems, nextForm);
 
@@ -808,6 +813,8 @@ function App() {
 
     setImageGenerationForm(nextForm);
     setImageGenerationPromptItemsText(formatPromptItemsJson(promptItems));
+    setActiveWorkspaceId("image-generation");
+    pushToast("success", "已切换到图片生成", "绘图 Prompt 已带入 Bundle 生成流程。");
 
     const input = buildImageGenerationRequest(
       promptItems,
@@ -1031,6 +1038,7 @@ function App() {
       }
     >
       <main className="app">
+      <div className="workspace-transition" key={activeWorkspaceId}>
       {activeWorkspaceId === "idea-script" && (
         <>
       <header className="page-header">
@@ -2073,6 +2081,7 @@ function App() {
           </section>
         </section>
       )}
+      </div>
       </main>
     </AppShell>
   );

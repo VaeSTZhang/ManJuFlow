@@ -108,6 +108,22 @@ select {
   margin-left: auto;
 }
 
+.workspace-transition {
+  animation: workspaceFadeIn 200ms ease-out;
+}
+
+@keyframes workspaceFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .workspace-header {
   padding: 18px 0 4px;
 }
@@ -1217,5 +1233,11 @@ select {
 
   .result-actions .secondary-button {
     flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-transition {
+    animation: none;
   }
 }
