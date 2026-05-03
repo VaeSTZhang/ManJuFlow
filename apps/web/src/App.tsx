@@ -691,6 +691,31 @@ function App() {
     );
   };
 
+  const transferImagePromptToImageGeneration = () => {
+    const promptItems = mapImagePromptResultToImageGenerationItems();
+
+    if (!promptItems) {
+      setImageGenerationError("当前没有可用的绘图 Prompt 结果。");
+      pushToast("warning", "缺少绘图 Prompt", "当前没有可用的绘图 Prompt 结果，无法带入图片生成。");
+      return;
+    }
+
+    const nextForm = {
+      ...imageGenerationForm,
+      project_title: imagePromptResult?.project_title || imageGenerationForm.project_title,
+      prompt_items: promptItems,
+      aspect_ratio: imagePromptResult?.aspect_ratio || imageGenerationForm.aspect_ratio,
+      style_preset: imagePromptResult?.style_preset || imageGenerationForm.style_preset,
+    };
+
+    setImageGenerationForm(nextForm);
+    setImageGenerationPromptItemsText(formatPromptItemsJson(promptItems));
+    setImageGenerationError("");
+    setImageGenerationBundleError("");
+    setActiveWorkspaceId("image-generation");
+    pushToast("success", "已切换到图片生成", "绘图 Prompt 已带入 Image Generation 工作区。");
+  };
+
   const requestImageGeneration = async (input: ImageGenerationInput) => {
     setImageGenerationLoading(true);
     setImageGenerationError("");
@@ -1533,6 +1558,14 @@ function App() {
               <h2>绘图 Prompt</h2>
             </div>
             <div className="result-actions">
+              <button
+                className="secondary-button"
+                disabled={!imagePromptResult}
+                onClick={transferImagePromptToImageGeneration}
+                type="button"
+              >
+                带入图片生成
+              </button>
               <button
                 className="secondary-button"
                 disabled={!imagePromptResult}
