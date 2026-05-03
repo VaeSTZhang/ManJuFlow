@@ -31,6 +31,11 @@ from app.services.script_segmentation_service import (
     generate_script_segmentation_mock,
 )
 from app.services.storyboard_service import generate_storyboard, generate_storyboard_mock
+from app.services.upload_service import (
+    create_script_upload_mock,
+    extract_script_text_mock,
+    generate_mock_source_id,
+)
 
 __all__ = [
     "build_asset_collection_from_image_generation",
@@ -39,6 +44,8 @@ __all__ = [
     "build_render_task_item_from_image_generation_item",
     "build_render_tasks_from_image_generation",
     "ComfyUIImageGenerationProviderPlaceholder",
+    "create_script_upload_mock",
+    "extract_script_text_mock",
     "ImageGenerationProvider",
     "LLMClient",
     "MockImageGenerationProvider",
@@ -52,6 +59,7 @@ __all__ = [
     "generate_script_segmentation_mock",
     "generate_storyboard",
     "generate_storyboard_mock",
+    "generate_mock_source_id",
     "get_image_generation_provider",
     "load_image_prompt_template",
     "parse_image_prompt_llm_response",
