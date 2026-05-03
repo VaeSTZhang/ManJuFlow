@@ -288,6 +288,7 @@ select {
 .stage-grid,
 .workspace,
 .storyboard-workspace,
+.script-segmentation-workspace,
 .image-prompt-workspace,
 .image-generation-workspace {
   width: min(1180px, 100%);
@@ -420,6 +421,14 @@ select {
 }
 
 .storyboard-workspace {
+  display: grid;
+  grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.script-segmentation-workspace {
   display: grid;
   grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
   gap: 20px;
@@ -939,6 +948,31 @@ select {
   background: #ffffff;
 }
 
+.script-segmentation-items {
+  padding: 16px;
+  border: 1px solid #d8e6f8;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.script-segmentation-items h4 {
+  margin-bottom: 12px;
+  color: #172033;
+  font-size: 18px;
+}
+
+.script-segmentation-list {
+  display: grid;
+  gap: 14px;
+}
+
+.script-segmentation-card {
+  padding: 14px;
+  border: 1px solid #e1e9f3;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
 .image-generation-bundle-summary {
   display: grid;
   gap: 12px;
@@ -1182,6 +1216,7 @@ select {
   .stage-grid,
   .workspace,
   .storyboard-workspace,
+  .script-segmentation-workspace,
   .image-prompt-workspace,
   .image-generation-workspace {
     grid-template-columns: 1fr;
