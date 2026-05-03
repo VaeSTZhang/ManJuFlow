@@ -51,6 +51,12 @@ select {
   padding: 24px;
 }
 
+.app-shell .app {
+  min-height: auto;
+  padding: 0;
+  background: transparent;
+}
+
 .app-topbar {
   min-height: 58px;
   display: flex;
@@ -61,6 +67,37 @@ select {
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.92);
+}
+
+.workspace-topbar-content {
+  width: 100%;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.workspace-topbar-content div {
+  display: grid;
+  gap: 3px;
+}
+
+.workspace-topbar-content span {
+  color: #607087;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.workspace-topbar-content strong {
+  color: #172033;
+  font-size: 18px;
+}
+
+.workspace-topbar-content p {
+  margin: 0;
+  color: #536276;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .sidebar-nav {
@@ -1052,6 +1089,32 @@ select {
 }
 
 @media (max-width: 980px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  }
+
+  .app-main {
+    padding: 20px;
+  }
+
+  .sidebar-nav {
+    min-height: auto;
+  }
+
+  .sidebar-nav-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-topbar-content {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .page-header {
     flex-direction: column;
   }
@@ -1074,6 +1137,14 @@ select {
 }
 
 @media (max-width: 640px) {
+  .app-main {
+    padding: 16px;
+  }
+
+  .sidebar-nav-list {
+    grid-template-columns: 1fr;
+  }
+
   .app {
     padding: 20px;
   }

@@ -3,6 +3,8 @@ import { generateImageBundle, generateImages } from "./api/imageGenerations";
 import { generateImagePrompts } from "./api/imagePrompts";
 import { generateStoryboard } from "./api/storyboards";
 import "./App.css";
+import { AppShell } from "./components/layout/AppShell";
+import { Sidebar } from "./components/layout/Sidebar";
 import type {
   ImageGenerationInput,
   ImageGenerationOutput,
@@ -11,6 +13,7 @@ import type {
 import type { ImageGenerationBundleOutput } from "./types/imageGenerationBundle";
 import type { ImagePromptInput, ImagePromptOutput } from "./types/imagePrompt";
 import type { StoryboardInput, StoryboardOutput } from "./types/storyboard";
+import type { SidebarItem } from "./components/layout/Sidebar";
 
 type IdeaInput = {
   idea_text: string;
@@ -217,7 +220,41 @@ const stages = [
   },
 ];
 
+const sidebarItems: SidebarItem[] = [
+  {
+    id: "idea-script",
+    label: "灵感剧本",
+    description: "Idea → Script",
+  },
+  {
+    id: "storyboard",
+    label: "剧本转分镜",
+    description: "Script → Storyboard",
+  },
+  {
+    id: "image-prompt",
+    label: "分镜转绘图 Prompt",
+    description: "Storyboard → Prompt",
+  },
+  {
+    id: "image-generation",
+    label: "图片生成",
+    description: "ImageGeneration mock",
+  },
+  {
+    id: "assets-tasks",
+    label: "资产与任务",
+    description: "Assets / Tasks",
+  },
+  {
+    id: "system-status",
+    label: "系统状态",
+    description: "Runtime status",
+  },
+];
+
 function App() {
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState("idea-script");
   const [form, setForm] = useState<IdeaInput>(defaultForm);
   const [result, setResult] = useState<ScriptOutput | null>(null);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
@@ -757,8 +794,28 @@ function App() {
     return `${Math.round(progress * 100)}%`;
   };
 
+  const activeWorkspace = sidebarItems.find((item) => item.id === activeWorkspaceId) || sidebarItems[0];
+
   return (
-    <main className="app">
+    <AppShell
+      sidebar={
+        <Sidebar
+          activeItemId={activeWorkspaceId}
+          items={sidebarItems}
+          onSelect={setActiveWorkspaceId}
+        />
+      }
+      topbar={
+        <div className="workspace-topbar-content">
+          <div>
+            <span>当前工作区</span>
+            <strong>{activeWorkspace.label}</strong>
+          </div>
+          <p>当前仅接入工作台外壳，右侧仍展示完整 MVP 链路。</p>
+        </div>
+      }
+    >
+      <main className="app">
       <header className="page-header">
         <div>
           <p className="eyebrow">内部 AI 创作工作台</p>
@@ -1753,7 +1810,8 @@ function App() {
           )}
         </section>
       </section>
-    </main>
+      </main>
+    </AppShell>
   );
 }
 
