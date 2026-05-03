@@ -32,6 +32,24 @@
 - 第 115 步：新增 `docs/WORKFLOW_REGISTRY_DESIGN.md`；
 - 第 116 步：新增 `docs/COMFYUI_PROVIDER_TECHNICAL_DESIGN.md`；
 - 第 117 步：新增 `docs/COMFYUI_PRIVATE_INTEGRATION_CHECKLIST.md`。
+- 第 118 步：更新 PHASE_4_PROGRESS / README 文档索引；
+- 第 119 步：新增 `docs/REMOTE_GPU_READINESS_ASSESSMENT.md`；
+- 第 120 步：新增 AssetItem / RenderTask Schema；
+- 第 121 步：新增 asset manager mock service；
+- 第 122 步：新增 render task mock service；
+- 第 123 步：新增 ImageGeneration result bundle service；
+- 第 124 步：新增前端 Asset / RenderTask / Bundle 类型；
+- 第 125 步：新增 `/api/images/generate-bundle` endpoint；
+- 第 126 步：新增前端 `generateImageBundle` API；
+- 第 127 步：前端接入 `generateImageBundle`；
+- 第 128 步：前端展示 Assets / Tasks 明细；
+- 第 129 步：新增前端信息架构方案；
+- 第 130 步：新增 layout / toast 组件骨架；
+- 第 131 步：接入 AppShell + Sidebar 布局；
+- 第 132 步：实现 Sidebar workspace 切换；
+- 第 133 步：接入 Toast Notification；
+- 第 134 步：新增下一阶段自动跳转 + workspace 切换动效；
+- 第 135 步：修复 ImagePrompt → ImageGeneration 自动跳转。
 
 ## 3. 当前已完成的技术能力
 
@@ -41,21 +59,41 @@
 - `ImageGenerationInput`
 - `ImageGenerationItem`
 - `ImageGenerationOutput`
+- `ImageGenerationBundleOutput`
+- `AssetItem`
+- `AssetCollection`
+- `RenderTaskItem`
+- `RenderTaskOutput`
 - `generate_image_generation_mock`
 - `generate_image_generation`
+- `build_asset_collection_from_image_generation`
+- `build_render_tasks_from_image_generation`
+- `build_image_generation_bundle`
 - `ImageGenerationProvider`
 - `MockImageGenerationProvider`
 - `ComfyUIImageGenerationProviderPlaceholder`
 - `get_image_generation_provider`
 - `POST /api/images/generate`
+- `POST /api/images/generate-bundle`
 
 前端：
 
 - `apps/web/src/types/imageGeneration.ts`
+- `apps/web/src/types/asset.ts`
+- `apps/web/src/types/renderTask.ts`
+- `apps/web/src/types/imageGenerationBundle.ts`
 - `apps/web/src/api/imageGenerations.ts`
+- `generateImageBundle`
 - Image Generation mock UI
+- ImageGeneration Bundle Summary
+- Assets / Tasks 明细展示
+- AppShell + Sidebar 工作台布局
+- Sidebar workspace 切换
+- Toast Notification
+- 下一阶段自动跳转与轻量动效
 - 手动 `prompt_items` JSON 测试
 - 从 `ImagePromptResult` 带入生成 mock 图片
+- 从 `ImagePromptResult` 带入 Image Generation workspace
 
 文档：
 
@@ -65,6 +103,8 @@
 - `docs/COMFYUI_PROVIDER_TECHNICAL_DESIGN.md`
 - `docs/COMFYUI_PRIVATE_DEPLOYMENT_RUNBOOK_DRAFT.md`
 - `docs/COMFYUI_PRIVATE_INTEGRATION_CHECKLIST.md`
+- `docs/REMOTE_GPU_READINESS_ASSESSMENT.md`
+- `docs/FRONTEND_INFORMATION_ARCHITECTURE_PLAN.md`
 - `docs/API_CONTRACT.md`
 - `docs/LOCAL_DEV.md`
 - `docs/MVP_ROADMAP.md`
@@ -74,14 +114,17 @@
 
 当前已知测试状态：
 
-- `python -m pytest tests/api` 已通过，当前为 113 passed；
+- `python -m pytest tests/api` 已通过；第四阶段后端相关测试曾达到 118 passed；
 - ImageGeneration 相关 schema / service / endpoint / provider 测试均已通过；
-- 前端 `npm run build` 已通过；
+- 前端 `npm run build` 已多次通过；
 - 浏览器 mock 联调已通过；
 - `/api/images/generate` mock curl 测试已通过；
+- `/api/images/generate-bundle` mock endpoint 测试已通过；
 - `ImagePromptResult` → `/api/images/generate` → mock image card 已通过。
+- `ImagePromptResult` → Image Generation workspace 自动跳转已修复；
+- Bundle Summary / Assets 明细 / Tasks 明细浏览器链路已通过。
 
-说明：截至第 109 步后端 `tests/api` 为 113 passed。后续如果继续新增测试，应同步更新本文档或阶段总结。
+说明：截至第 109 步后端 `tests/api` 为 113 passed；后续第四阶段后端相关测试曾达到 118 passed。第 137 步建议进行最终全量验收，并同步更新最终测试数量。
 
 ## 5. 当前公开仓库安全边界
 

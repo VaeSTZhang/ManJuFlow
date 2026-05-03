@@ -46,11 +46,11 @@ IdeaInput
 | Phase 1 Idea → Script | 已完成 | 结构化短剧剧本生成，支持前端展示、复制、导出 |
 | Phase 2 Script → Storyboard | 已完成 | 导演分镜 Schema、mock service、API 和前端闭环 |
 | Phase 3 Storyboard → ImagePrompt | 已完成 | 绘图 Prompt Schema、mock / llm、parser、前端模型选择器 |
-| Phase 4 ImagePrompt → ImageGeneration | 已完成 mock 闭环 | Schema、mock service、endpoint、前端 mock image card |
+| Phase 4 ImagePrompt → ImageGeneration | 已完成 mock / bundle 闭环 | Schema、mock service、endpoint、bundle、assets、tasks、前端 mock image card |
 | Multi LLM Provider | 已接入 | DeepSeek / Mimo / Kimi / MiniMax 文本 provider |
 | Model Comparison | 进行中 | S001 四模型 ImagePrompt 对比已完成 |
 | ComfyUI | 安全占位 | provider interface / placeholder / private deployment runbook |
-| Frontend | 本地可运行 | React + Vite 工作台，覆盖核心创作链路 |
+| Frontend | 本地可运行 | React + Vite Sidebar 工作台，支持 workspace 切换、Toast、下一阶段自动跳转 |
 | Tests | 持续维护 | 后端 `tests/api` 覆盖 schema / service / endpoint / parser |
 | Docs | 已建立 | API 契约、本地开发、阶段总结、合作边界、私有部署草案 |
 
@@ -98,6 +98,7 @@ ManJuFlow 使用结构化数据协议作为 AI 流水线边界。核心对象包
 | POST | `/api/storyboards/generate` | 剧本生成导演分镜 |
 | POST | `/api/prompts/generate` | 分镜生成 AI 绘图 Prompt |
 | POST | `/api/images/generate` | 绘图 Prompt 生成 mock 图片结果 |
+| POST | `/api/images/generate-bundle` | 返回 ImageGenerationOutput + AssetCollection + RenderTaskOutput |
 
 详细字段请看 [API Contract](docs/API_CONTRACT.md)。
 
@@ -150,6 +151,7 @@ npm run build
 Current state:
 
 - `/api/images/generate` is mock only.
+- `/api/images/generate-bundle` returns a combined mock result bundle with image generation output, assets, and render tasks.
 - It does not call real ComfyUI.
 - It does not require remote GPU.
 - It does not generate real image files.
@@ -175,6 +177,17 @@ Expected future concepts:
 - `workflow_parameters`
 - private workflow registry
 - provider adapter normalization
+
+## Frontend Workspace
+
+当前前端已从单页纵向堆叠升级为工作台外壳：
+
+- 左侧 Sidebar 支持按功能切换 workspace；
+- 右侧 Main Workspace 只展示当前功能区；
+- Toast Notification 用于错误、成功、警告和信息提示；
+- Image Generation 支持 mock 图片、Bundle Summary、Assets 明细和 Tasks 明细；
+- “带入下一阶段”会自动跳转到对应 workspace；
+- 当前仍未引入 UI 库，仍使用 React `useState` 保持轻量状态管理。
 
 ## Public Repository Safety Boundary
 
@@ -247,6 +260,7 @@ Long-term:
 - [Phase 3 Summary](docs/PHASE_3_SUMMARY.md)
 - [Phase 4 Image Generation Plan](docs/PHASE_4_IMAGE_GENERATION_PLAN.md)
 - [Phase 4 Progress](docs/PHASE_4_PROGRESS.md)
+- [Frontend Information Architecture Plan](docs/FRONTEND_INFORMATION_ARCHITECTURE_PLAN.md)
 - [Workflow Registry Design](docs/WORKFLOW_REGISTRY_DESIGN.md)
 - [ComfyUI Provider Technical Design](docs/COMFYUI_PROVIDER_TECHNICAL_DESIGN.md)
 - [ComfyUI Private Deployment Runbook Draft](docs/COMFYUI_PRIVATE_DEPLOYMENT_RUNBOOK_DRAFT.md)

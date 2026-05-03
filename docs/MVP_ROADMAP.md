@@ -77,6 +77,16 @@
 - Workflow Registry 设计文档已完成
 - ComfyUI Provider 技术方案文档已完成
 - ComfyUI 私有小样本联调 checklist 已完成
+- Asset / RenderTask / Bundle 基础能力已完成
+- `/api/images/generate-bundle` 已完成
+- 前端 Asset / RenderTask / Bundle 类型已完成
+- 前端 `generateImageBundle` API 已完成
+- 前端 Bundle Summary / Assets / Tasks 明细展示已完成
+- 前端工作台布局已完成
+- Sidebar workspace 切换已完成
+- Toast Notification 已完成
+- 点击带入下一阶段后自动跳转对应 workspace 已完成
+- ImagePrompt → ImageGeneration 自动跳转修复已完成
 - 当前仍未接真实 ComfyUI / GPU
 
 ## 下一步计划

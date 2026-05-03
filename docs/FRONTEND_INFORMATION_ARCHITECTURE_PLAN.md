@@ -225,3 +225,30 @@ Toast 类型：
 - 原有复制、导出、带入下一阶段功能仍然可用；
 - 当前 mock provider 行为不受影响；
 - 不接真实 ComfyUI，不引入真实服务器配置。
+
+## 13. 实施进度
+
+截至第四阶段第 135 步，本文档中的第一轮工作台升级已经部分落地：
+
+- `AppShell` / `Sidebar` 组件骨架已完成；
+- `Toast` 组件骨架已完成；
+- AppShell + Sidebar 工作台外壳已接入；
+- Sidebar workspace 切换已完成；
+- Toast Notification 已完成，覆盖常见错误、成功、警告提示；
+- ImageGeneration Bundle / Assets / Tasks 展示已完成；
+- 下一阶段自动跳转已完成；
+- ImagePrompt → ImageGeneration 自动跳转已修复；
+- workspace 切换轻量动效已完成；
+- 当前仍未引入 UI 库；
+- 当前仍保留 React `useState`；
+- 当前仍未拆分业务 workspace 组件。
+
+后续如果继续扩大前端能力，应逐步拆分：
+
+- `ImageGenerationWorkspace`
+- `AssetTaskWorkspace`
+- `ImagePromptWorkspace`
+- `StoryboardWorkspace`
+- `IdeaScriptWorkspace`
+
+拆分时仍应保持每一步 `npm run build` 通过，并保留现有完整流水线。

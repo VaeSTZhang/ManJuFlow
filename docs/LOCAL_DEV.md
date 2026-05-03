@@ -280,7 +280,7 @@ npm run dev
 - 查看分镜结果
 - 测试“复制分镜 JSON”和“导出分镜 JSON”
 
-## 前端完整流水线测试：灵感 → 剧本 → 分镜 → 绘图 Prompt
+## 前端完整流水线测试：灵感 → 剧本 → 分镜 → 绘图 Prompt → Image Generation Bundle
 
 启动后端：
 
@@ -303,31 +303,42 @@ npm run dev
 
 测试步骤：
 
-1. 在灵感输入区填写或使用默认内容。
-2. 点击“生成结构化剧本”。
-3. 检查剧本结果正常展示。
-4. 点击“带入分镜生成”。
-5. 检查分镜生成区已自动填入项目标题和剧本文本。
-6. 点击“生成分镜”。
-7. 检查分镜结果正常展示 scenes / shots。
-8. 点击“带入绘图 Prompt 生成”或“用此分镜生成绘图 Prompt”。
-9. 检查绘图 Prompt 输入区已自动填入项目标题、分镜摘要、分镜文本 / JSON。
-10. 点击“生成绘图 Prompt”。
-11. 检查绘图 Prompt 结果正常展示 items、positive_prompt、negative_prompt。
-12. 测试复制绘图 Prompt JSON。
-13. 测试导出绘图 Prompt JSON。
+1. 确认左侧 Sidebar 可以切换工作区。
+2. 进入“灵感剧本”工作区，在灵感输入区填写或使用默认内容。
+3. 点击“生成结构化剧本”。
+4. 检查剧本结果正常展示。
+5. 点击“带入分镜生成”，确认页面自动切换到 Storyboard workspace。
+6. 检查分镜生成区已自动填入项目标题和剧本文本。
+7. 点击“生成分镜”。
+8. 检查分镜结果正常展示 scenes / shots。
+9. 点击“带入绘图 Prompt 生成”，确认页面自动切换到 ImagePrompt workspace。
+10. 检查绘图 Prompt 输入区已自动填入项目标题、分镜摘要、分镜文本 / JSON。
+11. 点击“生成绘图 Prompt”。
+12. 检查绘图 Prompt 结果正常展示 items、positive_prompt、negative_prompt。
+13. 点击“带入图片生成”，确认页面自动切换到 Image Generation workspace。
+14. 点击“生成 mock 图片”，检查 ImageGenerationResult、mock image card、`mock_url`、`local_path`、尺寸和 seed。
+15. 点击“生成 Bundle（图片 + 资产 + 任务）”，检查 Bundle Summary。
+16. 检查 Assets 明细展示 asset_id、prompt_id、shot_id、mock_url、local_path。
+17. 检查 Tasks 明细展示 task_id、status、progress、asset_ids。
+18. 确认 Toast 能显示复制 / 导出成功提示。
+19. 将 `prompt_items JSON` 改成非法 JSON，点击生成，确认右上角出现错误 Toast。
+20. 测试复制绘图 Prompt JSON。
+21. 测试导出绘图 Prompt JSON。
 
 后端日志应看到：
 
 - `POST /api/scripts/generate 200 OK`
 - `POST /api/storyboards/generate 200 OK`
 - `POST /api/prompts/generate 200 OK`
+- `POST /api/images/generate 200 OK`
+- `POST /api/images/generate-bundle 200 OK`
 
 补充说明：
 
 - 当前第三阶段仍是 mock 模式。
 - 不会调用真实图片生成模型。
 - 不会调用 ComfyUI。
+- 当前 Image Generation / Bundle / Assets / Tasks 均为 mock 闭环。
 - 当前 `ImagePromptOutput` 用于验证数据协议和前端闭环。
 - 后续再接入真实 LLM 和 Mimo / 小米大模型。
 
@@ -346,10 +357,15 @@ npm run dev
 
 测试方式：
 
-1. 在 Image Generation 区域手动输入 `prompt_items` JSON。
-2. 点击“生成 mock 图片”。
-3. 确认页面显示 mock image card、`mock_url`、`local_path`、尺寸和 seed。
-4. 先生成 `ImagePromptResult`，再点击“使用绘图 Prompt 结果生成 mock 图片”，确认链路也可用。
+1. 左侧 Sidebar 进入 Image Generation workspace。
+2. 在 Image Generation 区域手动输入 `prompt_items` JSON。
+3. 点击“生成 mock 图片”。
+4. 确认页面显示 mock image card、`mock_url`、`local_path`、尺寸和 seed。
+5. 点击“生成 Bundle（图片 + 资产 + 任务）”。
+6. 确认页面显示 Bundle Summary、Assets 明细和 Tasks 明细。
+7. 先生成 `ImagePromptResult`，再点击“带入图片生成”，确认页面自动切换到 Image Generation workspace。
+8. 再点击“使用绘图 Prompt 结果生成 mock 图片”或“使用绘图 Prompt 结果生成 Bundle”，确认链路也可用。
+9. 将 `prompt_items JSON` 改成非法 JSON，确认错误 Toast 正常显示。
 
 说明：
 
