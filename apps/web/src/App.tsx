@@ -4,6 +4,7 @@ import { generateImagePrompts } from "./api/imagePrompts";
 import { generateStoryboard } from "./api/storyboards";
 import "./App.css";
 import { AppShell } from "./components/layout/AppShell";
+import { CharacterCountHint } from "./components/common/CharacterCountHint";
 import { Sidebar } from "./components/layout/Sidebar";
 import { Toast } from "./components/layout/Toast";
 import {
@@ -98,6 +99,8 @@ const defaultForm: IdeaInput = {
   audience: "短剧观众",
   style_requirements: "开头要有强冲突，结尾要有反转",
 };
+
+const IDEA_TEXT_MAX_CHARS = 5_000;
 
 const defaultStoryboardForm: StoryboardInput = {
   project_title: "测试短剧：雨夜重逢",
@@ -301,6 +304,7 @@ function App() {
   const [imageGenerationBundleResult, setImageGenerationBundleResult] =
     useState<ImageGenerationBundleOutput | null>(null);
   const [toastMessages, setToastMessages] = useState<ToastMessage[]>([]);
+  const isIdeaTextTooLong = form.idea_text.length > IDEA_TEXT_MAX_CHARS;
 
   const selectedImagePromptModel =
     imagePromptModelOptions.find((option) => option.provider === imagePromptForm.llm_provider) ||
@@ -379,6 +383,13 @@ function App() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (isIdeaTextTooLong) {
+      setError("灵感内容已超出 5,000 字，请删减后再生成。");
+      pushToast("warning", "灵感内容过长", "灵感内容已超出 5,000 字，请删减后再生成。");
+      return;
+    }
+
     setIsLoading(true);
     setError("");
     setCopyStatus("");
@@ -1138,6 +1149,7 @@ function App() {
               onChange={(event) => updateField("idea_text", event.target.value)}
               rows={5}
             />
+            <CharacterCountHint value={form.idea_text} maxLength={IDEA_TEXT_MAX_CHARS} />
           </label>
 
           <div className="field-grid">
@@ -1199,7 +1211,9 @@ function App() {
             />
           </label>
 
-          <button className="primary-button" disabled={isLoading} type="submit">
+          {isIdeaTextTooLong && <p className="error-message">灵感内容已超出 5,000 字，请删减后再生成。</p>}
+
+          <button className="primary-button" disabled={isLoading || isIdeaTextTooLong} type="submit">
             {isLoading ? "生成中..." : "生成结构化剧本"}
           </button>
 

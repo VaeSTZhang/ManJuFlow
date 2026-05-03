@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { segmentScript } from "../../api/scriptSegmentation";
 import { uploadScriptMock } from "../../api/uploads";
+import { CharacterCountHint } from "../common/CharacterCountHint";
 import type {
   ExistingScriptInput,
   ScriptSegmentationOutput,
@@ -20,7 +21,7 @@ type ScriptSegmentationWorkspaceProps = {
   onNotify?: (type: NotificationType, title: string, description?: string) => void;
 };
 
-const maxScriptTextChars = 100_000;
+const EXISTING_SCRIPT_MAX_CHARS = 100_000;
 
 function createDefaultScriptSegmentationForm(projectTitle?: string): ExistingScriptInput {
   return {
@@ -125,8 +126,8 @@ export function ScriptSegmentationWorkspace({
   const [scriptUploadError, setScriptUploadError] = useState("");
   const [scriptUploadResult, setScriptUploadResult] = useState<ScriptUploadOutput | null>(null);
 
-  const scriptSegmentationTextLength = scriptSegmentationForm.script_text?.length || 0;
-  const isScriptSegmentationTextTooLong = scriptSegmentationTextLength > maxScriptTextChars;
+  const scriptSegmentationText = scriptSegmentationForm.script_text || "";
+  const isScriptSegmentationTextTooLong = scriptSegmentationText.length > EXISTING_SCRIPT_MAX_CHARS;
 
   const notify = (type: NotificationType, title: string, description?: string) => {
     onNotify?.(type, title, description);
@@ -161,8 +162,8 @@ export function ScriptSegmentationWorkspace({
     }
 
     if (isScriptSegmentationTextTooLong) {
-      setScriptSegmentationError("当前文本超过 100,000 字符，请拆分后再切分。");
-      notify("warning", "文本过长", "当前文本超过 100,000 字符，请拆分后再切分。");
+      setScriptSegmentationError("已有剧本文本已超出 100,000 字，请删减或拆分后再切分。");
+      notify("warning", "文本过长", "已有剧本文本已超出 100,000 字，请删减或拆分后再切分。");
       return;
     }
 
@@ -377,17 +378,15 @@ export function ScriptSegmentationWorkspace({
             onChange={(event) => updateScriptSegmentationField("script_text", event.target.value)}
             rows={10}
           />
+          <CharacterCountHint value={scriptSegmentationText} maxLength={EXISTING_SCRIPT_MAX_CHARS} />
         </label>
 
         <div className="script-text-counter">
-          <span className={isScriptSegmentationTextTooLong ? "text-limit-exceeded" : ""}>
-            当前字符数：{scriptSegmentationTextLength} / {maxScriptTextChars}
-          </span>
           {scriptSegmentationForm.source_id && <span>上传源标识：{scriptSegmentationForm.source_id}</span>}
         </div>
 
         {isScriptSegmentationTextTooLong && (
-          <p className="error-message">当前文本超过 100,000 字符，请拆分后再切分。</p>
+          <p className="error-message">已有剧本文本已超出 100,000 字，请删减或拆分后再切分。</p>
         )}
 
         <div className="field-grid">
