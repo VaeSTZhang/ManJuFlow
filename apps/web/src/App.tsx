@@ -796,6 +796,184 @@ function App() {
 
   const activeWorkspace = sidebarItems.find((item) => item.id === activeWorkspaceId) || sidebarItems[0];
 
+  const renderAssetTaskDetails = () => {
+    if (!imageGenerationBundleResult) {
+      return (
+        <div className="empty-state workspace-empty">
+          暂无资产与任务，请先在 Image Generation 中生成 Bundle。
+        </div>
+      );
+    }
+
+    return (
+      <section className="image-generation-bundle-summary">
+        <div className="result-summary">
+          <span>Bundle 项目</span>
+          <h3>{imageGenerationBundleResult.project_title || "未设置"}</h3>
+        </div>
+
+        <section className="image-generation-meta">
+          <div>
+            <span>Image Items</span>
+            <strong>{imageGenerationBundleResult.image_generation?.items?.length ?? 0}</strong>
+          </div>
+          <div>
+            <span>Assets</span>
+            <strong>{imageGenerationBundleResult.assets?.assets?.length ?? 0}</strong>
+          </div>
+          <div>
+            <span>Tasks</span>
+            <strong>{imageGenerationBundleResult.tasks?.tasks?.length ?? 0}</strong>
+          </div>
+          <div>
+            <span>Metadata Source</span>
+            <strong>{String(imageGenerationBundleResult.metadata?.source ?? "未设置")}</strong>
+          </div>
+        </section>
+
+        <section className="bundle-detail-section">
+          <h4>Assets 明细</h4>
+          {imageGenerationBundleResult.assets?.assets?.length ? (
+            <div className="bundle-detail-list">
+              {imageGenerationBundleResult.assets.assets.map((asset) => (
+                <article className="bundle-detail-card asset-card" key={asset.asset_id}>
+                  <div className="mock-image-placeholder compact-placeholder">
+                    <strong>Mock Image Asset</strong>
+                    <span>{asset.mock_url || "-"}</span>
+                    <small>
+                      {asset.width ?? "?"} x {asset.height ?? "?"} · {asset.shot_id || "-"} ·{" "}
+                      {asset.prompt_id || "-"}
+                    </small>
+                  </div>
+
+                  <div className="prompt-card-header">
+                    <span>{asset.asset_id || "-"}</span>
+                    <h5>{asset.status || "-"}</h5>
+                  </div>
+
+                  <dl className="prompt-detail-grid bundle-detail-grid">
+                    <div>
+                      <dt>Asset Type</dt>
+                      <dd>{asset.asset_type || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Provider</dt>
+                      <dd>{asset.provider || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Prompt ID</dt>
+                      <dd>{asset.prompt_id || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Shot ID</dt>
+                      <dd>{asset.shot_id || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Task ID</dt>
+                      <dd>{asset.task_id || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Mock URL</dt>
+                      <dd className="code-text">{asset.mock_url || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Local Path</dt>
+                      <dd className="code-text">{asset.local_path || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>尺寸</dt>
+                      <dd>
+                        {asset.width ?? "?"} x {asset.height ?? "?"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Seed</dt>
+                      <dd>{asset.seed ?? "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Metadata Source</dt>
+                      <dd>{String(asset.metadata?.source ?? "-")}</dd>
+                    </div>
+                  </dl>
+
+                  {asset.notes && (
+                    <div className="bundle-note">
+                      <span>Notes</span>
+                      <p>{asset.notes}</p>
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state bundle-empty-state">暂无资产</div>
+          )}
+        </section>
+
+        <section className="bundle-detail-section">
+          <h4>Tasks 明细</h4>
+          {imageGenerationBundleResult.tasks?.tasks?.length ? (
+            <div className="bundle-detail-list">
+              {imageGenerationBundleResult.tasks.tasks.map((task) => (
+                <article className="bundle-detail-card task-card" key={task.task_id}>
+                  <div className="prompt-card-header">
+                    <span>{task.task_id || "-"}</span>
+                    <h5>{task.status || "-"}</h5>
+                  </div>
+
+                  <dl className="prompt-detail-grid bundle-detail-grid">
+                    <div>
+                      <dt>Task Type</dt>
+                      <dd>{task.task_type || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Progress</dt>
+                      <dd className="progress-text">{formatTaskProgress(task.progress)}</dd>
+                    </div>
+                    <div>
+                      <dt>Provider</dt>
+                      <dd>{task.provider || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Workflow</dt>
+                      <dd>{task.workflow_name || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Prompt ID</dt>
+                      <dd>{task.prompt_id || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Shot ID</dt>
+                      <dd>{task.shot_id || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Asset IDs</dt>
+                      <dd className="code-text">{task.asset_ids?.length ? task.asset_ids.join(", ") : "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Error Code</dt>
+                      <dd>{task.error_code || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Error Message</dt>
+                      <dd>{task.error_message || "-"}</dd>
+                    </div>
+                    <div>
+                      <dt>Metadata Source</dt>
+                      <dd>{String(task.metadata?.source ?? "-")}</dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state bundle-empty-state">暂无任务</div>
+          )}
+        </section>
+      </section>
+    );
+  };
+
   return (
     <AppShell
       sidebar={
@@ -811,11 +989,13 @@ function App() {
             <span>当前工作区</span>
             <strong>{activeWorkspace.label}</strong>
           </div>
-          <p>当前仅接入工作台外壳，右侧仍展示完整 MVP 链路。</p>
+          <p>当前工作区仅显示对应操作区域。</p>
         </div>
       }
     >
       <main className="app">
+      {activeWorkspaceId === "idea-script" && (
+        <>
       <header className="page-header">
         <div>
           <p className="eyebrow">内部 AI 创作工作台</p>
@@ -1029,7 +1209,10 @@ function App() {
           )}
         </section>
       </section>
+        </>
+      )}
 
+      {activeWorkspaceId === "storyboard" && (
       <section className="storyboard-workspace">
         <form className="panel form-panel" onSubmit={handleStoryboardSubmit}>
           <div className="panel-heading">
@@ -1182,7 +1365,9 @@ function App() {
           )}
         </section>
       </section>
+      )}
 
+      {activeWorkspaceId === "image-prompt" && (
       <section className="image-prompt-workspace" id="image-prompt-workspace">
         <form className="panel form-panel" onSubmit={handleImagePromptSubmit}>
           <div className="panel-heading">
@@ -1400,7 +1585,9 @@ function App() {
           )}
         </section>
       </section>
+      )}
 
+      {activeWorkspaceId === "image-generation" && (
       <section className="image-generation-workspace">
         <form className="panel form-panel" onSubmit={handleImageGenerationSubmit}>
           <div className="panel-heading">
@@ -1810,6 +1997,45 @@ function App() {
           )}
         </section>
       </section>
+      )}
+
+      {activeWorkspaceId === "assets-tasks" && (
+        <section className="workspace-section">
+          <div className="workspace-header">
+            <p>第四阶段</p>
+            <h2>资产与任务</h2>
+          </div>
+          {renderAssetTaskDetails()}
+        </section>
+      )}
+
+      {activeWorkspaceId === "system-status" && (
+        <section className="workspace-section">
+          <div className="workspace-header">
+            <p>系统状态</p>
+            <h2>Runtime Status</h2>
+          </div>
+
+          <section className="panel result-panel system-status-panel">
+            <div className="system-status system-status-detail" aria-label="后端系统状态">
+              <div className={isSystemConnected ? "status-dot status-ok" : "status-dot status-offline"} />
+              <div>
+                <p>{isSystemConnected ? `后端状态：${systemStatus?.status}` : "后端状态：未连接"}</p>
+                {isSystemConnected && systemStatus ? (
+                  <>
+                    <p>应用名称：{systemStatus.app_name}</p>
+                    <p>运行环境：{systemStatus.app_env}</p>
+                    <p>生成模式：{systemStatus.script_generation_mode}</p>
+                    <p>LLM：{systemStatus.llm_enabled ? "已启用" : "未启用"}</p>
+                  </>
+                ) : (
+                  <p>请确认后端服务已启动：http://127.0.0.1:8000</p>
+                )}
+              </div>
+            </div>
+          </section>
+        </section>
+      )}
       </main>
     </AppShell>
   );

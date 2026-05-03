@@ -100,6 +100,46 @@ select {
   font-weight: 700;
 }
 
+.workspace-section {
+  width: min(1180px, 100%);
+  display: grid;
+  gap: 16px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.workspace-header {
+  padding: 18px 0 4px;
+}
+
+.workspace-header p {
+  margin: 0;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.workspace-header h2 {
+  margin: 6px 0 0;
+  color: #172033;
+  font-size: 28px;
+  line-height: 1.25;
+}
+
+.workspace-empty {
+  min-height: 260px;
+}
+
+.system-status-panel {
+  min-height: auto;
+}
+
+.system-status-detail {
+  width: 100%;
+  min-width: 0;
+  box-shadow: none;
+}
+
 .sidebar-nav {
   min-height: 100vh;
   display: flex;
