@@ -1,5 +1,79 @@
 # ManJuFlow 真实 LLM 调用测试记录
 
+## Dramora generate-from-source LLM Path Check - 2026-05-04
+
+### 检查目标
+
+确认 `POST /api/scripts/generate-from-source` 在 `SCRIPT_GENERATION_MODE=llm` 时，是否真正进入 DeepSeek / LLMClient 生成链路，还是仍然只返回 mock 输出。
+
+### 调用链
+
+当前静态调用链：
+
+```text
+POST /api/scripts/generate-from-source
+-> apps/api/app/routers/scripts.py
+-> generate_short_drama_script_mock(input_data)
+-> apps/api/app/services/script_generation/generator.py
+-> idea: generate_script_mock(...)
+-> film_script: generate_film_script_adaptation_mock(...)
+-> novel: generate_novel_adaptation_mock(...)
+```
+
+对照旧入口：
+
+```text
+POST /api/scripts/generate
+-> generate_script(input_data)
+-> 读取 get_settings().script_generation_mode
+-> mock: generate_script_mock(...)
+-> llm: generate_script_with_llm(...)
+-> LLMClient().chat(...)
+-> ScriptOutput.model_validate(...)
+```
+
+### 当前结论
+
+B. 只具备 mock path，尚未实现真实 LLM path。
+
+`/api/scripts/generate-from-source` 当前没有读取 `SCRIPT_GENERATION_MODE`，没有分 `mock` / `llm`，没有调用 `LLMClient`，也没有把真实 LLM 输出解析为 `ShortDramaScriptOutput`。
+
+### 是否真实调用 DeepSeek
+
+否。
+
+本次没有启动后端真实调用，也没有执行 DeepSeek curl。原因是代码路径尚未具备真实 LLM 分支，直接调用会继续返回 mock 结果，无法证明 DeepSeek 剧本生成链路已跑通。
+
+### ai_options 是否已进入请求
+
+已进入请求 schema。
+
+当前 `ShortDramaGenerationInput.ai_options` 已支持 provider / model / language / purpose，mock metadata 也会记录这些字段。但这些字段目前只进入 mock 输出追踪，不会驱动真实 `LLMClient` provider / model 选择。
+
+### 阻塞点
+
+- `generate-from-source` router 直接调用 `generate_short_drama_script_mock`；
+- `script_generation/generator.py` 没有统一 `generate_short_drama_script` 入口；
+- 三入口服务没有读取 `SCRIPT_GENERATION_MODE`；
+- 三入口服务没有真实 LLM prompt 组装、调用、JSON 解析、清洗和 `ShortDramaScriptOutput` 校验闭环；
+- `ai_options.provider` / `ai_options.model` 尚未传入 `LLMClient(provider=..., model=...)`。
+
+### 下一步建议
+
+- 新增统一入口 `generate_short_drama_script(input_data)`；
+- 在该入口读取 `SCRIPT_GENERATION_MODE`；
+- `mock` 分支继续复用现有 `generate_short_drama_script_mock`；
+- `llm` 分支按 source_mode 选择 prompt，并调用 `LLMClient(provider=input_data.ai_options.provider, model=input_data.ai_options.model)`；
+- 解析真实模型输出为 `ShortDramaScriptOutput`，并复用 metadata helper 记录 provider / model / purpose；
+- 完成后再执行 DeepSeek 小样本 smoke test。
+
+安全记录：
+
+- 不记录 API Key；
+- 不记录 `.env` 内容；
+- 不使用真实客户内容；
+- 本次只做静态路径审计和后端测试。
+
 ## Dramora Script Generation DeepSeek Smoke Test - 2026-05-04
 
 ### 测试目标
