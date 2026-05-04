@@ -38,3 +38,9 @@ export type DocumentExportOutput = {
   session_id?: string | null;
   metadata: Record<string, DocumentExportMetadataValue>;
 };
+
+export type DocumentExportFileResponse = {
+  blob: Blob;
+  filename: string;
+  contentType: string;
+};
