@@ -701,6 +701,47 @@ select {
   line-height: 1.6;
 }
 
+.short-script-edit-field {
+  display: grid;
+  gap: 6px;
+}
+
+.short-script-edit-field span {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.short-script-edit-field input,
+.short-script-edit-field textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #172033;
+  font: inherit;
+}
+
+.short-script-edit-field input {
+  min-height: 40px;
+  padding: 0 12px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.short-script-edit-field textarea {
+  min-height: 112px;
+  padding: 10px 12px;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.short-script-edit-field input:focus,
+.short-script-edit-field textarea:focus {
+  border-color: #2563eb;
+  outline: 3px solid rgba(37, 99, 235, 0.14);
+}
+
 .short-script-section {
   display: grid;
   gap: 12px;
