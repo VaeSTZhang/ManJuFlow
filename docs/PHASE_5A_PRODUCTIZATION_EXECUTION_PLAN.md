@@ -1,6 +1,6 @@
 # Phase 5A Productization Execution Plan｜第五阶段 A：产品化执行蓝图
 
-> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文已按当前路线调整：Phase 5A 聚焦三入口短剧剧本生成 / 改编、在线编辑、Word / TXT / JSON 导入导出、创作模型选择、用量记录、质量评审和内部试用质量加固。历史 Assistant 方案不再作为当前版本能力或服务器购买前置事项。
+> 当前状态：老板已取消当前版本的右侧聊天式 AI Assistant、AssistantPanel、`/api/assistant/chat` 和 `suggested_actions`。这不代表取消核心 LLM 创作能力。Dramora 仍继续通过 DeepSeek / Mimo / Kimi / MiniMax 等模型进行剧本生成、电影剧本改编、小说 / 网文改编、扩写、质量评审和后续分镜 / Prompt 生成。本文已按当前路线调整：Phase 5A 聚焦三入口短剧剧本生成 / 改编、在线编辑、Word / TXT / JSON 导入导出、创作模型选择、用量记录、质量评审和内部试用质量加固。历史 Assistant 方案不再作为当前版本能力或服务器购买前置事项。
 
 ## 1. 文档目的
 
@@ -117,7 +117,8 @@ Phase 5B 聚焦短剧剧本生成之后的下一大功能：
 - 使用清晰的 `source_mode`；
 - 每个入口有独立 prompt；
 - Document import/export 独立于 upload mock；
-- 当前版本不规划右侧 AI 聊天 / Assistant；
+- 当前版本不规划右侧聊天式 AI Assistant；
+- AI 改写、扩写和质量评审通过产品化按钮、表单或局部操作进入，不通过通用聊天窗口进入；
 - Prompt workflow 与短剧剧本生成页分层；
 - 状态保留策略先于复杂页面切换实现。
 
@@ -173,9 +174,18 @@ Prompt 边界：
 - 不要求一次性全部实现；
 - 但新增代码时应优先对齐这些方向，避免重复造多个不兼容结构。
 
-## 8. 当前版本取消 AI Assistant
+## 8. 当前版本取消右侧聊天式 AI Assistant
 
-当前版本不做右侧 AI 聊天界面、AssistantPanel、`/api/assistant/chat` 或 `suggested_actions`。
+当前版本不做右侧聊天式 AI Assistant、AssistantPanel、`/api/assistant/chat` 或 `suggested_actions`。
+
+这不代表取消 AI 或 LLM。核心 LLM 创作链路继续保留并强化：
+
+- 灵感生成短剧剧本；
+- 电影剧本改编短剧本；
+- 小说 / 网文改编短剧本；
+- 扩写和局部改写；
+- 质量评审；
+- 后续分镜 / Prompt 生成。
 
 取消原因：
 
@@ -282,7 +292,7 @@ Document Round-trip 包含：
 - 电影 / 小说入口至少 mock；
 - 输入限制；
 - 基础导出；
-- 当前版本明确取消 Assistant。
+- 当前版本明确取消右侧聊天式 Assistant，不取消核心 LLM 创作链路。
 
 ### 市场试用版
 
@@ -331,7 +341,7 @@ Document Round-trip 包含：
 
 - 文档明确 Phase 5A / 5B 边界；
 - 文档明确三入口主线；
-- 文档明确当前版本取消 Assistant；
+- 文档明确当前版本取消右侧聊天式 Assistant，不取消核心 LLM 创作链路；
 - 文档明确 Document Round-trip；
 - 文档明确 Prompt 页面返回箭头；
 - 文档明确不写死架构；

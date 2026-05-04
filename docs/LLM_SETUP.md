@@ -62,7 +62,7 @@ DEEPSEEK_API_KEY=只写入本地真实密钥，不要提交
 说明：
 
 - `SCRIPT_GENERATION_MODE`：剧本生成模式，支持 `mock` 或 `llm`
-- `ASSISTANT_GENERATION_MODE`：历史兼容字段；当前版本不规划右侧 AI 聊天 / Assistant
+- `ASSISTANT_GENERATION_MODE`：历史兼容字段；当前版本不规划右侧聊天式 AI Assistant，不新增 assistant 专用配置
 - `DEFAULT_LLM_PROVIDER`：后端默认 provider；当前推荐 `deepseek`
 - `DEFAULT_SCRIPT_MODEL`：后端默认剧本生成模型；当前推荐 `deepseek-chat`
 - `LLM_REQUEST_TIMEOUT_SECONDS`：默认 LLM 请求超时时间
@@ -133,7 +133,7 @@ DEEPSEEK_MODEL=deepseek-chat
 DEEPSEEK_API_KEY=不要写入真实密钥
 ```
 
-后端默认配置以 `DEFAULT_LLM_PROVIDER` / `DEFAULT_SCRIPT_MODEL` 为当前推荐入口；请求级模型选择通过 `AIRequestOptions` 传递，后续剧本生成、质量评审、分镜 / Prompt 生成应复用同一结构。当前版本不规划右侧 AI 聊天 / Assistant，不要在业务代码中硬编码 DeepSeek。
+后端默认配置以 `DEFAULT_LLM_PROVIDER` / `DEFAULT_SCRIPT_MODEL` 为当前推荐入口；请求级模型选择通过 `AIRequestOptions` 传递，后续剧本生成、电影剧本改编、小说 / 网文改编、扩写、质量评审、分镜 / Prompt 生成应复用同一结构。当前版本不规划右侧聊天式 AI Assistant，也不新增 assistant 专用 provider / model / key 配置；这不代表取消其他 LLM provider，不要在业务代码中硬编码 DeepSeek。
 
 系统状态检查：
 

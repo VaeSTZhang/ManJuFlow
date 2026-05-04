@@ -100,12 +100,15 @@ Dramora 当前第五阶段主线已调整为：
 - AssistantPanel、`/api/assistant/chat`、`suggested_actions`；
 - Docker 生产部署。
 
+说明：这里取消的是右侧聊天式 AI Assistant，不是取消 Dramora 的核心 LLM 创作能力。Dramora 仍继续通过 DeepSeek / Mimo / Kimi / MiniMax 等模型进行剧本生成、电影剧本改编、小说 / 网文改编、扩写、质量评审和后续分镜 / Prompt 生成。
+
 ## 项目推进原则
 
 - 每次只做一个小闭环；
 - 不为了赶进度写死结构；
 - 三入口通过 `source_mode`、独立 prompt、独立 form、独立 service 边界推进；
 - Document import/export 独立于 upload mock；
-- 当前版本不规划右侧 AI 聊天 / Assistant；历史方案仅归档，不进入当前实施路线；
+- 当前版本不规划右侧聊天式 AI Assistant；历史方案仅归档，不进入当前实施路线；
+- AI 改写、扩写和质量评审应作为剧本编辑区、质量评审区或局部操作能力接入，而不是作为通用聊天窗口接入；
 - 公开仓库不提交 API Key、`.env`、真实客户数据、真实服务器地址、私有 workflow 或模型权重；
 - 每个阶段完成后测试、文档、再提交。

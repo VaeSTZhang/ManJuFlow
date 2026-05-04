@@ -75,7 +75,7 @@ Dramora 当前已完成“三入口真实 AI 剧本生成与改编闭环”。
 - 剧本 -> 分镜 -> Prompt 第二大功能重接入；
 - 服务器部署不在当前阶段。
 
-当前版本不规划右侧 AI 聊天 / AI Assistant / `suggested_actions`，历史方案仅归档。
+当前版本不规划右侧聊天式 AI Assistant / AssistantPanel / `/api/assistant/chat` / `suggested_actions`，历史方案仅归档。这不代表取消核心 LLM 创作能力；三入口剧本生成与改编、扩写、质量评审和后续分镜 / Prompt 生成仍继续通过 DeepSeek / Mimo / Kimi / MiniMax 等模型推进。
 
 ## 6. 下一步建议
 

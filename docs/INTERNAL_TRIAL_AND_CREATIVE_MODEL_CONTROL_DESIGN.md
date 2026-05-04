@@ -159,7 +159,9 @@ selectedCreativeModel = {
 
 短期优先覆盖三入口剧本生成、文本改编和质量评审，后续再逐步覆盖分镜 / Prompt。
 
-当前版本不规划右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 或 `suggested_actions`。历史 Assistant 方案仅作为归档，不进入当前实施路线。
+当前版本不规划右侧聊天式 AI Assistant、AssistantPanel、`/api/assistant/chat` 或 `suggested_actions`。历史 Assistant 方案仅作为归档，不进入当前实施路线。
+
+这不代表取消核心 LLM 创作能力。Dramora 仍继续通过 DeepSeek / Mimo / Kimi / MiniMax 等模型进行剧本生成、电影剧本改编、小说 / 网文改编、扩写、质量评审和后续分镜 / Prompt 生成。AI 改写、扩写和质量评审应作为产品化按钮、表单或局部操作能力接入，而不是作为通用聊天窗口接入。
 
 ## 9. Word 下载与人工评审
 
