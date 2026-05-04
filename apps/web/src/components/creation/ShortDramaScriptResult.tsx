@@ -163,7 +163,7 @@ export function ShortDramaScriptResult({
       >
         下载 TXT
       </button>
-      <button disabled={docxDisabled} onClick={onDownloadDocx} type="button">
+      <button data-testid="download-script-docx" disabled={docxDisabled} onClick={onDownloadDocx} type="button">
         下载 Word
       </button>
       {isEditing ? (
