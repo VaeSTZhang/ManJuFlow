@@ -1,6 +1,6 @@
 # Dramora
 
-[中文](README.zh-CN.md) | [English](README.en.md)
+[Chinese](README.zh-CN.md) | [English](README.en.md)
 
 ![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-646cff)
@@ -184,17 +184,3 @@ This repository must not contain:
 - model weights;
 - production databases;
 - sensitive cooperation materials.
-
-## GitHub About
-
-Recommended description:
-
-```text
-A cinematic script workbench for transforming ideas and source texts into structured short-drama scripts.
-```
-
-Chinese description:
-
-```text
-面向短剧创作的结构化剧本生成与文本改编工作台。
-```

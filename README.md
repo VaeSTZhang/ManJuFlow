@@ -1,8 +1,8 @@
 # Dramora｜剧作工坊
 
-A cinematic script workbench for transforming ideas and source texts into structured short-drama scripts.
-
 面向短剧创作的结构化剧本生成与文本改编工作台。
+
+[English](README.en.md)
 
 ![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-646cff)
@@ -11,113 +11,83 @@ A cinematic script workbench for transforming ideas and source texts into struct
 ![Status](https://img.shields.io/badge/Status-In%20Development-2563eb)
 ![License](https://img.shields.io/badge/License-No%20public%20license%20yet-b42318)
 
-## Language
+## 项目定位
 
-| 中文 | English |
-| --- | --- |
-| [中文文档](README.zh-CN.md) | [English Docs](README.en.md) |
+Dramora｜剧作工坊 是一个面向短剧创作的剧本生成与文本改编工作台。当前聚焦“剧本创作生成”：从故事灵感、人物关系、电影剧本、小说或网文文本出发，生成适合短剧创作的结构化剧本。
 
-## Project Overview
+当前产品不会把分镜、提示词、图片生成等后续流程放在主页重点位置。它们可以作为后续制作流程继续扩展，但现阶段优先服务编剧、短剧策划、内容团队和创作运营人员完成可编辑、可审阅、可交接的剧本文本。
 
-Dramora is a short-drama script generation and text adaptation workbench for writers, short-drama planners, and content teams. It focuses on two core workflows:
+## 当前核心能力
 
-- Idea to short-drama script;
-- Source text adaptation, including film scripts, novels, web fiction, and long-form story text.
+- 灵感生成短剧剧本；
+- 电影剧本改编短剧本；
+- 小说 / 网文改编短剧本；
+- 长文本整理与短剧化改编；
+- 剧本草稿在线编辑、复制、导出；
+- 后续可进入分镜、提示词和制作流程，但这些不是当前主页重点。
 
-Dramora 当前聚焦“剧本创作生成”：从故事灵感、人物关系、电影剧本、小说或网文文本出发，生成适合短剧创作的结构化剧本。分镜、Prompt、图片生成等后续流程保留为后续能力，不作为当前老板演示主界面重点。
-
-ManJuFlow remains the local engineering directory and early internal project codename. Package names, local scripts, backend module names, and API paths are not renamed in this brand update.
-
-## Current Product Focus
+## 当前产品主线
 
 ```text
-Login
-  -> Script Creation
-  -> Idea Generation / Text Adaptation
-  -> Editable Short-drama Script
-  -> Export / Document Round-trip
+登录
+  → 剧本创作
+  → 灵感生成 / 文本改编
+  → 结构化短剧剧本
+  → 在线编辑 / 导出
 ```
 
-Primary product entries:
+## 为什么是 Dramora
 
-- **灵感生成**：从故事灵感、人物关系或爽点方向生成短剧剧本。
-- **文本改编**：将电影剧本、小说、网文或长文本改编成短剧节奏。
+- 聚焦短剧剧本生成与改编；
+- 面向编剧、短剧策划、内容团队和创作运营人员；
+- 先完成可编辑、可审阅、可交接的剧本文本；
+- 后续再扩展到分镜、提示词和制作资产；
+- 公开仓库只保留可评审的工程结构、mock 能力和文档边界。
 
-## Why Dramora
+## 本地开发
 
-- Focused on script creation before downstream media generation;
-- Designed for non-technical writing and content teams;
-- Structured data contracts and editable outputs;
-- Mock-first engineering loops before private deployment;
-- Clear boundary between public repository and private production assets.
+ManJuFlow 仍然是本地工程目录和早期工程代号。本次只调整对外品牌，不重命名本地路径、脚本、后端包名、前端 package 名或 API。
 
-## Local Development
-
-Use your own local clone path.
-
-Backend:
+后端启动：
 
 ```bash
 cd /path/to/ManJuFlow
 bash scripts/dev_api.sh
 ```
 
-Frontend:
+前端启动：
 
 ```bash
 cd /path/to/ManJuFlow/apps/web
 npm run dev
 ```
 
-Backend tests:
+后端测试：
 
 ```bash
 cd /path/to/ManJuFlow
 python -m pytest tests/api
 ```
 
-Frontend build:
+前端构建：
 
 ```bash
 cd /path/to/ManJuFlow/apps/web
 npm run build
 ```
 
-## Quick Navigation
+## 快速导航
 
-- [中文 README](README.zh-CN.md)
 - [English README](README.en.md)
-- [docs](docs/)
-- [apps/api](apps/api/)
-- [apps/web](apps/web/)
-- [tests/api](tests/api/)
-- [API Contract](docs/API_CONTRACT.md)
-- [Roadmap](docs/MVP_ROADMAP.md)
+- [中文完整说明](README.zh-CN.md)
+- [本地开发文档](docs/LOCAL_DEV.md)
+- [接口契约](docs/API_CONTRACT.md)
+- [路线图](docs/MVP_ROADMAP.md)
 
-## Repository Boundary / Usage Notice
-
-This public repository is currently provided for technical review, project demonstration, and cooperation discussion only.
-
-No public open-source license has been granted. Public visibility does not mean open-source authorization. Without written permission, commercial use, redistribution, sublicensing, or production deployment is not permitted.
-
-Real API keys, `.env` files, server addresses, model weights, customer scripts, employee data, private workflows, private workflow registries, and sensitive cooperation materials are not included in this repository.
+## 使用声明 / 权利声明
 
 当前公开仓库仅用于技术评审、项目展示和合作沟通。
 
 当前暂未授予开源许可证。公开可见不等于开源授权。未经书面许可，不得商业使用、再分发、转授权或生产部署。
 
 真实 API Key、`.env`、服务器地址、模型权重、客户剧本、员工数据、私有 workflow、私有 workflow registry、合作敏感资料不进入公开仓库。
-
-## GitHub About
-
-Recommended description:
-
-```text
-A cinematic script workbench for transforming ideas and source texts into structured short-drama scripts.
-```
-
-中文说明：
-
-```text
-面向短剧创作的结构化剧本生成与文本改编工作台。
-```
