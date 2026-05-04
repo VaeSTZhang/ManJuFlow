@@ -14,6 +14,13 @@ from app.services.image_generation_service import (
     generate_image_generation_mock,
 )
 from app.services.image_generation_bundle_service import build_image_generation_bundle
+from app.services.document_import_service import (
+    build_document_import_preview,
+    build_preview_text,
+    detect_document_title,
+    estimate_paragraph_count,
+    normalize_imported_text,
+)
 from app.services.image_prompt_service import (
     generate_image_prompt,
     generate_image_prompt_llm,
@@ -73,7 +80,9 @@ from app.services.upload_service import (
 __all__ = [
     "build_asset_collection_from_image_generation",
     "build_asset_item_from_image_generation_item",
+    "build_document_import_preview",
     "build_image_generation_bundle",
+    "build_preview_text",
     "build_render_task_item_from_image_generation_item",
     "build_render_tasks_from_image_generation",
     "ComfyUIImageGenerationProviderPlaceholder",
@@ -82,6 +91,8 @@ __all__ = [
     "DEFAULT_SCRIPT_CHUNK_OVERLAP_CHARS",
     "DEFAULT_SCRIPT_CHUNK_SIZE_CHARS",
     "DEFAULT_SCRIPT_GENERATION_REGISTRY",
+    "detect_document_title",
+    "estimate_paragraph_count",
     "extract_script_text_mock",
     "ImageGenerationProvider",
     "LLMClient",
@@ -114,6 +125,7 @@ __all__ = [
     "load_film_script_prompt_template",
     "load_novel_prompt_template",
     "load_image_prompt_template",
+    "normalize_imported_text",
     "parse_image_prompt_llm_response",
     "ScriptGenerationEntryConfig",
     "validate_extra_requirements",
