@@ -349,7 +349,7 @@ export function ScriptSegmentationWorkspace({
         <div className="panel-heading">
           <p>剧本改编</p>
           <h2>长文本整理与短剧化改编</h2>
-          <span>将已有文本整理为可改编、可分镜、可生成剧本的结构化素材。</span>
+          <span>根据原文内容和改编方向，整理为可改编、可分镜、可生成剧本的结构化素材。</span>
         </div>
         {isLocked && <p className="login-required-hint">当前为浏览模式，登录后可操作。</p>}
 
@@ -365,7 +365,9 @@ export function ScriptSegmentationWorkspace({
         <section className="script-upload-mock-card">
           <div>
             <h3>上传 Word 文档</h3>
-            <p>Word 文档导入将在文档导入闭环接入。当前可先粘贴文本完成整理与短剧化处理。</p>
+            <p>
+              Word 导入能力将逐步接入；当前可先粘贴文本或使用文档导入入口。导入后请检查“待改编文本”，并补充改编方向。
+            </p>
           </div>
 
           <button
@@ -397,7 +399,7 @@ export function ScriptSegmentationWorkspace({
                 <span>来源类型</span>
                 <strong>{formatSourceTypeLabel(scriptUploadResult.metadata.source_type)}</strong>
               </div>
-              <p>已将提取文本填入下方剧本文本框，可继续整理。</p>
+              <p>已将提取文本填入下方待改编文本区域，请继续填写改编方向 / 额外要求。</p>
               {scriptUploadResult.warnings.length > 0 && (
                 <ul className="script-upload-warnings">
                   {scriptUploadResult.warnings.map((warning) => (
@@ -415,6 +417,7 @@ export function ScriptSegmentationWorkspace({
             value={scriptSegmentationForm.script_text || ""}
             disabled={isLocked}
             onChange={(event) => updateScriptSegmentationField("script_text", event.target.value)}
+            placeholder="上传 Word 后会把文档内容填入这里。也可以直接粘贴待改编文本、小说片段、剧本片段或人物小传。"
             rows={10}
           />
           <CharacterCountHint value={scriptSegmentationText} maxLength={EXISTING_SCRIPT_MAX_CHARS} />
@@ -469,11 +472,12 @@ export function ScriptSegmentationWorkspace({
         </div>
 
         <label className="field field-wide">
-          <span>额外要求</span>
+          <span>改编方向 / 额外要求</span>
           <textarea
             value={scriptSegmentationForm.extra_requirements || ""}
             disabled={isLocked}
             onChange={(event) => updateScriptSegmentationField("extra_requirements", event.target.value)}
+            placeholder="请说明希望改成的短剧方向：题材、集数、主角弧光、爽点、反转、必须保留或弱化的内容。"
             rows={3}
           />
         </label>
@@ -530,7 +534,7 @@ export function ScriptSegmentationWorkspace({
         {scriptSegmentationExportStatus && <p className="copy-status">{scriptSegmentationExportStatus}</p>}
 
         {!scriptSegmentationResult ? (
-          <div className="empty-state">粘贴待改编文本或上传 Word 文档后，结构化结果将在这里展示。</div>
+          <div className="empty-state">粘贴待改编文本并填写改编方向后，结构化结果将在这里展示。</div>
         ) : (
           <article className="script-output script-segmentation-output">
             <section className="result-summary">

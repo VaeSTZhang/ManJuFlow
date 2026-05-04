@@ -538,8 +538,11 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         <div className="creation-draft-form">
           <section className="document-action-card" aria-label="文档导入与导出">
             <div>
-              <h3>Word 文档</h3>
-              <p>支持 .docx 剧本 / 小说文档（即将接入）。当前可先粘贴文本进入改编草稿。</p>
+              <h3>Word 文档导入</h3>
+              <p>
+                上传 Word 后，系统会读取文档内容并填入下方文本区域。请继续填写“改编方向 /
+                重点要求”，让系统知道你希望改成什么短剧方向。
+              </p>
             </div>
             <div className="document-action-row">
               <button
@@ -555,7 +558,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
               </button>
             </div>
             <p className="document-action-note">
-              生成或改编完成后可导出为 Word 文档。Word 导出将在文档导出闭环接入。
+              支持电影剧本、小说、网文或长文本。导入后请检查文本内容，并补充改编方向。
             </p>
             {documentActionNotice && <p className="copy-status">{documentActionNotice}</p>}
           </section>
@@ -590,14 +593,14 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
           </div>
 
           <label className="field field-wide creation-draft-field">
-            <span>{isFilm ? "剧本内容" : "小说 / 网文内容"}</span>
+            <span>{isFilm ? "原剧本 / 长文本内容" : "小说 / 网文 / 故事文本"}</span>
             <textarea
               disabled={!isAuthenticated}
               onChange={(event) => updateAdaptationDraft(mode, "sourceText", event.target.value)}
               placeholder={
                 isFilm
-                  ? "粘贴安全虚构的电影剧本、长剧本或分场文本。"
-                  : "粘贴安全虚构的小说、网文或故事文本。"
+                  ? "上传 Word 后会自动填入这里。也可以直接粘贴电影剧本、长剧本或分场文本。"
+                  : "上传 Word 后会自动填入这里。也可以直接粘贴小说、网文、故事片段或人物小传。"
               }
               rows={6}
               value={draft.sourceText}
@@ -605,14 +608,14 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
           </label>
 
           <label className="field field-wide creation-draft-field">
-            <span>{isFilm ? "改编重点" : "人物与剧情改编重点"}</span>
+            <span>改编方向 / 重点要求</span>
             <textarea
               disabled={!isAuthenticated}
               onChange={(event) => updateAdaptationDraft(mode, "focus", event.target.value)}
               placeholder={
                 isFilm
-                  ? "例如：压缩长铺垫，保留父女主线和旧案反转。"
-                  : "例如：突出人物关系、误会、选择和每集结尾钩子。"
+                  ? "例如：改成 10 集都市复仇短剧；保留原主线，强化反派压迫感；每集结尾增加反转；对白更短剧化。"
+                  : "例如：突出女主成长线；弱化原作支线；强化家庭伦理冲突；每集设置强钩子；保留核心人物关系。"
               }
               rows={3}
               value={draft.focus}
