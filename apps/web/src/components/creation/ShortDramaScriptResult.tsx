@@ -141,7 +141,7 @@ function renderAdaptationNotes(notes?: AdaptationNotes | null) {
 export function ShortDramaScriptResult({
   result,
   sourceLabel,
-  modelLabel = "系统默认模型",
+  modelLabel = "当前创作模型",
   generatedAt,
   isLocked = false,
   isEditing = false,

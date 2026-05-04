@@ -121,6 +121,7 @@ export function CreativeModelPanel({
             return (
               <button
                 className={`creative-model-option${active ? " creative-model-option-active" : ""}`}
+                data-testid={`creative-model-option-${option.id}`}
                 key={option.id}
                 onClick={() => handleSelect(option)}
                 type="button"

@@ -17,6 +17,33 @@ const editedScriptTitle = "测试短剧：灯火归来";
 const editedScriptLogline = "年轻编剧回到旧楼，在层层反转中找回父亲留下的最后一场戏。";
 const editedWorldSetting = "当代都市旧楼即将拆迁，所有角色都被一份未完成剧本重新牵连。";
 
+const creativeModelCases = [
+  {
+    id: "deepseek",
+    label: "DeepSeek",
+    provider: "deepseek",
+    model: "deepseek-chat",
+  },
+  {
+    id: "mimo",
+    label: "Mimo",
+    provider: "mimo",
+    model: "mimo-v2.5-pro",
+  },
+  {
+    id: "kimi",
+    label: "Kimi",
+    provider: "kimi",
+    model: "kimi-k2.5",
+  },
+  {
+    id: "minimax",
+    label: "MiniMax",
+    provider: "minimax",
+    model: "MiniMax-M2.7",
+  },
+];
+
 const generatedScriptFixture = {
   project_title: originalScriptTitle,
   source_mode: "idea",
@@ -107,6 +134,16 @@ async function generateIdeaScript(page: Page) {
   await expect(page.getByRole("heading", { name: originalScriptTitle })).toBeVisible();
 }
 
+async function fillIdeaDraftAndGenerate(page: Page, projectTitle: string) {
+  await page.getByTestId("creation-entry-card-idea").click();
+  await page.getByLabel("项目标题").fill(projectTitle);
+  await page.getByLabel("类型 / 风格").fill("都市悬疑");
+  await page.getByLabel("目标集数").fill("1");
+  await page.getByLabel("灵感内容").fill("一名编剧回到旧楼，发现未完成的剧本正在改写现实。");
+  await page.getByLabel("额外要求").fill("对白自然，每集结尾有强钩子。");
+  await page.getByTestId("generate-short-drama-script").click();
+}
+
 async function editGeneratedScriptBasicFields(page: Page) {
   await page.getByTestId("start-script-editing").click();
   await page.getByTestId("script-title-editor").fill(editedScriptTitle);
@@ -151,6 +188,39 @@ test.describe("Dramora creation home smoke", () => {
     await expect(page.getByRole("button", { name: /MiniMax/ })).toBeVisible();
     await expect(page.getByText("系统默认模型")).toHaveCount(0);
     await expect(page.getByText("使用后端默认", { exact: false })).toHaveCount(0);
+  });
+
+  test("submits selected creative model provider and model in generation request", async ({ page }) => {
+    const capturedPayloads = new Map<string, { ai_options?: { provider?: string; model?: string } }>();
+    let activeModelId = "";
+
+    await page.route("**/api/scripts/generate-from-source", async (route) => {
+      capturedPayloads.set(activeModelId, route.request().postDataJSON());
+      await route.fulfill({
+        contentType: "application/json",
+        status: 200,
+        body: JSON.stringify(generatedScriptFixture),
+      });
+    });
+
+    for (const modelCase of creativeModelCases) {
+      await test.step(`submits ${modelCase.label}`, async () => {
+        activeModelId = modelCase.id;
+        await page.goto("/");
+        await login(page);
+
+        await page.getByRole("button", { name: "切换" }).click();
+        await page.getByTestId(`creative-model-option-${modelCase.id}`).click();
+        await expect(page.getByText(`创作模型：${modelCase.label}`)).toBeVisible();
+
+        await fillIdeaDraftAndGenerate(page, `模型切换测试：${modelCase.label}`);
+        await expect(page.getByTestId("short-drama-script-result")).toBeVisible();
+
+        const payload = capturedPayloads.get(modelCase.id);
+        expect(payload?.ai_options?.provider).toBe(modelCase.provider);
+        expect(payload?.ai_options?.model).toBe(modelCase.model);
+      });
+    }
   });
 
   test("shows document import preview controls for the film adaptation entry", async ({ page }) => {
