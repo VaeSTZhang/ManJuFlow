@@ -470,6 +470,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       <div className="creation-entry-grid creation-entry-grid-two">
         <button
           className={`creation-entry-card${!isAuthenticated ? " locked" : ""}`}
+          data-testid="creation-entry-card-idea"
           onClick={() => handlePrimarySelect("idea")}
           type="button"
         >
@@ -484,6 +485,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
 
         <button
           className={`creation-entry-card${!isAuthenticated ? " locked" : ""}`}
+          data-testid="creation-entry-card-adaptation"
           onClick={() => handlePrimarySelect("adaptation")}
           type="button"
         >
@@ -520,6 +522,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       <div className="creation-entry-grid creation-entry-grid-two">
         <button
           className="creation-entry-card"
+          data-testid="creation-entry-card-film"
           onClick={() => handleAdaptationSelect("film")}
           type="button"
         >
@@ -533,6 +536,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
 
         <button
           className="creation-entry-card"
+          data-testid="creation-entry-card-novel"
           onClick={() => handleAdaptationSelect("novel")}
           type="button"
         >
@@ -682,7 +686,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
             {documentActionNotice && <p className="copy-status">{documentActionNotice}</p>}
           </section>
 
-          <section className="document-import-panel" aria-label="文档导入预览">
+          <section className="document-import-panel" aria-label="文档导入预览" data-testid="document-import-panel">
             <div>
               <h3>导入剧本文档内容</h3>
               <p>
@@ -888,7 +892,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
 
   return (
     <>
-      <section className="product-hero" aria-label="Dramora 剧本创作工作台">
+      <section className="product-hero" aria-label="Dramora 剧本创作工作台" data-testid="creation-home">
         <div className="product-hero-content">
           <p className="eyebrow">剧本创作工作台</p>
           <h1>Dramora｜剧作工坊</h1>
