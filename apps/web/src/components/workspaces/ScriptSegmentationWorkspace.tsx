@@ -365,7 +365,7 @@ export function ScriptSegmentationWorkspace({
         <section className="script-upload-mock-card">
           <div>
             <h3>上传 Word 文档</h3>
-            <p>当前为本地演示模式，可快速体验文档导入链路；真实 .docx 上传将在文档导入闭环接入。</p>
+            <p>Word 文档导入将在文档导入闭环接入。当前可先粘贴文本完成整理与短剧化处理。</p>
           </div>
 
           <button

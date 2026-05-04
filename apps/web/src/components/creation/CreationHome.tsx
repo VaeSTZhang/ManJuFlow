@@ -512,7 +512,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
               下载 Word（生成后可用）
             </button>
           </div>
-          <p>当前调用本地后端 mock 生成接口。生成短剧剧本后，可下载为 Word 文档。</p>
+          <p>当前将使用所选创作模型生成短剧剧本。生成后可复制、下载或继续进入 Word 导出流程。</p>
           {scriptGenerationError && <p className="form-error">{scriptGenerationError}</p>}
         </div>
       </section>
@@ -639,7 +639,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
           >
             {isGeneratingScript ? "改编中..." : "生成改编短剧本"}
           </button>
-          <p>当前调用本地后端 mock 生成接口，下一步再接入真实模型。</p>
+          <p>文本改编将复用所选创作模型完成短剧化处理。</p>
           {scriptGenerationError && <p className="form-error">{scriptGenerationError}</p>}
         </div>
       </section>

@@ -106,7 +106,7 @@ export function CreativeModelPanel({
         <div>
           <span>创作模型</span>
           <strong>创作模型：{selectedModel.label}</strong>
-          <p>{disabled ? "登录后可切换创作模型" : "用于后续剧本生成、改编、助手和质量评审。"}</p>
+          <p>{disabled ? "登录后可切换创作模型" : "用于剧本生成、文本改编、编剧助手和质量评审。"}</p>
         </div>
         <button
           className="creative-model-toggle"
