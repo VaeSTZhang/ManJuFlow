@@ -77,6 +77,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     clearDocumentImportPreview,
   } = useDocumentImportDrafts();
   const {
+    downloadShortDramaDocx,
     downloadShortDramaJson,
     downloadShortDramaTxt,
   } = useScriptDocumentExport({
@@ -512,6 +513,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         modelLabel={buildModelLabel(selectedCreativeModel)}
         onCancelEditing={cancelScriptEditing}
         onCopyJson={handleCopyShortDramaJson}
+        onDownloadDocx={downloadShortDramaDocx}
         onDownloadJson={downloadShortDramaJson}
         onDownloadTxt={downloadShortDramaTxt}
         onRestoreGenerated={restoreGeneratedScript}

@@ -165,6 +165,22 @@ async function mockDocumentExport(page: Page, capturedPayloads: DocumentExportPa
   });
 }
 
+async function mockDocumentExportFile(page: Page, capturedPayloads: DocumentExportPayload[] = []) {
+  await page.route("**/api/documents/export-file", async (route) => {
+    const payload = route.request().postDataJSON() as DocumentExportPayload;
+    capturedPayloads.push(payload);
+
+    await route.fulfill({
+      contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      status: 200,
+      headers: {
+        "Content-Disposition": 'attachment; filename="dramora-short-drama-script.docx"',
+      },
+      body: Buffer.from("safe fake docx bytes for e2e"),
+    });
+  });
+}
+
 async function generateIdeaScript(page: Page) {
   await page.goto("/");
   await login(page);
@@ -463,5 +479,26 @@ test.describe("Dramora creation home smoke", () => {
     expect(downloadedText).toContain(editedEpisodeTitle);
     expect(downloadedText).toContain(editedEpisodeSummary);
     expect(downloadedText).toContain(editedEpisodeHook);
+  });
+
+  test("downloads edited script as docx through document export file endpoint", async ({ page }) => {
+    const exportFilePayloads: DocumentExportPayload[] = [];
+    await mockScriptGeneration(page);
+    await mockDocumentExportFile(page, exportFilePayloads);
+    await generateIdeaScript(page);
+    await editGeneratedScriptBasicFields(page);
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByTestId("download-script-docx").click();
+    const download = await downloadPromise;
+
+    const docxPayload = exportFilePayloads[0];
+    expect(docxPayload.export_format).toBe("docx");
+    expect(docxPayload.structured_payload?.project_title).toBe(editedScriptTitle);
+    expect(docxPayload.structured_payload?.logline).toBe(editedScriptLogline);
+    expect(docxPayload.structured_payload?.world_setting).toBe(editedWorldSetting);
+    expect(docxPayload.metadata?.edited).toBe(true);
+    expect(docxPayload.metadata?.exported_from).toBe("creation_home");
+    expect(download.suggestedFilename()).toBe("dramora-short-drama-script.docx");
   });
 });

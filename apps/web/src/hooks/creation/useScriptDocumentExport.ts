@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { exportDocument } from "../../api/documentExport";
+import { exportDocument, exportDocumentFile } from "../../api/documentExport";
 import { parseApiErrorMessage } from "../../api/errors";
 import type { ShortDramaScriptOutput } from "../../types/scriptGeneration";
 
@@ -14,8 +14,7 @@ type UseScriptDocumentExportParams = {
   onSuccess?: () => void;
 };
 
-function downloadTextFile(filename: string, content: string, mimeType: string) {
-  const blob = new Blob([content], { type: mimeType });
+function downloadBlobFile(filename: string, blob: Blob) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
 
@@ -25,6 +24,10 @@ function downloadTextFile(filename: string, content: string, mimeType: string) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+function downloadTextFile(filename: string, content: string, mimeType: string) {
+  downloadBlobFile(filename, new Blob([content], { type: mimeType }));
 }
 
 function formatShortDramaScriptTxt(
@@ -182,7 +185,37 @@ export function useScriptDocumentExport({
     }
   };
 
+  const downloadShortDramaDocx = async () => {
+    if (!effectiveScript || isExportingScript) {
+      return;
+    }
+
+    setIsExportingScript(true);
+    try {
+      const output = await exportDocumentFile({
+        project_title: effectiveScript.project_title,
+        document_type: "short_drama_script",
+        source_stage: "script",
+        structured_payload: effectiveScript as unknown as Record<string, unknown>,
+        export_format: "docx",
+        filename: "dramora-short-drama-script.docx",
+        metadata: buildExportMetadata(),
+      });
+
+      downloadBlobFile(
+        output.filename,
+        output.blob.type ? output.blob : new Blob([output.blob], { type: output.contentType }),
+      );
+      onSuccess?.();
+    } catch (error) {
+      onError(parseApiErrorMessage(error, "导出失败，请稍后重试或联系技术支持。"));
+    } finally {
+      setIsExportingScript(false);
+    }
+  };
+
   return {
+    downloadShortDramaDocx,
     downloadShortDramaJson,
     downloadShortDramaTxt,
     isExportingScript,
