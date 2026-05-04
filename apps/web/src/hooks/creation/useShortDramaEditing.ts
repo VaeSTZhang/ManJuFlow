@@ -50,6 +50,25 @@ export function useShortDramaEditing() {
     setLastEditedAt(undefined);
   };
 
+  const updateEditableScriptField = <K extends keyof ShortDramaScriptOutput>(
+    field: K,
+    value: ShortDramaScriptOutput[K],
+  ) => {
+    setEditableScript((currentEditableScript) => {
+      const baseScript = currentEditableScript ?? generatedScript;
+
+      if (!baseScript) {
+        return currentEditableScript;
+      }
+
+      return {
+        ...cloneShortDramaScript(baseScript),
+        [field]: value,
+      };
+    });
+    setHasUnsavedScriptEdits(true);
+  };
+
   return {
     generatedScript,
     editableScript,
@@ -62,5 +81,6 @@ export function useShortDramaEditing() {
     saveScriptEditing,
     cancelScriptEditing,
     restoreGeneratedScript,
+    updateEditableScriptField,
   };
 }

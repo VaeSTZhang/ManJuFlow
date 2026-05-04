@@ -27,6 +27,10 @@ type ShortDramaScriptResultProps = {
   onSaveEditing?: () => void;
   onCancelEditing?: () => void;
   onRestoreGenerated?: () => void;
+  onUpdateField?: <K extends keyof ShortDramaScriptOutput>(
+    field: K,
+    value: ShortDramaScriptOutput[K],
+  ) => void;
 };
 
 const sourceModeLabels: Record<ScriptSourceMode, string> = {
@@ -158,6 +162,7 @@ export function ShortDramaScriptResult({
   onSaveEditing,
   onCancelEditing,
   onRestoreGenerated,
+  onUpdateField,
 }: ShortDramaScriptResultProps) {
   if (!result) {
     return (
@@ -174,13 +179,24 @@ export function ShortDramaScriptResult({
   const actionsDisabled = isLocked;
   const docxDisabled = isLocked || !onDownloadDocx;
   const startEditing = onStartEditing ?? onEdit;
+  const canEditFields = isEditing && !!onUpdateField && !isLocked;
 
   return (
     <section className="short-script-result" aria-label="短剧剧本生成结果">
       <div className="short-script-header">
         <div>
           <span>短剧剧本结果</span>
-          <h2>{result.project_title}</h2>
+          {canEditFields ? (
+            <label className="short-script-edit-field">
+              <span>剧本标题</span>
+              <input
+                onChange={(event) => onUpdateField("project_title", event.target.value)}
+                value={result.project_title}
+              />
+            </label>
+          ) : (
+            <h2>{result.project_title}</h2>
+          )}
         </div>
         <div className="short-script-actions">
           <button disabled={actionsDisabled || !onCopyJson} onClick={onCopyJson} type="button">
@@ -230,7 +246,18 @@ export function ShortDramaScriptResult({
 
       <section className="short-script-section">
         <h3>故事梗概</h3>
-        <p>{result.logline}</p>
+        {canEditFields ? (
+          <label className="short-script-edit-field">
+            <span>核心卖点 / 故事梗概</span>
+            <textarea
+              onChange={(event) => onUpdateField("logline", event.target.value)}
+              rows={4}
+              value={result.logline}
+            />
+          </label>
+        ) : (
+          <p>{result.logline}</p>
+        )}
       </section>
 
       {result.world_setting && (
