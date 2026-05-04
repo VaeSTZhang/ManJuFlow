@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 
 from app.schemas.document import DocumentExportInput, DocumentExportOutput
 from app.schemas.document_import import DocumentImportOutput, DocumentImportPreviewRequest
+from app.services.document_docx_export_service import build_docx_export_bytes, sanitize_docx_filename
 from app.services.document_export_service import export_document
 from app.services.document_import_service import build_document_import_preview
 
@@ -33,3 +34,19 @@ def export_document_preview(input_data: DocumentExportInput) -> DocumentExportOu
         return export_document(input_data)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/export-file")
+def export_document_file(input_data: DocumentExportInput) -> Response:
+    """Export a document payload as downloadable file bytes."""
+    try:
+        docx_bytes = build_docx_export_bytes(input_data)
+        filename = sanitize_docx_filename(input_data.filename, input_data.project_title)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return Response(
+        content=docx_bytes,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
