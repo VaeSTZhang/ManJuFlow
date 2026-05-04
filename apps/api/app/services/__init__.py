@@ -50,9 +50,11 @@ from app.services.script_input_limits import (
 from app.services.script_generation import (
     DEFAULT_SCRIPT_GENERATION_REGISTRY,
     ScriptGenerationEntryConfig,
+    generate_film_script_adaptation_mock,
     get_script_generation_entry,
     get_supported_source_modes,
     list_script_generation_entries,
+    load_film_script_prompt_template,
 )
 from app.services.script_segmentation_service import (
     generate_script_segmentation,
@@ -92,6 +94,7 @@ __all__ = [
     "generate_image_prompt",
     "generate_image_prompt_llm",
     "generate_image_prompt_mock",
+    "generate_film_script_adaptation_mock",
     "generate_script_mock",
     "generate_script_segmentation",
     "generate_script_segmentation_mock",
@@ -103,6 +106,7 @@ __all__ = [
     "get_supported_source_modes",
     "is_supported_script_filename",
     "list_script_generation_entries",
+    "load_film_script_prompt_template",
     "load_image_prompt_template",
     "parse_image_prompt_llm_response",
     "ScriptGenerationEntryConfig",
