@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { generateImageBundle, generateImages } from "./api/imageGenerations";
+import { createApiErrorFromResponse, parseApiErrorMessage } from "./api/errors";
 import { generateImagePrompts } from "./api/imagePrompts";
 import { generateStoryboard } from "./api/storyboards";
 import "./App.css";
@@ -406,14 +407,15 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error("请求失败");
+        throw await createApiErrorFromResponse(response, "生成剧本失败，请确认后端服务已启动。");
       }
 
       const data = (await response.json()) as ScriptOutput;
       setResult(data);
-    } catch {
-      setError("生成失败，请确认后端服务已启动：http://127.0.0.1:8000");
-      pushToast("error", "生成失败", "剧本生成接口请求失败，请检查后端是否运行。");
+    } catch (error) {
+      const message = parseApiErrorMessage(error, "生成剧本失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      setError(message);
+      pushToast("error", "生成失败", message);
     } finally {
       setIsLoading(false);
     }

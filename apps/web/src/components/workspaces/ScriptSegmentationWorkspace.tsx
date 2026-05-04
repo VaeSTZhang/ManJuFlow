@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { segmentScript } from "../../api/scriptSegmentation";
 import { uploadScriptMock } from "../../api/uploads";
+import { parseApiErrorMessage } from "../../api/errors";
 import { CharacterCountHint } from "../common/CharacterCountHint";
 import type {
   ExistingScriptInput,
@@ -194,9 +195,13 @@ export function ScriptSegmentationWorkspace({
 
       setScriptSegmentationResult(data);
       notify("success", "切分完成", "已有剧本已生成 mock 结构化片段。");
-    } catch {
-      setScriptSegmentationError("切分已有剧本失败，请确认后端服务已启动：http://127.0.0.1:8000");
-      notify("error", "切分失败", "已有剧本切分接口请求失败，请检查后端是否运行。");
+    } catch (error) {
+      const message = parseApiErrorMessage(
+        error,
+        "切分已有剧本失败，请确认后端服务已启动：http://127.0.0.1:8000",
+      );
+      setScriptSegmentationError(message);
+      notify("error", "切分失败", message);
     } finally {
       setScriptSegmentationLoading(false);
     }
@@ -247,9 +252,13 @@ export function ScriptSegmentationWorkspace({
         },
       }));
       notify("success", "上传 mock 完成", "已将提取文本填入下方剧本文本框，可继续切分。");
-    } catch {
-      setScriptUploadError("模拟上传 Word 文档失败，请确认后端服务已启动：http://127.0.0.1:8000");
-      notify("error", "上传失败", "上传 Word 文档 mock 接口请求失败，请检查后端是否运行。");
+    } catch (error) {
+      const message = parseApiErrorMessage(
+        error,
+        "模拟上传 Word 文档失败，请确认后端服务已启动：http://127.0.0.1:8000",
+      );
+      setScriptUploadError(message);
+      notify("error", "上传失败", message);
     } finally {
       setScriptUploadLoading(false);
     }

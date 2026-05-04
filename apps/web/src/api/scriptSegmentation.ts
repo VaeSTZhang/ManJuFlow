@@ -1,4 +1,5 @@
 import type { ExistingScriptInput, ScriptSegmentationOutput } from "../types/scriptSegmentation";
+import { createApiErrorFromResponse } from "./errors";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
@@ -12,7 +13,7 @@ export async function segmentScript(input: ExistingScriptInput): Promise<ScriptS
   });
 
   if (!response.ok) {
-    throw new Error("Script segmentation request failed");
+    throw await createApiErrorFromResponse(response, "切分已有剧本失败，请确认后端服务已启动。");
   }
 
   return (await response.json()) as ScriptSegmentationOutput;
