@@ -1,5 +1,7 @@
 # Phase 5A Productization Execution Plan｜第五阶段 A：产品化执行蓝图
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文已按当前路线调整：Phase 5A 聚焦三入口短剧剧本生成 / 改编、在线编辑、Word / TXT / JSON 导入导出、创作模型选择、用量记录、质量评审和内部试用质量加固。历史 Assistant 方案不再作为当前版本能力或服务器购买前置事项。
+
 ## 1. 文档目的
 
 本文档是 Phase 5A 后续开发的总控执行蓝图，用于统一产品定位、工程结构、功能边界、开发顺序和验收标准。
@@ -31,7 +33,7 @@ ManJuFlow 当前阶段是面向编剧、短剧策划、漫剧内容团队的 AI 
 - 提升短剧剧本生成效率；
 - 支持多来源改编；
 - 支持在线编辑和文档往返；
-- 用 AI Assistant 辅助编剧决策；
+- 支持创作模型选择、质量评审和用量记录；
 - 为后续 Prompt / 分镜 / 媒体生成打基础。
 
 当前主入口：
@@ -54,7 +56,8 @@ Phase 5A 聚焦短剧剧本生成与改编工作台：
 - 在线编辑；
 - DOCX 下载；
 - 上传修改稿；
-- Assistant 辅助改写 / 改编；
+- 用量记录；
+- 质量评审；
 - 结果保存策略。
 
 ### Phase 5B
@@ -102,7 +105,7 @@ Phase 5B 聚焦短剧剧本生成之后的下一大功能：
 - 把三入口写死在 `App.tsx`；
 - 把电影改编和小说改编塞进 `script_service.py`；
 - 把所有 prompt 混用；
-- 把 Assistant 当普通聊天框；
+- 把已取消的 Assistant 历史方案继续塞回当前版本；
 - 把 Document Import / Export 塞进 `upload_service`；
 - 把 Prompt 功能和三入口生成页混成一个页面；
 - 让返回箭头清空状态；
@@ -113,8 +116,8 @@ Phase 5B 聚焦短剧剧本生成之后的下一大功能：
 
 - 使用清晰的 `source_mode`；
 - 每个入口有独立 prompt；
-- Assistant 独立于主生成链路；
 - Document import/export 独立于 upload mock；
+- 当前版本不规划右侧 AI 聊天 / Assistant；
 - Prompt workflow 与短剧剧本生成页分层；
 - 状态保留策略先于复杂页面切换实现。
 
@@ -126,17 +129,18 @@ Phase 5B 聚焦短剧剧本生成之后的下一大功能：
 
 - `script_generation`：三入口主生成；
 - `adaptation`：电影剧本、小说等来源改编；
-- `assistant`：编剧助手 / 改编助手 / 工作流助手；
 - `documents`：导出、导入、文档版本；
-- `workflow / next actions`：下一步跳转、payload 映射、suggested actions。
+- `usage_ledger`：内部试用的模型调用与成本线索；
+- `quality_review`：生成剧本和改编结果的质量评审；
+- `workflow / next actions`：下一步跳转和 payload 映射。
 
 ### 前端
 
 建议模块边界：
 
 - `creation`：三入口选择、三入口表单、短剧剧本结果；
-- `assistant`：AssistantPanel、消息列表、输入框、suggested actions；
 - `documents`：导出按钮、导入面板、版本提示；
+- `quality-review`：剧本质量检查、短剧节奏评估、改编质量反馈；
 - `prompt-workflow`：切分 / 分镜 / Prompt 下一大功能；
 - `common`：字数提示、状态 badge、通用卡片；
 - `layout`：AppShell、Sidebar、Toast。
@@ -146,7 +150,6 @@ Phase 5B 聚焦短剧剧本生成之后的下一大功能：
 Prompt 边界：
 
 - 每个入口独立 prompt；
-- Assistant 独立 prompt；
 - Prompt workflow 独立 prompt；
 - 每个 prompt 文件必须版本化；
 - LLM 调用记录 `source_mode` 和 prompt version。
@@ -162,8 +165,6 @@ Prompt 边界：
 - `user_id`；
 - `ShortDramaScriptOutput`；
 - `DocumentVersion`；
-- `AssistantContext`；
-- `SuggestedAction`；
 - `NextWorkflowPayload`。
 
 说明：
@@ -172,37 +173,25 @@ Prompt 边界：
 - 不要求一次性全部实现；
 - 但新增代码时应优先对齐这些方向，避免重复造多个不兼容结构。
 
-## 8. AI Assistant 边界
+## 8. 当前版本取消 AI Assistant
 
-Assistant 是编剧助手 / 改编助手 / 工作流助手。
+当前版本不做右侧 AI 聊天界面、AssistantPanel、`/api/assistant/chat` 或 `suggested_actions`。
 
-必须：
+取消原因：
 
-- 独立 schema；
-- 独立 service；
-- 独立 endpoint；
-- 独立 prompt；
-- 独立 env；
-- 通过 `suggested_actions` 影响主流程；
-- 用户确认后才应用；
-- 不能自动覆盖用户编辑内容；
-- 不能跨项目读取上下文。
+- 老板已明确当前版本不需要右侧聊天协作；
+- 三入口真实模型生成、在线编辑、导入导出和质量加固优先级更高；
+- Assistant 会引入额外 schema / service / endpoint / prompt / 上下文隔离成本；
+- 在当前阶段继续规划 Assistant 会让路线图和老板决策冲突。
 
-Assistant 可以做：
+当前替代重点：
 
-- 改写灵感；
-- 提炼电影剧本改编策略；
-- 梳理小说人物关系；
-- 增强短剧钩子；
-- 给出下一步建议；
-- 帮用户进入切分 / 分镜 / Prompt。
+- 在线编辑：用户直接审看和修改生成结果；
+- 质量评审：评估剧本可用性、短剧节奏、改编质量；
+- 用量记录：记录 provider / model / purpose / 调用成本线索；
+- 下一步工作流：将当前有效剧本带入“短剧剧本 → 分镜 → Prompt”。
 
-Assistant 不能做：
-
-- 自动替用户提交生产结果；
-- 自动清空编辑内容；
-- 自动跨项目读取上下文；
-- 和主生成链路共用业务 prompt。
+历史 Assistant 文档只保留为归档，不进入当前实施路线。
 
 ## 9. 文档往返边界
 
@@ -240,7 +229,8 @@ Document Round-trip 包含：
 - Script Generation / Adaptation Page；
 - Script Result / Editor Page；
 - Prompt Workflow Page；
-- Assistant Panel；
+- 质量评审；
+- 用量记录；
 - Document Import / Export Panel。
 
 导航规则：
@@ -267,10 +257,10 @@ Document Round-trip 包含：
 - 第 198 步：三入口表单；
 - 第 199 步：统一 ShortDramaScriptResult；
 - 第 200 步：DOCX 下载策略；
-- 第 201 步：AI Assistant 设计更新；
-- 第 202 步：Assistant Schema；
-- 第 203 步：Assistant mock endpoint；
-- 第 204 步：前端 AssistantPanel；
+- 第 201 步：在线编辑基础；
+- 第 202 步：Document Import / Export 闭环；
+- 第 203 步：UsageLedger；
+- 第 204 步：质量评审；
 - 第 205 步：真实 LLM 接入；
 - 第 206 步：市场试用验收。
 
@@ -292,7 +282,7 @@ Document Round-trip 包含：
 - 电影 / 小说入口至少 mock；
 - 输入限制；
 - 基础导出；
-- Assistant 规划清楚。
+- 当前版本明确取消 Assistant。
 
 ### 市场试用版
 
@@ -302,7 +292,8 @@ Document Round-trip 包含：
 - 在线编辑；
 - DOCX 下载；
 - 上传；
-- Assistant mock / LLM；
+- 用量记录；
+- 质量评审；
 - 数据不串；
 - 测试和 build 通过；
 - 文档完整。
@@ -340,7 +331,7 @@ Document Round-trip 包含：
 
 - 文档明确 Phase 5A / 5B 边界；
 - 文档明确三入口主线；
-- 文档明确 Assistant 不能忘；
+- 文档明确当前版本取消 Assistant；
 - 文档明确 Document Round-trip；
 - 文档明确 Prompt 页面返回箭头；
 - 文档明确不写死架构；

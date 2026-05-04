@@ -14,7 +14,7 @@
 - 小范围用户可试用；
 - 合作方技术员可评估；
 - 三入口短剧剧本生成与改编链路稳定；
-- 上传、Assistant、上下文隔离和用量审计边界清晰；
+- 上传、在线编辑、导出、上下文隔离、用量审计和质量评审边界清晰；
 - 不直接进入真实文生图 / 文生视频 / GPU 生产链路。
 
 ## 2. 当前市场试用定位
@@ -42,7 +42,8 @@ Dramora｜剧作工坊 当前市场试用版定位为：
 - 在线编辑；
 - 下载 / 导出；
 - 上传后继续编辑或改编；
-- AI Assistant 辅助改写 / 改编 / 增强钩子；
+- 创作模型选择；
+- 用量记录与质量评审；
 - 后续可进入切分 / 分镜 / Prompt；
 - 结果复制 / 导出；
 - 工作区隔离设计；
@@ -62,7 +63,7 @@ Dramora｜剧作工坊 当前市场试用版定位为：
 - 电影剧本改短剧 mock / llm 路线可说明和演示；
 - 小说改短剧 mock / llm 路线可说明和演示；
 - 能说明切分 / 分镜 / Prompt 是生成短剧剧本后的下一大功能预备；
-- 能说明 AI Assistant 将辅助改编、改写和增强钩子，而不是普通聊天窗口；
+- 能说明当前版本不规划右侧 AI 聊天 / Assistant，重点放在在线编辑、导出、用量记录和质量评审；
 - 结果可以复制 / 导出；
 - README 能让老板和技术员理解项目价值；
 - 演示过程不依赖真实客户数据；
@@ -89,9 +90,8 @@ Dramora｜剧作工坊 当前市场试用版定位为：
 - 三入口 prompt 独立；
 - `source_mode` 记录清楚；
 - 电影剧本 / 小说文本有 100,000 字符上限和 chunking 边界；
-- Assistant 至少有 mock UI 和 suggested actions；
-- Assistant 独立 service / prompt / endpoint / env 配置；
-- 如果接 DeepSeek Assistant LLM，必须与三入口主生成链路隔离；
+- 在线编辑、导入导出和质量评审有清晰验收；
+- 用量记录可以追踪 provider / model / purpose；
 - 有 `LOCAL_DEV`、`API_CONTRACT`、`MVP_ROADMAP`、`PHASE_5_SUMMARY`；
 - 有老板演示脚本；
 - 有市场试用说明；
@@ -143,54 +143,39 @@ Dramora｜剧作工坊 当前市场试用版定位为：
 - 上传能力未来应从 `/api/uploads/script` 演进到 `/api/documents/import`；
 - 上传后用户应能选择目标入口：电影剧本改编、小说改编或已有剧本处理。
 
-## 7. AI Assistant 策略
+## 7. 当前版本取消 AI Assistant
 
-用户与 AI 聊天肯定会介入大模型，但 Assistant 必须独立于三入口主生成链路。
+老板已明确取消当前版本的右侧 AI 聊天界面和 AI Assistant 功能。因此市场试用准备不再包含：
 
-建议策略：
+- AssistantPanel；
+- `/api/assistant/chat`；
+- `suggested_actions`；
+- 右侧聊天协作；
+- 聊天记录保存策略；
+- Assistant 独立 service / prompt / endpoint / env 配置。
 
-- Assistant 单独 service；
-- Assistant 单独 schema；
-- Assistant 单独 prompt；
-- Assistant 单独 endpoint；
-- Assistant 单独 mode：`ASSISTANT_GENERATION_MODE=mock / llm`；
-- Assistant 单独 provider 配置：`ASSISTANT_LLM_PROVIDER`；
-- Assistant 单独模型配置：`ASSISTANT_LLM_MODEL`；
-- Assistant 单独 API Key 环境变量：`ASSISTANT_API_KEY` 或 `ASSISTANT_LLM_API_KEY`；
-- 可以使用 DeepSeek，但不要和灵感生成、电影改编、小说改编、分镜生成、Prompt 生成逻辑混在一起；
-- Assistant 不应自动修改生产数据，suggested actions 需要用户确认。
+当前版本重点改为：
 
-Assistant 在三入口工作台中应辅助：
+- 三入口短剧剧本生成与改编；
+- 生成结果在线审看与编辑；
+- Word / TXT / JSON 导入导出；
+- 创作模型选择；
+- 用量记录；
+- 质量评审；
+- 后续“短剧剧本 → 分镜 → Prompt”工作流。
 
-- 帮用户改写灵感；
-- 帮用户提炼电影剧本改编策略；
-- 帮用户提炼小说人物关系；
-- 帮用户增强短剧钩子；
-- 帮用户把当前结果继续带入分镜 / Prompt；
-- 通过 suggested_actions 给出可执行建议，并由用户确认后应用。
+历史 Assistant 方案可以保留为归档文档，但不作为当前市场试用、服务器购买或技术评审前置事项。
 
-底层可以复用通用 LLM HTTP 能力，但业务配置、prompt、上下文和用量记录必须隔离。
-
-## 8. 聊天记录保存策略
+## 8. 用量记录与质量评审策略
 
 市场试用前必须明确：
 
-- 是否保存聊天记录；
-- 保存在哪里；
-- 是否按 `workspace_id` / `project_id` / `session_id` 隔离；
-- 是否可以清空；
-- 是否可以导出；
-- 是否进入训练；
-- 是否进入公开仓库。
-
-建议第一版策略：
-
-- mock 阶段前端 state / localStorage 即可；
-- 后续试用版可以用 SQLite 保存 conversation 和 messages；
-- 必须绑定 `workspace_id` / `project_id` / `session_id`；
-- 不保存真实敏感数据到公开仓库；
-- 后续需要隐私说明和清理策略；
-- Assistant suggested actions 的应用结果也应可回溯。
+- 每次生成使用的 provider / model / purpose；
+- 是否能按内部账号统计调用；
+- 是否能按项目或入口统计用量；
+- 质量评审如何记录剧本可用性、短剧节奏和改编质量；
+- 评审数据不进入公开仓库；
+- 不记录 API Key、真实客户剧本或敏感内容到日志。
 
 ## 9. 工作区与上下文隔离
 
@@ -198,18 +183,16 @@ Assistant 在三入口工作台中应辅助：
 
 - A 项目的剧本被带入 B 项目；
 - A 用户聊天内容影响 B 用户；
-- Assistant 引用错误项目上下文；
 - Prompt 生成串用上一轮数据。
 
 建议验收标准：
 
 - 所有核心请求后续都应携带 `workspace_id` / `project_id` / `session_id`；
-- `AssistantContext` 必须显式传入；
 - 不让模型从全局状态里隐式读取项目内容；
 - 前端切换 workspace 时清楚展示当前上下文；
 - 后续测试要覆盖上下文隔离；
 - 跨项目引用必须显式确认；
-- suggested actions 默认只作用于当前项目和当前 workspace。
+- 后续工作流 payload 默认只作用于当前项目和当前 workspace。
 
 ## 10. 市场试用前剩余工作清单
 
@@ -223,21 +206,14 @@ Assistant 在三入口工作台中应辅助：
 - 电影剧本改短剧 mock / llm；
 - 小说改短剧 mock / llm；
 - 前端入口选择弹窗；
-- AI Assistant 三入口辅助；
 - 在线编辑；
 - Document Round-trip；
 - 登录门禁；
 - 本地市场试用；
-- `AI_ASSISTANT_PANEL_DESIGN`；
-- Assistant Schema；
-- Assistant mock service；
-- Assistant endpoint；
-- Assistant 前端 UI；
-- Assistant suggested actions；
-- Assistant DeepSeek 独立配置；
 - 上传文件真实 multipart 第一版；
 - 上传文件 storage / `.gitignore`；
-- 聊天记录策略；
+- UsageLedger；
+- 质量评审；
 - mock auth / workspace isolation；
 - 前端 UI 信息架构整理；
 - 全量测试；
@@ -279,7 +255,7 @@ git status
 - 测试电影剧本改短剧链路；
 - 测试小说改短剧链路；
 - 测试上传 mock；
-- 测试 Assistant；
+- 测试在线编辑、导出、用量记录和质量评审；
 - 测试复制 / 导出。
 
 ## 12. 风险与缓解策略
@@ -307,26 +283,24 @@ git status
 - 公开仓库只保留虚构样例；
 - 真实文件留在本地或私有部署环境。
 
-### 聊天上下文串项目风险
+### 工作流上下文串项目风险
 
-风险：Assistant 把 A 项目的上下文用于 B 项目。
+风险：质量评审、导入导出或后续分镜 / Prompt 把 A 项目的上下文用于 B 项目。
 
 缓解：
 
 - 每次请求携带 `project_id` / `workspace_id` / `session_id`；
-- AssistantContext 显式传入；
-- suggested actions 带目标 workspace；
+- next workflow payload 显式传入目标 workspace；
 - 跨项目引用必须确认。
 
-### DeepSeek Assistant 与创作链路混用风险
+### DeepSeek 配置与业务链路混用风险
 
-风险：Assistant Chat 与剧本生成、分镜生成、Prompt 生成共用配置和 prompt，导致调用边界混乱。
+风险：剧本生成、质量评审、分镜生成、Prompt 生成共用配置和 prompt，导致调用边界混乱。
 
 缓解：
 
-- Assistant 单独 schema / service / prompt / endpoint；
-- Assistant 单独 provider 和模型配置；
-- Assistant 单独 API Key 环境变量；
+- 各业务链路保持独立 schema / service / prompt / endpoint；
+- 通过 `AIRequestOptions` 记录 provider / model / purpose；
 - UsageLedger 中区分 feature_name 和 operation_type。
 
 ### API Key 泄露风险
@@ -427,8 +401,8 @@ git status
 - 文档明确市场试用版标准；
 - 文档明确暂不承诺事项；
 - 文档明确上传文件策略；
-- 文档明确 Assistant 独立于三入口主生成链路；
-- 文档明确聊天记录保存策略；
+- 文档明确当前版本取消 Assistant；
+- 文档明确用量记录与质量评审策略；
 - 文档明确 workspace / project / session 隔离；
 - 文档明确剩余工作清单；
 - 文档明确版权、长文本 chunking、LLM 漏改关键剧情等风险；

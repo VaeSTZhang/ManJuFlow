@@ -1,5 +1,7 @@
 # Phase 5 Workspace Context Isolation Design｜项目工作区上下文隔离设计
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文中关于 Assistant Chat / AssistantPanel 的内容仅作为历史方案归档，不纳入当前实施路线。当前版本的上下文隔离重点应放在三入口剧本生成与改编、文档导入导出、在线编辑、用量记录、质量评审和后续分镜 / Prompt 工作流。
+
 ## 1. 设计目标
 
 本设计用于解决未来公司多员工、多项目组、多工作区并行使用时，AI 不应串项目、不应读取错误上下文、不应把一个项目的角色、剧情、Prompt 回复到另一个项目中。

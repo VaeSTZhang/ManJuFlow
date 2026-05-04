@@ -10,6 +10,8 @@
 
 本文档保留为历史阶段方案和后续能力参考。Text-to-Prompt、Script Segmentation、Storyboard、ImagePrompt 链路调整为生成短剧剧本后的下一大功能预备，不再作为当前首页主入口第一优先级。
 
+当前版本已取消右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文中相关设计仅作为历史归档，不纳入当前实施路线。
+
 ## 1. 阶段定位
 
 第五阶段不是继续推进真实图片生成、视频生成或 GPU / ComfyUI 私有联调，而是回到当前最新业务诉求：让“灵感或已有剧本”都能通过 ManJuFlow 工作流，最终变成文字转媒体的提示词。
@@ -27,7 +29,6 @@ Phase 5｜Text-to-Prompt Workbench
 - 已有剧本到结构化切分；
 - 文字到文字；
 - 文字到媒体提示词；
-- AI 聊天协作；
 - 非技术人员可用的内容生产工作台。
 
 本阶段的核心目标是把“文字生产”和“媒体提示词生产”之间的工作台体验打稳，让用户可以从灵感、已有剧本或自然语言协作入口进入，并最终汇流到 Storyboard / ImagePrompt / ImageGeneration mock 链路。
@@ -43,7 +44,7 @@ Phase 5｜Text-to-Prompt Workbench
 - 当前公开仓库应继续保持 mock、接口、抽象和文档边界；
 - 先把文字生产、切分、Prompt 链路打稳，后续再接真实生成更稳。
 
-第四阶段已经完成 ImageGeneration mock / bundle / assets / tasks 和工作台 UI，足以支撑公开仓库评审。第五阶段不应为了“看起来更像生产系统”而提前接真实 GPU。真实生成应等 Script Segmentation、Assistant、workflow registry mock、Asset / Task 规则进一步稳定后，再按私有 checklist 决策。
+第四阶段已经完成 ImageGeneration mock / bundle / assets / tasks 和工作台 UI，足以支撑公开仓库评审。第五阶段不应为了“看起来更像生产系统”而提前接真实 GPU。真实生成应等 Script Segmentation、workflow registry mock、Asset / Task 规则进一步稳定后，再按私有 checklist 决策。
 
 ## 3. 当前项目已具备的前置能力
 
@@ -103,20 +104,7 @@ Phase 5｜Text-to-Prompt Workbench
 2. 切分结果进入现有链路  
    `Script Segments` → `Storyboard` → `ImagePrompt` → `ImageGeneration Mock / Bundle`。
 
-3. 新增右侧 AI Assistant 聊天协作面板  
-   非技术人员可以自然语言要求 AI 改写、拆分、补全、增强钩子、生成 Prompt、切换工作区。
-
-4. 建立 Assistant suggested actions  
-   让 AI 回复不只是聊天文本，还能返回可执行建议，例如：
-
-   - 切换工作区；
-   - 将当前剧本带入切分；
-   - 将切分结果带入分镜；
-   - 将分镜带入 Prompt；
-   - 应用改写结果；
-   - 复制 / 导出建议。
-
-5. 保持 mock 优先  
+3. 保持 mock 优先  
    先以 mock service 和固定 suggested actions 跑通前后端链路，再考虑 LLM 模式。
 
 ## 5. 三个入口与统一汇流
@@ -145,9 +133,9 @@ Existing Script
   -> ImagePromptOutput
 ```
 
-### 入口 C：AI 聊天协作
+### 入口 C：历史方案归档：AI 聊天协作
 
-新增 Assistant Panel：
+以下 Assistant Panel 设计为历史归档，当前版本不做：
 
 ```text
 User natural language
@@ -159,7 +147,7 @@ User natural language
 
 统一汇流目标：
 
-无论用户从灵感、已有剧本还是聊天入口开始，最终都应该进入：
+当前有效路线中，用户从灵感或已有剧本入口开始，最终应该进入：
 
 - 结构化剧本 / 切分片段；
 - `StoryboardOutput`；
@@ -240,9 +228,9 @@ apps/api/app/schemas/script_segmentation.py
 - `apps/web/src/api/scriptSegmentation.ts`
 - `ScriptSegmentationWorkspace`
 
-## 7. AI Assistant Panel 设计
+## 7. 历史归档：AI Assistant Panel 设计
 
-后续建议在前端右侧新增 AI Assistant Panel。
+以下为早期历史方案。当前版本不再新增右侧 AI Assistant Panel，不纳入当前实施路线。
 
 建议能力：
 
@@ -380,11 +368,7 @@ ASSISTANT_GENERATION_MODE=mock / llm
 - Script Segmentation Schema；
 - Script Segmentation mock service；
 - Script Segmentation endpoint；
-- Assistant Schema；
-- Assistant mock service；
-- Assistant endpoint；
 - 前端 mock UI；
-- suggested actions 的占位结构；
 - 不含敏感信息的虚构样例；
 - 文档和本地 demo。
 
@@ -408,8 +392,6 @@ ASSISTANT_GENERATION_MODE=mock / llm
 第五阶段继续坚持 mock 优先：
 
 - Script Segmentation 先 mock；
-- Assistant Chat 先 mock；
-- suggested actions 先固定枚举；
 - 前端先验证布局、交互、状态传递；
 - 后端先验证 Schema / service / endpoint；
 - 等数据协议和 UI 体验稳定后，再接 LLM 模式。
@@ -424,12 +406,11 @@ mock 优先不是降低质量，而是为了先稳定产品交互、数据契约
 
 - 保持 AppShell + Sidebar；
 - 新增“已有剧本切分” workspace；
-- 右侧 AssistantPanel 先可展开 / 收起；
 - 不一次性引入复杂状态管理；
 - 先用现有 React state / props；
 - 如果状态明显失控，再单独规划状态管理；
 - 不把所有逻辑继续堆进单个组件；
-- 新增组件尽量放在 `components/workspaces` 和 `components/assistant`。
+- 新增组件尽量放在 `components/workspaces`、`components/creation` 或后续明确的功能目录。
 
 第五阶段的前端改造应沿用第四阶段的渐进式策略：先搭骨架，再接 mock，再做浏览器验收，最后再考虑更深的组件拆分。
 
@@ -445,10 +426,10 @@ mock 优先不是降低质量，而是为了先稳定产品交互、数据契约
 - 第 145 步：前端新增 ScriptSegmentation 类型和 API；
 - 第 146 步：Sidebar 新增“已有剧本切分” workspace；
 - 第 147 步：已有剧本切分结果带入 Storyboard / ImagePrompt；
-- 第 148 步：新增 `AI_ASSISTANT_PANEL_DESIGN.md`；
-- 第 149 步：Assistant Chat Schema / mock service / endpoint；
-- 第 150 步：前端右侧 AssistantPanel mock UI；
-- 第 151 步：Assistant suggested actions；
+- 第 148 步：质量评审与用量记录设计；
+- 第 149 步：Document Import / Export 闭环；
+- 第 150 步：短剧剧本结果在线编辑深化；
+- 第 151 步：短剧剧本进入分镜 / Prompt 的 payload 设计；
 - 第 152 步：文档更新 API_CONTRACT / LOCAL_DEV / MVP_ROADMAP；
 - 第 153 步：阶段性浏览器验收；
 - 第 154 步：Phase 5 中期总结。

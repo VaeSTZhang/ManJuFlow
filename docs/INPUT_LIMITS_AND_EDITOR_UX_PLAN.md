@@ -1,5 +1,7 @@
 # Input Limits and Editor UX Plan｜输入上限与编辑体验方案
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文中关于 Assistant 输入限制的内容仅作为历史方案归档，不纳入当前实施路线。当前版本输入限制重点覆盖三入口剧本生成与改编、文档导入、在线编辑、导出、质量评审和后续分镜 / Prompt 工作流。
+
 ## 1. 文档目的
 
 本文档用于定义 ManJuFlow 市场试用版中所有核心输入框、编辑区和上传提取文本区的字数上限、提示方式、前后端校验策略。

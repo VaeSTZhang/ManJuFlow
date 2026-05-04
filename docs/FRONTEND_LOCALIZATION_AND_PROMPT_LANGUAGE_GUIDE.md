@@ -1,5 +1,7 @@
 # Frontend Localization and Prompt Language Guide｜前端中文化与 Prompt 双语输出规范
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文中关于 Assistant Panel 的文案规范仅作为历史方案归档，不纳入当前实施路线。
+
 ## 1. 设计目标
 
 ManJuFlow 面向非技术内容生产人员，包括编剧、导演、美术、制片、运营和项目评审人员。前端 UI 应默认中文化，减少英文技术词对使用体验的干扰，降低团队协作门槛。

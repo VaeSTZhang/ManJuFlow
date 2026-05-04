@@ -1,5 +1,7 @@
 # Project Structure Refactor Plan for Three-entry Script Workbench｜三入口短剧工作台项目结构重整方案
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文中关于 assistant schema / service / router / panel 的内容仅作为历史结构方案归档，不纳入当前实施路线。三入口结构治理继续保留，但重点改为剧本生成、改编、在线编辑、导入导出、用量记录、质量评审和后续分镜 / Prompt 工作流。
+
 ## 1. 文档目的
 
 本文档用于规划 ManJuFlow 在“三入口短剧剧本生成与改编工作台”方向下的项目结构，避免需求继续变化时出现：

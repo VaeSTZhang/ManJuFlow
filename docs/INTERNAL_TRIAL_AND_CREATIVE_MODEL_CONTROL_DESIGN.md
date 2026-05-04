@@ -11,7 +11,6 @@ Dramora｜剧作工坊 当前不做公开商用，短中期面向公司内部 5-
 - 小说 / 网文改编短剧本；
 - Word 导入；
 - Word 导出；
-- AI 编剧助手；
 - 基础用量记录；
 - 后续人工评审。
 
@@ -53,7 +52,6 @@ DeepSeek 是当前内部默认推荐模型，但 DeepSeek 不能写死。
 
 - 剧本生成；
 - 文本改编；
-- 助手聊天；
 - 质量评审。
 
 模型层通过 provider / model 配置选择 DeepSeek、Mimo、Kimi、MiniMax 或未来私有模型。
@@ -61,7 +59,6 @@ DeepSeek 是当前内部默认推荐模型，但 DeepSeek 不能写死。
 原则：
 
 - 默认推荐 DeepSeek；
-- 保留“使用后端默认”选项；
 - 保留 Mimo、Kimi、MiniMax 等已配置 provider 的扩展位；
 - 后端默认 provider / model 通过 `DEFAULT_LLM_PROVIDER` / `DEFAULT_SCRIPT_MODEL` 配置；
 - 不在业务 service 中硬编码具体 provider；
@@ -81,8 +78,8 @@ DeepSeek 是当前内部默认推荐模型，但 DeepSeek 不能写死。
 窗口内容建议：
 
 - 推荐：DeepSeek；
-- 可选：Mimo、Kimi、MiniMax、使用后端默认；
-- 适用范围：剧本生成、剧本改编、AI 编剧助手、质量评审；
+- 可选：Mimo、Kimi、MiniMax；
+- 适用范围：剧本生成、剧本改编、质量评审、后续分镜 / Prompt；
 - 输出语言；
 - 生成后保留结果；
 - 下载 Word；
@@ -109,9 +106,9 @@ apps/web/src/components/ai/CreativeModelPanel.tsx
 - 展示当前创作模型；
 - 打开模型选择浮层；
 - 选择 provider / model；
-- 将选择结果传给剧本生成、改编、AI Assistant；
+- 将选择结果传给剧本生成、文本改编、质量评审和后续分镜 / Prompt；
 - 默认 DeepSeek；
-- 保留后端默认选项。
+- 代码层可保留系统默认配置能力，但普通用户模型卡片不展示“系统默认模型”。
 
 建议状态结构：
 
@@ -142,7 +139,6 @@ selectedCreativeModel = {
 - script_generation；
 - film_adaptation；
 - novel_adaptation；
-- assistant_chat；
 - script_rewrite；
 - quality_review。
 
@@ -155,14 +151,15 @@ selectedCreativeModel = {
 - 灵感生成短剧剧本；
 - 电影剧本改编；
 - 小说 / 网文改编；
-- AI 编剧助手聊天；
 - 改写选中文本；
 - 增强短剧钩子；
 - 优化对白；
 - 质量评审；
 - 后续分镜 / Prompt 生成。
 
-短期可以优先覆盖三入口剧本生成与 AI 编剧助手，后续再逐步覆盖质量评审和分镜 / Prompt。
+短期优先覆盖三入口剧本生成、文本改编和质量评审，后续再逐步覆盖分镜 / Prompt。
+
+当前版本不规划右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 或 `suggested_actions`。历史 Assistant 方案仅作为归档，不进入当前实施路线。
 
 ## 9. Word 下载与人工评审
 

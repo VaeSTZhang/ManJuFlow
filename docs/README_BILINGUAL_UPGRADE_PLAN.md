@@ -1,5 +1,7 @@
 # README Bilingual Upgrade Plan｜GitHub 双语主页升级计划
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文中关于 README 后续新增 assistant 的内容仅作为历史方案归档，不纳入当前 GitHub 主页同步路线。
+
 ## 1. 设计目标
 
 README 将作为 GitHub 默认项目主页，用于：

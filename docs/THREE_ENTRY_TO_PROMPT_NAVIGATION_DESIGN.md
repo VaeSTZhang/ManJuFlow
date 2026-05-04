@@ -154,14 +154,14 @@ editedScriptByEntry
 - `user_id`；
 - SQLite；
 - document version metadata；
-- assistant conversation metadata。
+- quality review metadata。
 
 目标：
 
 - 刷新页面后可恢复；
 - 切换设备后可恢复；
 - 返回上一阶段后仍能看到最新编辑内容；
-- Assistant 能读取正确上下文；
+- 质量评审和后续工作流能读取正确上下文；
 - UsageLedger 能按项目和 workspace 统计。
 
 长期建议：
@@ -205,29 +205,25 @@ Document Round-trip 对状态保留的要求：
 - 返回后仍显示最新编辑版本；
 - 导出状态和版本 metadata 后续应可追溯。
 
-## 9. 与 AI Assistant 的关系
+## 9. 当前版本不接入 AI Assistant
 
-Assistant 可以在两个页面都存在：
+老板已明确取消当前版本的右侧 AI 聊天界面和 AI Assistant 功能。因此三入口到 Prompt 的导航设计不再包含：
 
-- 剧本生成 / 改编页面；
-- Prompt / 切分 / 分镜页面。
+- AssistantPanel；
+- `/api/assistant/chat`；
+- `suggested_actions`；
+- 聊天式跨页面操作；
+- Assistant 自动带入下一步。
 
-但 Assistant 的 `suggested_actions` 必须明确目标：
+当前版本的页面切换和下一步动作应通过明确按钮、明确状态 payload 和用户确认完成。
 
-- `apply_to_script_page`；
-- `apply_to_prompt_page`；
-- `return_to_script_page`；
-- `generate_prompt_from_current_script`。
-
-所有 `suggested_actions` 都需要用户确认。
-
-Assistant 边界：
+边界：
 
 - 不自动清空用户草稿；
 - 不自动覆盖用户编辑后的剧本；
 - 不跨项目读取上下文；
 - 不把 Prompt 页面生成结果误写回短剧剧本页；
-- action payload 必须带 `project_id` / `workspace_id` / `source_mode`。
+- next workflow payload 必须带 `project_id` / `workspace_id` / `source_mode`。
 
 ## 10. 实施路线建议
 
@@ -258,6 +254,6 @@ Assistant 边界：
 - 文档明确返回不清空状态；
 - 文档明确第一版状态策略；
 - 文档明确后续持久化策略；
-- 文档明确与 Sidebar、Document Round-trip、Assistant 的关系；
+- 文档明确与 Sidebar、Document Round-trip、质量评审和后续工作流的关系；
 - 不修改代码；
 - 不包含敏感信息。

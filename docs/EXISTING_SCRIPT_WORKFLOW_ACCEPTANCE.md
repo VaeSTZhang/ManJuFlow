@@ -1,5 +1,7 @@
 # Existing Script Workflow Acceptance｜已有剧本工作流验收标准
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文中关于 Assistant suggested action 的内容仅作为历史验收问题归档，不纳入当前实施路线。
+
 ## 1. 文档目的
 
 本文档用于定义第五阶段“已有剧本输入”主链路的验收标准，确保它达到老板演示和市场试用要求。

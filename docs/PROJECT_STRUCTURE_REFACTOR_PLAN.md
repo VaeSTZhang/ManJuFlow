@@ -1,5 +1,7 @@
 # Project Structure Refactor Plan｜项目结构梳理与渐进式重构计划
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文中关于 assistant 目录、AssistantPanel、assistant router / service 的内容仅作为历史结构方案归档，不纳入当前实施路线。当前结构治理应优先服务三入口剧本生成与改编、在线编辑、导入导出、用量记录、质量评审和后续分镜 / Prompt 工作流。
+
 ## 1. 设计目标
 
 本计划用于在不破坏当前稳定功能的前提下，逐步整理 ManJuFlow 的代码与文档结构，避免随着 Phase 5 的上传、Auth、Assistant、UsageLedger、Workspace 增加而失控。

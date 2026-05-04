@@ -35,7 +35,6 @@
 - `Script Segmentation`：已有剧本切分结果；
 - `StoryboardOutput`：分镜表；
 - `ImagePromptOutput`：绘图 / 媒体提示词；
-- Assistant 改写结果；
 - 后续可扩展到角色设定、分集大纲、场景表。
 
 第一版不必一次覆盖全部阶段。建议优先从以下阶段开始：
@@ -78,7 +77,7 @@
 - 切分结果；
 - 分镜；
 - Prompt；
-- Assistant 改写结果。
+- 质量评审结果。
 
 建议后端后续新增：
 

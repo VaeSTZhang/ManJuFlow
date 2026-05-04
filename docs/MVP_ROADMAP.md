@@ -9,6 +9,7 @@ Dramora 当前第五阶段主线已调整为：
 → 三入口选择
 → 灵感生成短剧剧本 / 电影剧本改短剧 / 小说改短剧
 → 在线编辑 / DOCX 下载 / 上传修改稿
+→ 用量记录 / 质量评审
 → 下一大功能：短剧剧本切分 / 分镜 / Prompt
 ```
 
@@ -42,7 +43,7 @@ Dramora 当前第五阶段主线已调整为：
 - Editable script result；
 - DOCX download；
 - Input limits；
-- AI Assistant planning。
+- Usage ledger and quality review planning。
 
 中文说明：
 
@@ -54,18 +55,20 @@ Dramora 当前第五阶段主线已调整为：
 - 可在线编辑的短剧剧本结果；
 - DOCX 下载；
 - 输入字数限制；
-- AI Assistant 规划。
+- 用量记录与质量评审规划。
 
 ## P1｜下一阶段能力
 
 - Document round-trip；
-- Assistant mock / LLM；
+- Usage ledger；
+- Quality review；
 - Script segmentation / storyboard / prompt as next big feature。
 
 中文说明：
 
 - 文档往返：在线编辑、下载 Word、离线修改、再上传；
-- Assistant mock / LLM：编剧助手、改编助手、工作流助手；
+- 用量记录：记录内部试用中的模型调用和成本线索；
+- 质量评审：评估生成剧本的可用性、短剧节奏和改编质量；
 - 短剧剧本切分 / 分镜 / Prompt 作为下一大功能。
 
 ## P2｜后续媒体生成方向
@@ -93,6 +96,8 @@ Dramora 当前第五阶段主线已调整为：
 - 高并发 SaaS；
 - Redis / Celery / MinIO；
 - 复杂多 Agent；
+- 右侧 AI 聊天界面 / AI Assistant；
+- AssistantPanel、`/api/assistant/chat`、`suggested_actions`；
 - Docker 生产部署。
 
 ## 项目推进原则
@@ -100,7 +105,7 @@ Dramora 当前第五阶段主线已调整为：
 - 每次只做一个小闭环；
 - 不为了赶进度写死结构；
 - 三入口通过 `source_mode`、独立 prompt、独立 form、独立 service 边界推进；
-- Assistant 独立于主生成链路；
 - Document import/export 独立于 upload mock；
+- 当前版本不规划右侧 AI 聊天 / Assistant；历史方案仅归档，不进入当前实施路线；
 - 公开仓库不提交 API Key、`.env`、真实客户数据、真实服务器地址、私有 workflow 或模型权重；
 - 每个阶段完成后测试、文档、再提交。

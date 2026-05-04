@@ -1,5 +1,7 @@
 # Phase 5 Data Persistence and Assistant Context Design｜上传文件、聊天记录与上下文持久化设计
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文仅作为历史方案归档，用于保留早期对上传文件、聊天记录和上下文隔离的思考，不纳入 Dramora 当前实施路线。当前版本聚焦三入口短剧剧本生成 / 改编、在线编辑、Word / TXT / JSON 导入导出、创作模型选择、用量记录、质量评审，以及后续“短剧剧本 → 分镜 → Prompt”工作流。
+
 ## 1. 设计目标
 
 本设计用于第五阶段正式写代码前明确：

@@ -1,5 +1,7 @@
 # Phase 5 Upload and Internal Auth Plan｜剧本文档上传与内部账户门禁方案
 
+> 当前状态：老板已取消当前版本的右侧 AI 聊天界面、AI Assistant、`/api/assistant/chat` 和 `suggested_actions`。本文中关于 Assistant 的内容仅作为历史方案归档，不纳入当前实施路线。上传与内部账户方案当前应优先服务三入口剧本生成 / 改编、在线编辑、导入导出、用量记录、质量评审和后续分镜 / Prompt 工作流。
+
 ## 1. 设计目标
 
 本方案用于明确：

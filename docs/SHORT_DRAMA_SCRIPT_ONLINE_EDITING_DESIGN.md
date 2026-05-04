@@ -56,7 +56,7 @@ lastEditedAt?: string
 使用策略：
 
 - 展示只读结果时，优先显示 `editableScript ?? generatedScript`；
-- 导出、继续分镜、Assistant suggested actions 默认使用 `editableScript`；
+- 导出、继续分镜、质量评审和后续工作流默认使用 `editableScript`；
 - 如果 `editableScript` 为空，则使用 `generatedScript`；
 - `generatedScript` 不应被普通编辑动作直接覆盖；
 - “恢复为 AI 原始结果”应从 `generatedScript` 重新生成 `editableScript`。
@@ -179,26 +179,25 @@ editableScript ?? generatedScript
 - 不允许因为切换页面清空用户编辑；
 - 如果存在未保存编辑，跳转前应提示用户保存或继续使用当前编辑稿。
 
-## 8. Assistant 集成边界
+## 8. 当前版本不接入 Assistant 自动改稿
 
-后续 Assistant suggested actions 只能提出修改建议，不能自动覆盖用户编辑内容。
+老板已明确取消当前版本的右侧 AI 聊天界面和 AI Assistant 功能。因此在线编辑第一版不接入：
 
-建议支持的 action 类型：
+- AssistantPanel；
+- `/api/assistant/chat`；
+- `suggested_actions`；
+- 聊天式改稿；
+- 自动改稿动作。
 
-- `replace_field`
-- `append_to_field`
-- `rewrite_scene`
-- `strengthen_hook`
-- `adjust_dialogue`
+当前版本的编辑策略是：用户直接在线审看和修改 `editableScript`，导出与后续工作流使用当前有效稿。
 
-约束：
+如果未来重新恢复 Assistant 需求，必须重新立项，并遵守以下边界：
 
-- Assistant 建议必须展示给用户确认；
-- 用户确认后才写入 `editableScript`；
-- Assistant 不得直接覆盖 `generatedScript`；
-- Assistant 不得跨项目读取上下文；
-- Assistant 不得在用户未确认时自动修改已保存编辑稿；
-- Assistant action 应记录作用字段和来源，但不记录敏感内容到公开仓库。
+- 只能提出修改建议；
+- 必须用户确认后才写入 `editableScript`；
+- 不得自动覆盖 `generatedScript`；
+- 不得跨项目读取上下文；
+- 不得在用户未确认时自动修改已保存编辑稿。
 
 ## 9. 自动化测试策略
 

@@ -14,7 +14,7 @@
 
 后端 `ScriptSourceMode` 还包含：
 
-- `assistant_rewrite`：后续 AI 编剧助手模块使用；
+- `assistant_rewrite`：历史预留值；当前版本不规划右侧 AI 聊天 / Assistant，不作为三入口路线使用；
 - `uploaded_document`：后续文档导入闭环使用。
 
 当前三入口只覆盖 `idea` / `film_script` / `novel`。
@@ -215,7 +215,7 @@ Dramora 当前第一主线是剧本创作生成 / 剧本改编。
 - 该 payload 应包含 `project_title`、`source_mode`、`episodes`、`characters`、`logline`、`world_setting` 和必要 metadata；
 - 分镜工作区再负责把短剧剧本转换为 `StoryboardInput`；
 - Prompt 工作区继续消费分镜结果，而不是直接依赖 CreationHome 内部状态；
-- AI 模型选择应复用 `CreativeModelPanel` 并通过统一 `AIRequestOptions` 传递，不要在剧本生成、分镜、Prompt、Assistant、质量评审里各写一套模型选择。
+- AI 模型选择应复用 `CreativeModelPanel` 并通过统一 `AIRequestOptions` 传递，不要在剧本生成、分镜、Prompt、质量评审里各写一套模型选择。当前版本不规划右侧 AI 聊天 / Assistant。
 
 ## 8. 当前发现的问题
 
