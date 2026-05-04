@@ -61,6 +61,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const [selectedMode, setSelectedMode] = useState<CreationMode | null>(null);
   const [selectedAdaptationMode, setSelectedAdaptationMode] = useState<AdaptationMode | null>(null);
   const [drafts, setDrafts] = useState<CreationDrafts>(defaultCreationDrafts);
+  const [documentActionNotice, setDocumentActionNotice] = useState("");
 
   const handlePrimarySelect = (mode: CreationMode) => {
     if (!isAuthenticated) {
@@ -69,6 +70,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     }
 
     setSelectedMode(mode);
+    setDocumentActionNotice("");
     if (mode === "idea") {
       setSelectedAdaptationMode(null);
     }
@@ -82,6 +84,16 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
 
     setSelectedMode("adaptation");
     setSelectedAdaptationMode(mode);
+    setDocumentActionNotice("");
+  };
+
+  const handlePendingWordUpload = () => {
+    if (!isAuthenticated) {
+      onRequireLogin();
+      return;
+    }
+
+    setDocumentActionNotice("真实 Word 上传将在文档导入闭环接入，当前可先粘贴文本。");
   };
 
   const updateIdeaDraft = <K extends keyof IdeaCreationDraft>(
@@ -114,6 +126,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const resetSelection = () => {
     setSelectedMode(null);
     setSelectedAdaptationMode(null);
+    setDocumentActionNotice("");
   };
 
   const renderPrimaryCards = () => (
@@ -273,10 +286,15 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         </div>
 
         <div className="creation-draft-actions">
-          <button className="primary-button" disabled type="button">
-            生成短剧剧本（即将接入）
-          </button>
-          <p>当前为创作草稿区，下一步将接入统一短剧剧本生成接口。</p>
+          <div className="export-actions">
+            <button className="primary-button" disabled type="button">
+              生成短剧剧本（即将接入）
+            </button>
+            <button className="secondary-button" disabled type="button">
+              下载 Word（生成后可用）
+            </button>
+          </div>
+          <p>当前为创作草稿区，下一步将接入统一短剧剧本生成接口。生成短剧剧本后，可下载为 Word 文档。</p>
         </div>
       </section>
     );
@@ -299,6 +317,30 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         </div>
 
         <div className="creation-draft-form">
+          <section className="document-action-card" aria-label="文档导入与导出">
+            <div>
+              <h3>Word 文档</h3>
+              <p>支持 .docx 剧本 / 小说文档（即将接入）。当前可先粘贴文本进入改编草稿。</p>
+            </div>
+            <div className="document-action-row">
+              <button
+                className="secondary-button document-action-button"
+                disabled={!isAuthenticated}
+                onClick={handlePendingWordUpload}
+                type="button"
+              >
+                上传 Word 文档
+              </button>
+              <button className="secondary-button document-action-button" disabled type="button">
+                下载 Word（生成后可用）
+              </button>
+            </div>
+            <p className="document-action-note">
+              生成或改编完成后可导出为 Word 文档。Word 导出将在文档导出闭环接入。
+            </p>
+            {documentActionNotice && <p className="copy-status">{documentActionNotice}</p>}
+          </section>
+
           <div className="creation-draft-grid">
             <label className="field creation-draft-field">
               <span>项目标题</span>

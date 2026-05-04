@@ -222,7 +222,7 @@ export function ScriptSegmentationWorkspace({
 
     if (!scriptSegmentationForm.project_title.trim()) {
       setScriptUploadError("请先填写项目标题。");
-      notify("warning", "缺少必填项", "模拟上传 Word 文档前请先填写项目标题。");
+      notify("warning", "缺少必填项", "上传 Word 文档前请先填写项目标题。");
       return;
     }
 
@@ -263,11 +263,11 @@ export function ScriptSegmentationWorkspace({
           upload_source_id: data.source_id,
         },
       }));
-      notify("success", "上传 mock 完成", "已将提取文本填入下方剧本文本框，可继续切分。");
+      notify("success", "文档导入完成", "已将提取文本填入下方剧本文本框，可继续整理。");
     } catch (error) {
       const message = parseApiErrorMessage(
         error,
-        "模拟上传 Word 文档失败，请确认后端服务已启动：http://127.0.0.1:8000",
+        "上传 Word 文档失败，请确认后端服务已启动：http://127.0.0.1:8000",
       );
       setScriptUploadError(message);
       notify("error", "上传失败", message);
@@ -364,8 +364,8 @@ export function ScriptSegmentationWorkspace({
 
         <section className="script-upload-mock-card">
           <div>
-            <h3>上传 Word 剧本文档（模拟）</h3>
-            <p>当前为模拟上传流程，暂不读取真实文件；真实 .docx 上传将在后续小闭环接入。</p>
+            <h3>上传 Word 文档</h3>
+            <p>当前为本地演示模式，可快速体验文档导入链路；真实 .docx 上传将在文档导入闭环接入。</p>
           </div>
 
           <button
@@ -374,7 +374,7 @@ export function ScriptSegmentationWorkspace({
             onClick={handleMockScriptUpload}
             type="button"
           >
-            {scriptUploadLoading ? "模拟上传中..." : "模拟上传 Word 文档"}
+            {scriptUploadLoading ? "上传处理中..." : "上传 Word 文档"}
           </button>
 
           {scriptUploadError && <p className="error-message">{scriptUploadError}</p>}
@@ -397,7 +397,7 @@ export function ScriptSegmentationWorkspace({
                 <span>来源类型</span>
                 <strong>{formatSourceTypeLabel(scriptUploadResult.metadata.source_type)}</strong>
               </div>
-              <p>已将提取文本填入下方剧本文本框，可继续切分。</p>
+              <p>已将提取文本填入下方剧本文本框，可继续整理。</p>
               {scriptUploadResult.warnings.length > 0 && (
                 <ul className="script-upload-warnings">
                   {scriptUploadResult.warnings.map((warning) => (
@@ -512,6 +512,9 @@ export function ScriptSegmentationWorkspace({
             >
               导出切分 JSON
             </button>
+            <button className="secondary-button" disabled type="button">
+              下载 Word（整理后可用）
+            </button>
             <button
               className="primary-button"
               disabled={isLocked || !scriptSegmentationResult || scriptSegmentationResult.segments.length === 0}
@@ -527,7 +530,7 @@ export function ScriptSegmentationWorkspace({
         {scriptSegmentationExportStatus && <p className="copy-status">{scriptSegmentationExportStatus}</p>}
 
         {!scriptSegmentationResult ? (
-          <div className="empty-state">粘贴待改编文本或模拟上传 Word 文档后，结构化结果将在这里展示。</div>
+          <div className="empty-state">粘贴待改编文本或上传 Word 文档后，结构化结果将在这里展示。</div>
         ) : (
           <article className="script-output script-segmentation-output">
             <section className="result-summary">
