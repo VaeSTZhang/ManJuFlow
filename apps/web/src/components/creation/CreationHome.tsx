@@ -18,44 +18,16 @@ import { ShortDramaScriptResult } from "./ShortDramaScriptResult";
 import {
   useDocumentImportDrafts,
 } from "../../hooks/creation/useDocumentImportDrafts";
+import { useCreationDrafts } from "../../hooks/creation/useCreationDrafts";
 import type {
-  AdaptationDraft,
   AdaptationMode,
-  CreationDrafts,
   CreationMode,
-  IdeaCreationDraft,
 } from "./creationDraftTypes";
 import type { ShortDramaGenerationInput, ShortDramaScriptOutput } from "../../types/scriptGeneration";
 
 type CreationHomeProps = {
   isAuthenticated: boolean;
   onRequireLogin: () => void;
-};
-
-const defaultCreationDrafts: CreationDrafts = {
-  idea: {
-    projectTitle: "",
-    ideaText: "",
-    genreStyle: "悬疑短剧 / 强钩子、快节奏",
-    episodeCount: 10,
-    extraRequirements: "",
-  },
-  film: {
-    projectTitle: "",
-    sourceTitle: "",
-    sourceText: "",
-    focus: "",
-    episodeCount: 10,
-    extraRequirements: "",
-  },
-  novel: {
-    projectTitle: "",
-    sourceTitle: "",
-    sourceText: "",
-    focus: "",
-    episodeCount: 10,
-    extraRequirements: "",
-  },
 };
 
 const defaultCreativeModel: SelectedCreativeModel = {
@@ -152,7 +124,11 @@ function formatShortDramaScriptTxt(
 export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomeProps) {
   const [selectedMode, setSelectedMode] = useState<CreationMode | null>(null);
   const [selectedAdaptationMode, setSelectedAdaptationMode] = useState<AdaptationMode | null>(null);
-  const [drafts, setDrafts] = useState<CreationDrafts>(defaultCreationDrafts);
+  const {
+    drafts,
+    updateIdeaDraft,
+    updateAdaptationDraft,
+  } = useCreationDrafts();
   const [documentActionNotice, setDocumentActionNotice] = useState("");
   const [selectedCreativeModel, setSelectedCreativeModel] =
     useState<SelectedCreativeModel>(defaultCreativeModel);
@@ -198,33 +174,6 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     }
 
     setDocumentActionNotice("真实 Word 上传将在文档导入闭环接入，当前可先粘贴文本。");
-  };
-
-  const updateIdeaDraft = <K extends keyof IdeaCreationDraft>(
-    field: K,
-    value: IdeaCreationDraft[K],
-  ) => {
-    setDrafts((current) => ({
-      ...current,
-      idea: {
-        ...current.idea,
-        [field]: value,
-      },
-    }));
-  };
-
-  const updateAdaptationDraft = <K extends keyof AdaptationDraft>(
-    mode: AdaptationMode,
-    field: K,
-    value: AdaptationDraft[K],
-  ) => {
-    setDrafts((current) => ({
-      ...current,
-      [mode]: {
-        ...current[mode],
-        [field]: value,
-      },
-    }));
   };
 
   const resetSelection = () => {
