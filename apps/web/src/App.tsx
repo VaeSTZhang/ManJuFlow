@@ -421,7 +421,7 @@ function App() {
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "manjuflow-script-output.json";
+    link.download = "dramora-script-output.json";
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -524,7 +524,7 @@ function App() {
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "manjuflow-storyboard-output.json";
+    link.download = "dramora-storyboard-output.json";
     document.body.appendChild(link);
     link.click();
     link.remove();

@@ -13,7 +13,7 @@ class ExistingScriptInput(BaseModel):
     extra_requirements: str | None = Field(None, description="额外切分要求，可选。")
     workspace_id: str | None = Field(None, min_length=1, description="工作区 ID，可选。")
     user_id: str | None = Field(None, min_length=1, description="公司用户 ID，可选。")
-    ai_account_id: str | None = Field(None, min_length=1, description="ManJuFlow 内部 AI 功能账户 ID，可选。")
+    ai_account_id: str | None = Field(None, min_length=1, description="Dramora 内部创作功能账户 ID，可选。")
     metadata: dict[str, Any] = Field(default_factory=dict, description="扩展元信息。")
 
     @model_validator(mode="after")
@@ -58,7 +58,7 @@ class ScriptSegmentationOutput(BaseModel):
     source_id: str | None = Field(None, min_length=1, description="关联的上传源唯一标识，可选。")
     workspace_id: str | None = Field(None, min_length=1, description="工作区 ID，可选。")
     user_id: str | None = Field(None, min_length=1, description="公司用户 ID，可选。")
-    ai_account_id: str | None = Field(None, min_length=1, description="ManJuFlow 内部 AI 功能账户 ID，可选。")
+    ai_account_id: str | None = Field(None, min_length=1, description="Dramora 内部创作功能账户 ID，可选。")
     metadata: dict[str, Any] = Field(default_factory=dict, description="扩展元信息。")
 
     @model_validator(mode="after")

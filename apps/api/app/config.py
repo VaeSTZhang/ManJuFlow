@@ -9,7 +9,7 @@ ENV_FILE = PROJECT_ROOT / ".env"
 
 
 class Settings(BaseSettings):
-    app_name: str = "ManJuFlow"
+    app_name: str = "Dramora"
     app_env: str = "development"
     llm_provider: str = "default"
     llm_api_key: str = ""
