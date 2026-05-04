@@ -366,6 +366,62 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 - `film_script` / `novel` 的 LLM path 尚未接入；
 - Word 导出仍需后续接入完整文档导出闭环。
 
+## Dramora Frontend Three-entry DeepSeek Acceptance - 2026-05-04
+
+### 验收目标
+
+验证 Dramora 前端“剧本创作”三入口在登录后可选择 DeepSeek，并通过后端真实 LLM 链路生成、展示和导出 `ShortDramaScriptOutput`。
+
+### 三个入口
+
+- `idea`
+- `film_script`
+- `novel`
+
+### provider / model
+
+- provider：`deepseek`
+- model：`deepseek-chat`
+
+### generation_mode
+
+- `generation_mode`：`llm`
+
+### system/status
+
+浏览器验收时系统状态显示：
+
+- `app_name = Dramora`
+- `script_generation_mode = llm`
+- `llm_enabled = true`
+
+### 验收结果
+
+通过。
+
+### JSON / TXT 导出状态
+
+- JSON 导出可用；
+- TXT 导出可用；
+- 结果页可展示后端真实返回的 `ShortDramaScriptOutput`。
+
+### Word 导出限制
+
+- Word 导出仍为后续接入状态；
+- 本次不验证真实 Word 文档导出闭环。
+
+### 安全说明
+
+- 未提交 `.env`；
+- 未打印 API Key；
+- 未使用真实客户内容；
+- 验收样本为虚构内容。
+
+### 下一步建议
+
+- 进入真实 Word 导入 / 导出闭环；
+- 或继续做前端编辑与版本管理。
+
 ## Dramora Script Generation DeepSeek Smoke Test - 2026-05-04
 
 ### 测试目标
