@@ -200,13 +200,28 @@ export function ShortDramaScriptResult({
           )}
         </div>
         <div className="short-script-actions">
-          <button disabled={actionsDisabled || !onCopyJson} onClick={onCopyJson} type="button">
+          <button
+            data-testid="copy-script-json"
+            disabled={actionsDisabled || !onCopyJson}
+            onClick={onCopyJson}
+            type="button"
+          >
             复制 JSON
           </button>
-          <button disabled={actionsDisabled || !onDownloadJson} onClick={onDownloadJson} type="button">
+          <button
+            data-testid="download-script-json"
+            disabled={actionsDisabled || !onDownloadJson}
+            onClick={onDownloadJson}
+            type="button"
+          >
             下载 JSON
           </button>
-          <button disabled={actionsDisabled || !onDownloadTxt} onClick={onDownloadTxt} type="button">
+          <button
+            data-testid="download-script-txt"
+            disabled={actionsDisabled || !onDownloadTxt}
+            onClick={onDownloadTxt}
+            type="button"
+          >
             下载 TXT
           </button>
           <button disabled={docxDisabled} onClick={onDownloadDocx} type="button">
