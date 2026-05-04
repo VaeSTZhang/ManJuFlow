@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Start the local FastAPI backend for ManJuFlow development.
+# Start the local FastAPI backend for Dramora development.
 # This script avoids sourcing venv activate directly, because activate scripts
 # can behave differently under strict shell options.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,7 +22,7 @@ else
   exit 1
 fi
 
-echo "Starting ManJuFlow API..."
+echo "Starting Dramora API..."
 echo "API dir: ${API_DIR}"
 echo "Python: ${PYTHON_BIN}"
 

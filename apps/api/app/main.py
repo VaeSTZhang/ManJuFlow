@@ -10,7 +10,7 @@ from app.routers.system import router as system_router
 from app.routers.uploads import router as uploads_router
 
 
-app = FastAPI(title="ManJuFlow API")
+app = FastAPI(title="Dramora API")
 
 app.add_middleware(
     CORSMiddleware,
