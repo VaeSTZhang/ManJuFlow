@@ -1,5 +1,57 @@
 # ManJuFlow 真实 LLM 调用测试记录
 
+## Dramora Script Generation DeepSeek Smoke Test - 2026-05-04
+
+### 测试目标
+
+本次测试用于小范围验收 Dramora 默认 DeepSeek 配置是否能用于三入口剧本生成链路，测试样本仅使用虚构内容，不记录 API Key，不使用真实客户剧本。
+
+### 使用入口
+
+- Endpoint：`POST /api/scripts/generate-from-source`
+- `source_mode`：`idea`
+- provider：`deepseek`
+- model：`deepseek-chat`
+- purpose：`script_generation`
+- 测试样本：虚构短剧《测试短剧：归来之夜》
+
+### 是否真实 llm 模式
+
+未进入真实 LLM 调用。
+
+当前代码检查结果显示，`/api/scripts/generate-from-source` 仍直接调用 `generate_short_drama_script_mock(input_data)`，尚未根据 `SCRIPT_GENERATION_MODE=llm` 切换到真实 LLM 生成路径。因此本次未启动真实 DeepSeek 请求，避免在链路未就绪时进行无效调用或误判。
+
+### 结果
+
+未通过真实 DeepSeek smoke test。
+
+阻塞点：
+
+- `generate-from-source` endpoint 当前仍是 mock-only；
+- 三入口 `ShortDramaGenerationInput` 和 `AIRequestOptions` 已具备请求结构；
+- mock 输出 metadata 已可记录 provider / model / purpose；
+- 但三入口服务尚未接入真实 LLM path、Prompt、JSON 解析与 `ShortDramaScriptOutput` 校验闭环。
+
+### 返回结构摘要
+
+本次未发起真实 curl 请求，因此无真实 DeepSeek 返回结构。
+
+已通过安全测试：
+
+- `.env` 存在于本地但未被 Git 跟踪；
+- 配置测试与 endpoint mock 测试通过；
+- 未读取 `.env` 内容；
+- 未输出 API Key。
+
+### 注意事项
+
+- 下一步应先实现 `/api/scripts/generate-from-source` 的 `llm` path，再执行真实 DeepSeek 小样本；
+- 真实 LLM path 应继续复用 `AIRequestOptions`；
+- 如果用户在前端选择“后端默认”，后端应使用 `DEFAULT_LLM_PROVIDER` / `DEFAULT_SCRIPT_MODEL`；
+- 不要在业务代码中硬编码 DeepSeek；
+- 不记录 API Key；
+- 不记录真实客户内容。
+
 ## 测试目标
 
 本次测试用于验证 ManJuFlow 已经具备从 mock 模式切换到真实 LLM 模式的基础能力。
