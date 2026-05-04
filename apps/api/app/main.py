@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.routers.documents import router as documents_router
 from app.routers.health import router as health_router
 from app.routers.images import router as images_router
 from app.routers.prompts import router as prompts_router
@@ -20,6 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(documents_router)
 app.include_router(health_router)
 app.include_router(images_router)
 app.include_router(prompts_router)

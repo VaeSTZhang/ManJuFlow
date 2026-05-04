@@ -10,6 +10,7 @@ from app.schemas.document_import import (
     DocumentImportError,
     DocumentImportOutput,
     DocumentImportPreview,
+    DocumentImportPreviewRequest,
     DocumentImportSource,
 )
 from app.schemas.idea import IdeaInput
@@ -74,6 +75,7 @@ __all__ = [
     "DocumentImportError",
     "DocumentImportOutput",
     "DocumentImportPreview",
+    "DocumentImportPreviewRequest",
     "DocumentImportSource",
     "DocumentSourceStage",
     "EpisodeScript",

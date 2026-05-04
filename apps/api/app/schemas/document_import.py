@@ -24,6 +24,36 @@ class DocumentImportSource(BaseModel):
         return stripped_value
 
 
+class DocumentImportPreviewRequest(BaseModel):
+    filename: str = Field(..., min_length=1, description="待预览导入文件名。")
+    extracted_text: str = Field(
+        ...,
+        min_length=1,
+        description="已提取的文档文本，用于 JSON preview endpoint；不代表最终 multipart 上传接口。",
+    )
+    content_type: str | None = Field(None, description="导入文件 MIME 类型，可选。")
+    file_size_bytes: int | None = Field(None, ge=0, description="导入文件大小，单位字节，可选。")
+    source_type: str = Field("docx", min_length=1, description="导入源类型，第一版默认 docx。")
+    project_title: str | None = Field(None, description="项目标题，可选。")
+    checksum: str | None = Field(None, min_length=1, description="文件摘要，可选。")
+
+    @field_validator("filename")
+    @classmethod
+    def validate_filename(cls, value: str) -> str:
+        stripped_value = value.strip()
+        if stripped_value == "":
+            raise ValueError("filename 不能为空。")
+        return stripped_value
+
+    @field_validator("extracted_text")
+    @classmethod
+    def validate_extracted_text(cls, value: str) -> str:
+        stripped_value = value.strip()
+        if stripped_value == "":
+            raise ValueError("extracted_text 不能为空。")
+        return value
+
+
 class DocumentImportPreview(BaseModel):
     source: DocumentImportSource = Field(..., description="导入文件基础元信息。")
     extracted_text: str = Field(..., min_length=1, description="从文档中提取的完整文本。")
