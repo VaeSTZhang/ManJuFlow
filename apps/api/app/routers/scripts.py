@@ -4,7 +4,7 @@ from app.schemas.idea import IdeaInput
 from app.schemas.script import ScriptOutput
 from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
 from app.schemas.script_segmentation import ExistingScriptInput, ScriptSegmentationOutput
-from app.services.script_generation import generate_short_drama_script_mock
+from app.services.script_generation import generate_short_drama_script
 from app.services.script_service import generate_script
 from app.services.script_segmentation_service import generate_script_segmentation
 
@@ -25,7 +25,7 @@ def generate_script_from_source(
     input_data: ShortDramaGenerationInput,
 ) -> ShortDramaScriptOutput:
     try:
-        return generate_short_drama_script_mock(input_data)
+        return generate_short_drama_script(input_data)
     except (ValueError, NotImplementedError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

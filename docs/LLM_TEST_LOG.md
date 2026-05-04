@@ -8,7 +8,7 @@
 
 ### 调用链
 
-当前静态调用链：
+第 221 步检查时的静态调用链：
 
 ```text
 POST /api/scripts/generate-from-source
@@ -36,7 +36,15 @@ POST /api/scripts/generate
 
 B. 只具备 mock path，尚未实现真实 LLM path。
 
-`/api/scripts/generate-from-source` 当前没有读取 `SCRIPT_GENERATION_MODE`，没有分 `mock` / `llm`，没有调用 `LLMClient`，也没有把真实 LLM 输出解析为 `ShortDramaScriptOutput`。
+第 221 步检查时，`/api/scripts/generate-from-source` 没有读取 `SCRIPT_GENERATION_MODE`，没有分 `mock` / `llm`，没有调用 `LLMClient`，也没有把真实 LLM 输出解析为 `ShortDramaScriptOutput`。
+
+第 222 步更新：
+
+- 已新增统一入口 `generate_short_drama_script(input_data)`；
+- `/api/scripts/generate-from-source` 已改为调用统一入口；
+- `SCRIPT_GENERATION_MODE=mock` 仍复用现有 mock 链路；
+- `SCRIPT_GENERATION_MODE=llm` 已被识别，但暂时返回清晰未实现错误；
+- 当前仍未调用真实 LLM，下一步将实现 `source_mode=idea` 的真实 LLM path。
 
 ### 是否真实调用 DeepSeek
 
@@ -48,22 +56,21 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 
 已进入请求 schema。
 
-当前 `ShortDramaGenerationInput.ai_options` 已支持 provider / model / language / purpose，mock metadata 也会记录这些字段。但这些字段目前只进入 mock 输出追踪，不会驱动真实 `LLMClient` provider / model 选择。
+`ShortDramaGenerationInput.ai_options` 已支持 provider / model / language / purpose，mock metadata 也会记录这些字段。但这些字段目前只进入 mock 输出追踪，不会驱动真实 `LLMClient` provider / model 选择。
 
 ### 阻塞点
 
-- `generate-from-source` router 直接调用 `generate_short_drama_script_mock`；
-- `script_generation/generator.py` 没有统一 `generate_short_drama_script` 入口；
-- 三入口服务没有读取 `SCRIPT_GENERATION_MODE`；
+- 第 221 步检查时，`generate-from-source` router 直接调用 `generate_short_drama_script_mock`；
+- 第 222 步已新增统一 `generate_short_drama_script` 入口，并开始读取 `SCRIPT_GENERATION_MODE`；
 - 三入口服务没有真实 LLM prompt 组装、调用、JSON 解析、清洗和 `ShortDramaScriptOutput` 校验闭环；
 - `ai_options.provider` / `ai_options.model` 尚未传入 `LLMClient(provider=..., model=...)`。
 
 ### 下一步建议
 
-- 新增统一入口 `generate_short_drama_script(input_data)`；
-- 在该入口读取 `SCRIPT_GENERATION_MODE`；
+- 第 222 步已完成统一入口 `generate_short_drama_script(input_data)`；
+- 第 222 步已在该入口读取 `SCRIPT_GENERATION_MODE`；
 - `mock` 分支继续复用现有 `generate_short_drama_script_mock`；
-- `llm` 分支按 source_mode 选择 prompt，并调用 `LLMClient(provider=input_data.ai_options.provider, model=input_data.ai_options.model)`；
+- 下一步实现 `llm` 分支：按 source_mode 选择 prompt，并调用 `LLMClient(provider=input_data.ai_options.provider, model=input_data.ai_options.model)`；
 - 解析真实模型输出为 `ShortDramaScriptOutput`，并复用 metadata helper 记录 provider / model / purpose；
 - 完成后再执行 DeepSeek 小样本 smoke test。
 

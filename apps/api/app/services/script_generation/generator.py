@@ -1,3 +1,4 @@
+from app.config import get_settings
 from app.schemas.idea import IdeaInput
 from app.schemas.script import ScriptOutput
 from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
@@ -71,3 +72,19 @@ def generate_short_drama_script_mock(
         )
 
     raise ValueError(f"Unsupported source_mode: {input_data.source_mode}")
+
+
+def generate_short_drama_script(
+    input_data: ShortDramaGenerationInput,
+) -> ShortDramaScriptOutput:
+    mode = get_settings().script_generation_mode.lower()
+
+    if mode == "mock":
+        return generate_short_drama_script_mock(input_data)
+
+    if mode == "llm":
+        raise NotImplementedError(
+            "SCRIPT_GENERATION_MODE=llm is not implemented for generate-from-source yet."
+        )
+
+    raise ValueError("SCRIPT_GENERATION_MODE only supports 'mock' or 'llm'.")

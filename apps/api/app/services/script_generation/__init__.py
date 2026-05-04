@@ -2,7 +2,10 @@ from app.services.script_generation.film_adaptation import (
     generate_film_script_adaptation_mock,
     load_film_script_prompt_template,
 )
-from app.services.script_generation.generator import generate_short_drama_script_mock
+from app.services.script_generation.generator import (
+    generate_short_drama_script,
+    generate_short_drama_script_mock,
+)
 from app.services.script_generation.novel_adaptation import (
     generate_novel_adaptation_mock,
     load_novel_prompt_template,
@@ -20,6 +23,7 @@ __all__ = [
     "ScriptGenerationEntryConfig",
     "generate_film_script_adaptation_mock",
     "generate_novel_adaptation_mock",
+    "generate_short_drama_script",
     "generate_short_drama_script_mock",
     "get_script_generation_entry",
     "get_supported_source_modes",
