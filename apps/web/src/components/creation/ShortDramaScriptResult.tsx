@@ -14,11 +14,19 @@ type ShortDramaScriptResultProps = {
   modelLabel?: string;
   generatedAt?: string;
   isLocked?: boolean;
+  isEditing?: boolean;
+  isEditedDraft?: boolean;
+  hasUnsavedEdits?: boolean;
+  lastEditedAt?: string;
   onCopyJson?: () => void;
   onDownloadJson?: () => void;
   onDownloadTxt?: () => void;
   onDownloadDocx?: () => void;
   onEdit?: () => void;
+  onStartEditing?: () => void;
+  onSaveEditing?: () => void;
+  onCancelEditing?: () => void;
+  onRestoreGenerated?: () => void;
 };
 
 const sourceModeLabels: Record<ScriptSourceMode, string> = {
@@ -137,11 +145,19 @@ export function ShortDramaScriptResult({
   modelLabel = "系统默认模型",
   generatedAt,
   isLocked = false,
+  isEditing = false,
+  isEditedDraft = false,
+  hasUnsavedEdits = false,
+  lastEditedAt,
   onCopyJson,
   onDownloadJson,
   onDownloadTxt,
   onDownloadDocx,
   onEdit,
+  onStartEditing,
+  onSaveEditing,
+  onCancelEditing,
+  onRestoreGenerated,
 }: ShortDramaScriptResultProps) {
   if (!result) {
     return (
@@ -157,6 +173,7 @@ export function ShortDramaScriptResult({
 
   const actionsDisabled = isLocked;
   const docxDisabled = isLocked || !onDownloadDocx;
+  const startEditing = onStartEditing ?? onEdit;
 
   return (
     <section className="short-script-result" aria-label="短剧剧本生成结果">
@@ -178,9 +195,23 @@ export function ShortDramaScriptResult({
           <button disabled={docxDisabled} onClick={onDownloadDocx} type="button">
             下载 Word
           </button>
-          <button disabled={actionsDisabled || !onEdit} onClick={onEdit} type="button">
-            编辑
-          </button>
+          {isEditing ? (
+            <>
+              <button disabled={actionsDisabled || !onSaveEditing} onClick={onSaveEditing} type="button">
+                保存本次修改
+              </button>
+              <button disabled={actionsDisabled || !onCancelEditing} onClick={onCancelEditing} type="button">
+                放弃修改
+              </button>
+              <button disabled={actionsDisabled || !onRestoreGenerated} onClick={onRestoreGenerated} type="button">
+                恢复为 AI 原始结果
+              </button>
+            </>
+          ) : (
+            <button disabled={actionsDisabled || !startEditing} onClick={startEditing} type="button">
+              开始编辑
+            </button>
+          )}
         </div>
       </div>
 
@@ -188,10 +219,13 @@ export function ShortDramaScriptResult({
         <span>来源入口：{resolveSourceLabel(result, sourceLabel)}</span>
         <span>使用模型：{modelLabel}</span>
         <span>生成时间：{generatedAt ?? "生成后显示"}</span>
+        <span>当前展示：{isEditedDraft ? "编辑稿" : "AI 原始稿"}</span>
+        {lastEditedAt && <span>上次编辑：{lastEditedAt}</span>}
         <span>集数：{result.episode_count}</span>
       </div>
 
       {isLocked && <p className="short-script-action-note">登录后可导出生成结果</p>}
+      {hasUnsavedEdits && <p className="short-script-action-note">当前有未保存修改</p>}
       {!onDownloadDocx && <p className="short-script-action-note">Word 导出将在文档导出闭环接入</p>}
 
       <section className="short-script-section">

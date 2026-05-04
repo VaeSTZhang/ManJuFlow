@@ -130,7 +130,11 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const [documentActionNotice, setDocumentActionNotice] = useState("");
   const [selectedCreativeModel, setSelectedCreativeModel] =
     useState<SelectedCreativeModel>(defaultCreativeModel);
-  const [shortDramaResult, setShortDramaResult] = useState<ShortDramaScriptOutput | null>(null);
+  const [generatedScript, setGeneratedScript] = useState<ShortDramaScriptOutput | null>(null);
+  const [editableScript, setEditableScript] = useState<ShortDramaScriptOutput | null>(null);
+  const [isEditingScript, setIsEditingScript] = useState(false);
+  const [hasUnsavedScriptEdits, setHasUnsavedScriptEdits] = useState(false);
+  const [lastEditedAt, setLastEditedAt] = useState<string | undefined>();
   const [shortDramaSourceLabel, setShortDramaSourceLabel] = useState<string | undefined>();
   const [shortDramaGeneratedAt, setShortDramaGeneratedAt] = useState<string | undefined>();
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
@@ -140,6 +144,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     updateDocumentImportDraft,
     clearDocumentImportPreview,
   } = useDocumentImportDrafts();
+  const effectiveScript = editableScript ?? generatedScript;
 
   const handlePrimarySelect = (mode: CreationMode) => {
     if (!isAuthenticated) {
@@ -185,15 +190,19 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     sourceLabel: string,
     requestInput: ShortDramaGenerationInput,
   ) => {
-    setShortDramaResult({
+    setGeneratedScript({
       ...result,
       metadata: {
         ...result.metadata,
         prepared_request: requestInput,
       },
     });
+    setEditableScript(null);
+    setIsEditingScript(false);
+    setHasUnsavedScriptEdits(false);
+    setLastEditedAt(undefined);
     setShortDramaSourceLabel(sourceLabel);
-    setShortDramaGeneratedAt(new Date().toLocaleString("zh-CN"));
+    setShortDramaGeneratedAt(new Date().toISOString());
     setScriptGenerationError("");
   };
 
@@ -316,35 +325,67 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     clearDocumentImportPreview(mode);
   };
 
-  const handleCopyShortDramaJson = async () => {
-    if (!shortDramaResult) {
+  const cloneShortDramaScript = (script: ShortDramaScriptOutput): ShortDramaScriptOutput =>
+    structuredClone(script);
+
+  const startScriptEditing = () => {
+    if (!effectiveScript) {
       return;
     }
 
-    await navigator.clipboard.writeText(JSON.stringify(shortDramaResult, null, 2));
+    setEditableScript(cloneShortDramaScript(effectiveScript));
+    setIsEditingScript(true);
+    setHasUnsavedScriptEdits(false);
+  };
+
+  const saveScriptEditing = () => {
+    setIsEditingScript(false);
+    setHasUnsavedScriptEdits(false);
+    setLastEditedAt(new Date().toISOString());
+  };
+
+  const cancelScriptEditing = () => {
+    setEditableScript(null);
+    setIsEditingScript(false);
+    setHasUnsavedScriptEdits(false);
+  };
+
+  const restoreGeneratedScript = () => {
+    setEditableScript(null);
+    setIsEditingScript(false);
+    setHasUnsavedScriptEdits(false);
+    setLastEditedAt(undefined);
+  };
+
+  const handleCopyShortDramaJson = async () => {
+    if (!effectiveScript) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(JSON.stringify(effectiveScript, null, 2));
   };
 
   const handleDownloadShortDramaJson = () => {
-    if (!shortDramaResult) {
+    if (!effectiveScript) {
       return;
     }
 
     downloadTextFile(
       "dramora-short-drama-script.json",
-      JSON.stringify(shortDramaResult, null, 2),
+      JSON.stringify(effectiveScript, null, 2),
       "application/json;charset=utf-8",
     );
   };
 
   const handleDownloadShortDramaTxt = () => {
-    if (!shortDramaResult) {
+    if (!effectiveScript) {
       return;
     }
 
     downloadTextFile(
       "dramora-short-drama-script.txt",
       formatShortDramaScriptTxt(
-        shortDramaResult,
+        effectiveScript,
         shortDramaSourceLabel ?? "系统默认",
         buildModelLabel(selectedCreativeModel),
         shortDramaGeneratedAt ?? "生成后显示",
@@ -582,13 +623,21 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       {selectedMode === "adaptation" && !selectedAdaptationMode && renderAdaptationChoices()}
       {selectedMode === "adaptation" && selectedAdaptationMode && renderAdaptationForm(selectedAdaptationMode)}
       <ShortDramaScriptResult
+        hasUnsavedEdits={hasUnsavedScriptEdits}
         isLocked={!isAuthenticated}
+        isEditedDraft={editableScript !== null}
+        isEditing={isEditingScript}
         generatedAt={shortDramaGeneratedAt}
+        lastEditedAt={lastEditedAt}
         modelLabel={buildModelLabel(selectedCreativeModel)}
+        onCancelEditing={cancelScriptEditing}
         onCopyJson={handleCopyShortDramaJson}
         onDownloadJson={handleDownloadShortDramaJson}
         onDownloadTxt={handleDownloadShortDramaTxt}
-        result={shortDramaResult}
+        onRestoreGenerated={restoreGeneratedScript}
+        onSaveEditing={saveScriptEditing}
+        onStartEditing={startScriptEditing}
+        result={effectiveScript}
         sourceLabel={shortDramaSourceLabel}
       />
     </>
