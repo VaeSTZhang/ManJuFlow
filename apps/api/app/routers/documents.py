@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
+from app.schemas.document import DocumentExportInput, DocumentExportOutput
 from app.schemas.document_import import DocumentImportOutput, DocumentImportPreviewRequest
+from app.services.document_export_service import export_document
 from app.services.document_import_service import build_document_import_preview
 
 
@@ -20,5 +22,14 @@ def preview_document_import(input_data: DocumentImportPreviewRequest) -> Documen
             project_title=input_data.project_title,
             checksum=input_data.checksum,
         )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/export", response_model=DocumentExportOutput)
+def export_document_preview(input_data: DocumentExportInput) -> DocumentExportOutput:
+    """Export a document payload as an in-memory TXT or JSON response."""
+    try:
+        return export_document(input_data)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
