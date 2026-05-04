@@ -92,6 +92,72 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 - 不使用真实客户内容；
 - 本次只做静态路径审计和后端测试。
 
+## Dramora Idea Script Generation DeepSeek Smoke Test - 2026-05-04
+
+### 测试目标
+
+验证 Dramora 三入口剧本生成链路中 `source_mode=idea` 的真实 DeepSeek 调用是否可用，并确认返回结果能够承载为 `ShortDramaScriptOutput`。
+
+### 测试接口
+
+- Endpoint：`POST /api/scripts/generate-from-source`
+- `SCRIPT_GENERATION_MODE`：`llm`
+
+### source_mode
+
+- `source_mode`：`idea`
+
+### provider / model / purpose
+
+- provider：`deepseek`
+- model：`deepseek-chat`
+- purpose：`script_generation`
+
+### 是否真实 llm 模式
+
+是。
+
+本次使用 `SCRIPT_GENERATION_MODE=llm`，并通过请求级 `ai_options` 指定 DeepSeek provider / model。
+
+### 虚构样本说明
+
+测试使用虚构短剧样本，不使用真实客户剧本，不使用真实公司项目文本，不记录完整生成内容作为客户数据。
+
+### 返回结构检查结果
+
+返回结果包含 `ShortDramaScriptOutput` 关键字段：
+
+- `project_title`
+- `logline`
+- `world_setting`
+- `characters`
+- `episodes`
+- `metadata`
+
+### metadata 检查结果
+
+返回 metadata 已包含本次生成追踪字段：
+
+- `metadata.generation_mode = llm`
+- `metadata.provider = deepseek`
+- `metadata.model = deepseek-chat`
+- `metadata.purpose = script_generation`
+
+### 安全说明
+
+- 未打印 API Key；
+- 未提交 `.env`；
+- `.env` 未被 Git 跟踪；
+- 未使用真实客户剧本；
+- 测试样本为虚构内容。
+
+### 后续限制
+
+- 当前只验证 `source_mode=idea`；
+- `film_script` / `novel` 的 llm path 仍未实现；
+- 下一步建议做前端 idea 入口真实 llm 浏览器验收；
+- 之后再分步接入 `film_script` / `novel` 的真实 llm path。
+
 ## Dramora Script Generation DeepSeek Smoke Test - 2026-05-04
 
 ### 测试目标
