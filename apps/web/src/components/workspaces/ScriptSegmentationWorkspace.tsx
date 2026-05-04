@@ -255,7 +255,7 @@ export function ScriptSegmentationWorkspace({
     } catch (error) {
       const message = parseApiErrorMessage(
         error,
-        "整理剧本素材失败，请确认后端服务已启动：http://127.0.0.1:8000",
+        "整理剧本素材失败，请确认服务已启动。",
       );
       setScriptSegmentationError(message);
       notify("error", "切分失败", message);
@@ -301,7 +301,7 @@ export function ScriptSegmentationWorkspace({
     } catch (error) {
       const message = parseApiErrorMessage(
         error,
-        "上传 Word 文档失败，请确认后端服务已启动：http://127.0.0.1:8000",
+        "上传 Word 文档失败，请确认服务已启动。",
       );
       setScriptUploadError(message);
       notify("error", "上传失败", message);

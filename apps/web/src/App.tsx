@@ -146,7 +146,7 @@ const defaultImageGenerationForm: ImageGenerationInput = {
 };
 
 const imagePromptModelOptions: ImagePromptModelOption[] = [
-  { value: "default", label: "使用后端默认" },
+  { value: "default", label: "系统默认模型" },
   { value: "deepseek", label: "DeepSeek / deepseek-chat", provider: "deepseek", model: "deepseek-chat" },
   { value: "mimo", label: "Mimo / mimo-v2.5-pro", provider: "mimo", model: "mimo-v2.5-pro" },
   { value: "kimi", label: "Kimi / kimi-k2.5", provider: "kimi", model: "kimi-k2.5" },
@@ -310,7 +310,7 @@ function App() {
       } catch {
         setSystemStatus(null);
         setIsSystemConnected(false);
-        pushToast("warning", "后端状态未知", "系统状态接口请求失败，请确认后端服务是否已启动。");
+        pushToast("warning", "系统状态未知", "系统状态请求失败，请确认服务是否已启动。");
       }
     };
 
@@ -385,13 +385,13 @@ function App() {
       });
 
       if (!response.ok) {
-        throw await createApiErrorFromResponse(response, "生成剧本失败，请确认后端服务已启动。");
+        throw await createApiErrorFromResponse(response, "生成剧本失败，请确认服务已启动。");
       }
 
       const data = (await response.json()) as ScriptOutput;
       setResult(data);
     } catch (error) {
-      const message = parseApiErrorMessage(error, "生成剧本失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      const message = parseApiErrorMessage(error, "生成剧本失败，请确认服务已启动。");
       setError(message);
       pushToast("error", "生成失败", message);
     } finally {
@@ -495,8 +495,8 @@ function App() {
       const data = await generateStoryboard(storyboardForm);
       setStoryboardResult(data);
     } catch {
-      setStoryboardError("生成分镜失败，请确认后端服务已启动：http://127.0.0.1:8000");
-      pushToast("error", "生成失败", "剧本转分镜接口请求失败，请检查后端是否运行。");
+      setStoryboardError("生成分镜失败，请确认服务已启动。");
+      pushToast("error", "生成失败", "剧本转分镜请求失败，请检查服务是否运行。");
     } finally {
       setIsStoryboardLoading(false);
     }
@@ -573,8 +573,8 @@ function App() {
       });
       setImagePromptResult(data);
     } catch {
-      setImagePromptError("生成绘图 Prompt 失败，请确认后端服务已启动：http://127.0.0.1:8000");
-      pushToast("error", "生成失败", "分镜转绘图 Prompt 接口请求失败，请检查后端是否运行。");
+      setImagePromptError("生成绘图 Prompt 失败，请确认服务已启动。");
+      pushToast("error", "生成失败", "分镜转绘图 Prompt 请求失败，请检查服务是否运行。");
     } finally {
       setImagePromptLoading(false);
     }
@@ -738,8 +738,8 @@ function App() {
       const data = await generateImages(input);
       setImageGenerationResult(data);
     } catch {
-      setImageGenerationError("生成图片失败，请确认后端服务已启动：http://127.0.0.1:8000");
-      pushToast("error", "生成失败", "图片生成接口请求失败，请检查后端是否运行。");
+      setImageGenerationError("生成图片失败，请确认服务已启动。");
+      pushToast("error", "生成失败", "图片生成请求失败，请检查服务是否运行。");
     } finally {
       setImageGenerationLoading(false);
     }
@@ -753,8 +753,8 @@ function App() {
       const data = await generateImageBundle(input);
       setImageGenerationBundleResult(data);
     } catch {
-      setImageGenerationBundleError("生成结果包失败，请确认后端服务已启动：http://127.0.0.1:8000");
-      pushToast("error", "结果包生成失败", "图片生成结果包接口请求失败，请检查后端是否运行。");
+      setImageGenerationBundleError("生成结果包失败，请确认服务已启动。");
+      pushToast("error", "结果包生成失败", "图片生成结果包请求失败，请检查服务是否运行。");
     } finally {
       setImageGenerationBundleLoading(false);
     }
@@ -957,7 +957,7 @@ function App() {
                       <dd className="code-text">{asset.mock_url || "-"}</dd>
                     </div>
                     <div>
-                      <dt>本地路径</dt>
+                      <dt>资源路径</dt>
                       <dd className="code-text">{asset.local_path || "-"}</dd>
                     </div>
                     <div>
@@ -1562,9 +1562,9 @@ function App() {
               当前模型：
               {selectedImagePromptModel.provider
                 ? ` ${selectedImagePromptModel.label}`
-                : " 使用后端默认"}
+                : " 系统默认模型"}
             </strong>
-            <p>模型选择仅在后端绘图 Prompt 生成模式为 LLM 时生效。</p>
+            <p>模型选择在绘图 Prompt 生成时生效。</p>
           </div>
 
           <button className="primary-button" disabled={imagePromptLoading} type="submit">
@@ -1922,7 +1922,7 @@ function App() {
                             <dd className="code-text">{asset.mock_url || "-"}</dd>
                           </div>
                           <div>
-                            <dt>本地路径</dt>
+                            <dt>资源路径</dt>
                             <dd className="code-text">{asset.local_path || "-"}</dd>
                           </div>
                         </dl>
@@ -2063,7 +2063,7 @@ function App() {
                           <dd>{item.mock_url || "未设置"}</dd>
                         </div>
                         <div>
-                          <dt>本地路径</dt>
+                          <dt>资源路径</dt>
                           <dd>{item.local_path || "未设置"}</dd>
                         </div>
                         <div>
@@ -2119,10 +2119,10 @@ function App() {
           </div>
 
           <section className="panel result-panel system-status-panel">
-            <div className="system-status system-status-detail" aria-label="后端系统状态">
+            <div className="system-status system-status-detail" aria-label="系统运行状态">
               <div className={isSystemConnected ? "status-dot status-ok" : "status-dot status-offline"} />
               <div>
-                <p>{isSystemConnected ? `后端状态：${systemStatus?.status}` : "后端状态：未连接"}</p>
+                <p>{isSystemConnected ? `系统状态：${systemStatus?.status}` : "系统状态：未连接"}</p>
                 {isSystemConnected && systemStatus ? (
                   <>
                     <p>应用名称：{systemStatus.app_name}</p>
@@ -2131,7 +2131,7 @@ function App() {
                     <p>LLM：{systemStatus.llm_enabled ? "已启用" : "未启用"}</p>
                   </>
                 ) : (
-                  <p>请确认后端服务已启动：http://127.0.0.1:8000</p>
+                  <p>请确认服务已启动。</p>
                 )}
               </div>
             </div>

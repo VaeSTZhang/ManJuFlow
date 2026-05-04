@@ -316,7 +316,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       setGeneratedResult(result, sourceLabel, requestInput);
     } catch (error) {
       setScriptGenerationError(
-        parseApiErrorMessage(error, "剧本生成失败，请确认后端服务已启动：http://127.0.0.1:8000"),
+        parseApiErrorMessage(error, "剧本生成失败，请确认服务已启动。"),
       );
     } finally {
       setIsGeneratingScript(false);
@@ -390,7 +390,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       updateDocumentImportDraft(mode, {
         error: parseApiErrorMessage(
           error,
-          "生成文档导入预览失败，请确认后端服务已启动：http://127.0.0.1:8000",
+          "生成文档导入预览失败，请确认服务已启动。",
         ),
       });
     } finally {
@@ -451,7 +451,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       "dramora-short-drama-script.txt",
       formatShortDramaScriptTxt(
         shortDramaResult,
-        shortDramaSourceLabel ?? "后端默认",
+        shortDramaSourceLabel ?? "系统默认",
         buildModelLabel(selectedCreativeModel),
         shortDramaGeneratedAt ?? "生成后显示",
       ),

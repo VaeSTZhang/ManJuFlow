@@ -13,7 +13,7 @@ export async function uploadScriptMock(input: UploadSourceInput): Promise<Script
   });
 
   if (!response.ok) {
-    throw await createApiErrorFromResponse(response, "上传 Word 文档 mock 失败，请确认后端服务已启动。");
+    throw await createApiErrorFromResponse(response, "上传 Word 文档失败，请确认服务已启动。");
   }
 
   return (await response.json()) as ScriptUploadOutput;

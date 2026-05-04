@@ -30,7 +30,7 @@ const sourceModeLabels: Record<ScriptSourceMode, string> = {
 };
 
 function resolveSourceLabel(result: ShortDramaScriptOutput, sourceLabel?: string): string {
-  return sourceLabel ?? sourceModeLabels[result.source_mode] ?? "后端默认";
+  return sourceLabel ?? sourceModeLabels[result.source_mode] ?? "系统默认";
 }
 
 function renderTextList(title: string, items: string[]) {
@@ -134,7 +134,7 @@ function renderAdaptationNotes(notes?: AdaptationNotes | null) {
 export function ShortDramaScriptResult({
   result,
   sourceLabel,
-  modelLabel = "后端默认",
+  modelLabel = "系统默认模型",
   generatedAt,
   isLocked = false,
   onCopyJson,
