@@ -13,11 +13,14 @@ import {
 } from "./scriptGenerationRequestBuilder";
 import { DocumentImportPanel } from "./DocumentImportPanel";
 import { ShortDramaScriptResult } from "./ShortDramaScriptResult";
-import type { DocumentImportOutput } from "../../types/documentImport";
+import {
+  useDocumentImportDrafts,
+  type DocumentImportAdaptationMode,
+} from "../../hooks/creation/useDocumentImportDrafts";
 import type { ShortDramaGenerationInput, ShortDramaScriptOutput } from "../../types/scriptGeneration";
 
 type CreationMode = "idea" | "adaptation";
-type AdaptationMode = "film" | "novel";
+type AdaptationMode = DocumentImportAdaptationMode;
 
 type IdeaCreationDraft = {
   projectTitle: string;
@@ -41,16 +44,6 @@ type CreationDrafts = {
   film: AdaptationDraft;
   novel: AdaptationDraft;
 };
-
-type DocumentImportDraftState = {
-  filename: string;
-  text: string;
-  preview: DocumentImportOutput | null;
-  error: string;
-  isLoading: boolean;
-};
-
-type DocumentImportDraftsByMode = Record<AdaptationMode, DocumentImportDraftState>;
 
 type CreationHomeProps = {
   isAuthenticated: boolean;
@@ -88,19 +81,6 @@ const defaultCreativeModel: SelectedCreativeModel = {
   model: "deepseek-chat",
   label: "DeepSeek",
   source: "user_selected",
-};
-
-const defaultDocumentImportDraftState: DocumentImportDraftState = {
-  filename: "",
-  text: "",
-  preview: null,
-  error: "",
-  isLoading: false,
-};
-
-const defaultDocumentImportDrafts: DocumentImportDraftsByMode = {
-  film: { ...defaultDocumentImportDraftState },
-  novel: { ...defaultDocumentImportDraftState },
 };
 
 function buildModelLabel(selectedModel: SelectedCreativeModel): string {
@@ -199,8 +179,11 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const [shortDramaGeneratedAt, setShortDramaGeneratedAt] = useState<string | undefined>();
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
   const [scriptGenerationError, setScriptGenerationError] = useState("");
-  const [documentImportDrafts, setDocumentImportDrafts] =
-    useState<DocumentImportDraftsByMode>(defaultDocumentImportDrafts);
+  const {
+    documentImportDrafts,
+    updateDocumentImportDraft,
+    clearDocumentImportPreview,
+  } = useDocumentImportDrafts();
 
   const handlePrimarySelect = (mode: CreationMode) => {
     if (!isAuthenticated) {
@@ -233,26 +216,6 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     }
 
     setDocumentActionNotice("真实 Word 上传将在文档导入闭环接入，当前可先粘贴文本。");
-  };
-
-  const updateDocumentImportDraft = (
-    mode: AdaptationMode,
-    patch: Partial<DocumentImportDraftState>,
-  ) => {
-    setDocumentImportDrafts((current) => ({
-      ...current,
-      [mode]: {
-        ...current[mode],
-        ...patch,
-      },
-    }));
-  };
-
-  const clearDocumentImportPreview = (mode: AdaptationMode) => {
-    updateDocumentImportDraft(mode, {
-      preview: null,
-      error: "",
-    });
   };
 
   const updateIdeaDraft = <K extends keyof IdeaCreationDraft>(
