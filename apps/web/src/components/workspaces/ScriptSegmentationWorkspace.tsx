@@ -127,7 +127,7 @@ export function ScriptSegmentationWorkspace({
   const [scriptSegmentationExportStatus, setScriptSegmentationExportStatus] = useState("");
   const [scriptUploadLoading, setScriptUploadLoading] = useState(false);
   const [scriptUploadError, setScriptUploadError] = useState("");
-  const [scriptUploadResult, setScriptUploadResult] = useState<ScriptUploadOutput | null>(null);
+  const [pendingImportedDocument, setPendingImportedDocument] = useState<ScriptUploadOutput | null>(null);
 
   const scriptSegmentationText = scriptSegmentationForm.script_text || "";
   const isScriptSegmentationTextTooLong = scriptSegmentationText.length > EXISTING_SCRIPT_MAX_CHARS;
@@ -147,6 +147,56 @@ export function ScriptSegmentationWorkspace({
     if (field === "script_text") {
       setScriptUploadError("");
     }
+  };
+
+  const applyImportedDocumentText = (mode: "replace" | "append") => {
+    if (isLocked) {
+      notify("warning", "请先登录", "请先登录后开始创作。");
+      return;
+    }
+
+    if (!pendingImportedDocument) {
+      return;
+    }
+
+    setScriptSegmentationForm((current) => {
+      const currentText = current.script_text?.trim() || "";
+      const importedText = pendingImportedDocument.extracted_text.trim();
+      const nextText =
+        mode === "append" && currentText
+          ? `${currentText}\n\n${importedText}`
+          : importedText;
+
+      return {
+        ...current,
+        project_title: pendingImportedDocument.project_title,
+        script_text: nextText,
+        source_id: pendingImportedDocument.source_id,
+        source_type: pendingImportedDocument.metadata.source_type,
+        workspace_id: "mock_workspace_script_segmentation",
+        user_id: "mock_user_writer_001",
+        ai_account_id: "mock_ai_account_writer_001",
+        metadata: {
+          ...(current.metadata || {}),
+          project_id: "mock_project_script_segmentation",
+          context_policy: "current_project_only",
+          upload_source_id: pendingImportedDocument.source_id,
+        },
+      };
+    });
+
+    setPendingImportedDocument(null);
+    setScriptUploadError("");
+    notify(
+      "success",
+      mode === "append" ? "已追加导入文本" : "已填入导入文本",
+      "请继续检查待改编文本，并补充改编方向 / 额外要求。",
+    );
+  };
+
+  const cancelImportedDocument = () => {
+    setPendingImportedDocument(null);
+    setScriptUploadError("");
   };
 
   const handleScriptSegmentationSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -246,24 +296,8 @@ export function ScriptSegmentationWorkspace({
         },
       });
 
-      setScriptUploadResult(data);
-      setScriptSegmentationForm((current) => ({
-        ...current,
-        project_title: data.project_title,
-        script_text: data.extracted_text,
-        source_id: data.source_id,
-        source_type: data.metadata.source_type,
-        workspace_id: "mock_workspace_script_segmentation",
-        user_id: "mock_user_writer_001",
-        ai_account_id: "mock_ai_account_writer_001",
-        metadata: {
-          ...(current.metadata || {}),
-          project_id: "mock_project_script_segmentation",
-          context_policy: "current_project_only",
-          upload_source_id: data.source_id,
-        },
-      }));
-      notify("success", "文档导入完成", "已将提取文本填入下方剧本文本框，可继续整理。");
+      setPendingImportedDocument(data);
+      notify("success", "文档导入完成", "已生成导入预览，请确认后再填入待改编文本。");
     } catch (error) {
       const message = parseApiErrorMessage(
         error,
@@ -381,28 +415,64 @@ export function ScriptSegmentationWorkspace({
 
           {scriptUploadError && <p className="error-message">{scriptUploadError}</p>}
 
-          {scriptUploadResult && (
-            <div className="script-upload-result">
+          {pendingImportedDocument && (
+            <div className="import-preview-card">
               <div>
-                <span>上传源标识</span>
-                <strong>{scriptUploadResult.source_id}</strong>
+                <span>文档导入预览</span>
+                <strong>{pendingImportedDocument.project_title}</strong>
+                <p>为避免覆盖你正在编辑的内容，文档导入后需要确认再填入。</p>
               </div>
-              <div>
-                <span>提取状态</span>
-                <strong>{scriptUploadResult.metadata.extraction_status}</strong>
+
+              <div className="import-preview-meta">
+                <div>
+                  <span>文件名 / 来源</span>
+                  <strong>{pendingImportedDocument.metadata.original_filename || "Word 剧本文档"}</strong>
+                </div>
+                <div>
+                  <span>来源类型</span>
+                  <strong>{formatSourceTypeLabel(pendingImportedDocument.metadata.source_type)}</strong>
+                </div>
+                <div>
+                  <span>提取文本字数</span>
+                  <strong>{pendingImportedDocument.metadata.extracted_text_length}</strong>
+                </div>
               </div>
-              <div>
-                <span>提取文本长度</span>
-                <strong>{scriptUploadResult.metadata.extracted_text_length}</strong>
+
+              <p className="import-preview-text">
+                {pendingImportedDocument.extracted_text.slice(0, 320)}
+                {pendingImportedDocument.extracted_text.length > 320 ? "..." : ""}
+              </p>
+
+              <div className="import-preview-actions">
+                <button
+                  className="primary-button"
+                  disabled={isLocked}
+                  onClick={() => applyImportedDocumentText("replace")}
+                  type="button"
+                >
+                  填入待改编文本
+                </button>
+                <button
+                  className="secondary-button"
+                  disabled={isLocked}
+                  onClick={() => applyImportedDocumentText("append")}
+                  type="button"
+                >
+                  追加到当前文本后
+                </button>
+                <button
+                  className="secondary-button"
+                  disabled={isLocked}
+                  onClick={cancelImportedDocument}
+                  type="button"
+                >
+                  取消导入
+                </button>
               </div>
-              <div>
-                <span>来源类型</span>
-                <strong>{formatSourceTypeLabel(scriptUploadResult.metadata.source_type)}</strong>
-              </div>
-              <p>已将提取文本填入下方待改编文本区域，请继续填写改编方向 / 额外要求。</p>
-              {scriptUploadResult.warnings.length > 0 && (
+
+              {pendingImportedDocument.warnings.length > 0 && (
                 <ul className="script-upload-warnings">
-                  {scriptUploadResult.warnings.map((warning) => (
+                  {pendingImportedDocument.warnings.map((warning) => (
                     <li key={warning}>{warning}</li>
                   ))}
                 </ul>
@@ -417,7 +487,7 @@ export function ScriptSegmentationWorkspace({
             value={scriptSegmentationForm.script_text || ""}
             disabled={isLocked}
             onChange={(event) => updateScriptSegmentationField("script_text", event.target.value)}
-            placeholder="上传 Word 后会把文档内容填入这里。也可以直接粘贴待改编文本、小说片段、剧本片段或人物小传。"
+            placeholder="上传 Word 后会显示导入预览，确认后可填入这里。也可以直接粘贴待改编文本、小说片段、剧本片段或人物小传。"
             rows={10}
           />
           <CharacterCountHint value={scriptSegmentationText} maxLength={EXISTING_SCRIPT_MAX_CHARS} />

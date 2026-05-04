@@ -540,7 +540,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
             <div>
               <h3>Word 文档导入</h3>
               <p>
-                上传 Word 后，系统会读取文档内容并填入下方文本区域。请继续填写“改编方向 /
+                上传 Word 后会显示导入预览，确认后可填入下方文本区域。请继续填写“改编方向 /
                 重点要求”，让系统知道你希望改成什么短剧方向。
               </p>
             </div>
@@ -599,8 +599,8 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
               onChange={(event) => updateAdaptationDraft(mode, "sourceText", event.target.value)}
               placeholder={
                 isFilm
-                  ? "上传 Word 后会自动填入这里。也可以直接粘贴电影剧本、长剧本或分场文本。"
-                  : "上传 Word 后会自动填入这里。也可以直接粘贴小说、网文、故事片段或人物小传。"
+                  ? "上传 Word 后会显示导入预览，确认后可填入这里。也可以直接粘贴电影剧本、长剧本或分场文本。"
+                  : "上传 Word 后会显示导入预览，确认后可填入这里。也可以直接粘贴小说、网文、故事片段或人物小传。"
               }
               rows={6}
               value={draft.sourceText}

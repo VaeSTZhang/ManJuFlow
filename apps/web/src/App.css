@@ -1680,6 +1680,72 @@ select {
   overflow-wrap: anywhere;
 }
 
+.import-preview-card {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #b9d8ff;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.import-preview-card > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.import-preview-card span,
+.import-preview-meta span {
+  color: #607087;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.import-preview-card strong,
+.import-preview-meta strong {
+  color: #243149;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.import-preview-card p {
+  margin: 0;
+  color: #536276;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.import-preview-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.import-preview-meta div {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid #edf2f8;
+  border-radius: 8px;
+  background: #f7fbff;
+}
+
+.import-preview-text {
+  max-height: 150px;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid #edf2f8;
+  border-radius: 8px;
+  background: #fbfdff;
+  white-space: pre-wrap;
+}
+
+.import-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .script-upload-warnings {
   margin: 0;
   padding-left: 18px;
