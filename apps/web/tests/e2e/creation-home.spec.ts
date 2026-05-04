@@ -109,6 +109,17 @@ const generatedScriptFixture = {
   },
 };
 
+type DocumentExportPayload = {
+  project_title: string;
+  document_type?: string;
+  source_stage?: string;
+  content_text?: string | null;
+  structured_payload?: Record<string, any> | null;
+  export_format: "txt" | "json" | "docx";
+  filename?: string | null;
+  metadata?: Record<string, unknown>;
+};
+
 async function login(page: Page) {
   await page.getByRole("button", { name: "登录" }).click();
   await expect(page.getByRole("button", { name: "退出登录" })).toBeVisible();
@@ -120,6 +131,36 @@ async function mockScriptGeneration(page: Page) {
       contentType: "application/json",
       status: 200,
       body: JSON.stringify(generatedScriptFixture),
+    });
+  });
+}
+
+async function mockDocumentExport(page: Page, capturedPayloads: DocumentExportPayload[] = []) {
+  await page.route("**/api/documents/export", async (route) => {
+    const payload = route.request().postDataJSON() as DocumentExportPayload;
+    capturedPayloads.push(payload);
+
+    const contentText =
+      payload.export_format === "json"
+        ? JSON.stringify(payload.structured_payload ?? {}, null, 2)
+        : payload.content_text ?? "";
+
+    await route.fulfill({
+      contentType: "application/json",
+      status: 200,
+      body: JSON.stringify({
+        project_title: payload.project_title,
+        document_type: payload.document_type ?? "short_drama_script",
+        source_stage: payload.source_stage ?? "script",
+        export_format: payload.export_format,
+        filename:
+          payload.filename ??
+          `dramora-short-drama-script.${payload.export_format}`,
+        content_text: contentText,
+        download_url: null,
+        file_size_bytes: new TextEncoder().encode(contentText).length,
+        metadata: payload.metadata ?? {},
+      }),
     });
   });
 }
@@ -286,8 +327,10 @@ test.describe("Dramora creation home smoke", () => {
   });
 
   test("uses edited script content for copy and text download", async ({ page, context }) => {
+    const exportPayloads: DocumentExportPayload[] = [];
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await mockScriptGeneration(page);
+    await mockDocumentExport(page, exportPayloads);
     await generateIdeaScript(page);
     await editGeneratedScriptBasicFields(page);
 
@@ -313,15 +356,24 @@ test.describe("Dramora creation home smoke", () => {
 
     expect(downloadPath).not.toBeNull();
     const downloadedText = await readFile(downloadPath as string, "utf-8");
+    const txtExportPayload = exportPayloads.find((payload) => payload.export_format === "txt");
 
+    expect(txtExportPayload?.project_title).toBe(editedScriptTitle);
+    expect(txtExportPayload?.structured_payload?.project_title).toBe(editedScriptTitle);
+    expect(txtExportPayload?.structured_payload?.logline).toBe(editedScriptLogline);
+    expect(txtExportPayload?.structured_payload?.world_setting).toBe(editedWorldSetting);
+    expect(txtExportPayload?.metadata?.edited).toBe(true);
+    expect(txtExportPayload?.metadata?.exported_from).toBe("creation_home");
     expect(downloadedText).toContain(editedScriptTitle);
     expect(downloadedText).toContain(editedScriptLogline);
     expect(downloadedText).toContain(editedWorldSetting);
   });
 
   test("uses edited character content for copy and text download", async ({ page, context }) => {
+    const exportPayloads: DocumentExportPayload[] = [];
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await mockScriptGeneration(page);
+    await mockDocumentExport(page, exportPayloads);
     await generateIdeaScript(page);
     await editFirstCharacterFields(page);
 
@@ -355,15 +407,23 @@ test.describe("Dramora creation home smoke", () => {
 
     expect(downloadPath).not.toBeNull();
     const downloadedText = await readFile(downloadPath as string, "utf-8");
+    const txtExportPayload = exportPayloads.find((payload) => payload.export_format === "txt");
 
+    expect(txtExportPayload?.structured_payload?.characters?.[0]?.name).toBe(editedCharacterName);
+    expect(txtExportPayload?.structured_payload?.characters?.[0]?.personality).toBe(
+      editedCharacterPersonality,
+    );
+    expect(txtExportPayload?.structured_payload?.characters?.[0]?.arc).toBe(editedCharacterArc);
     expect(downloadedText).toContain(editedCharacterName);
     expect(downloadedText).toContain(editedCharacterPersonality);
     expect(downloadedText).toContain(editedCharacterArc);
   });
 
   test("uses edited episode content for copy and text download", async ({ page, context }) => {
+    const exportPayloads: DocumentExportPayload[] = [];
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await mockScriptGeneration(page);
+    await mockDocumentExport(page, exportPayloads);
     await generateIdeaScript(page);
     await editFirstEpisodeFields(page);
 
@@ -395,7 +455,11 @@ test.describe("Dramora creation home smoke", () => {
 
     expect(downloadPath).not.toBeNull();
     const downloadedText = await readFile(downloadPath as string, "utf-8");
+    const txtExportPayload = exportPayloads.find((payload) => payload.export_format === "txt");
 
+    expect(txtExportPayload?.structured_payload?.episodes?.[0]?.title).toBe(editedEpisodeTitle);
+    expect(txtExportPayload?.structured_payload?.episodes?.[0]?.summary).toBe(editedEpisodeSummary);
+    expect(txtExportPayload?.structured_payload?.episodes?.[0]?.hook).toBe(editedEpisodeHook);
     expect(downloadedText).toContain(editedEpisodeTitle);
     expect(downloadedText).toContain(editedEpisodeSummary);
     expect(downloadedText).toContain(editedEpisodeHook);

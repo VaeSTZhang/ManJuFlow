@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { exportDocument } from "../../api/documentExport";
 import { previewDocumentImport } from "../../api/documentImport";
 import { parseApiErrorMessage } from "../../api/errors";
 import { generateShortDramaScript } from "../../api/scriptGeneration";
@@ -339,33 +340,78 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     await navigator.clipboard.writeText(JSON.stringify(effectiveScript, null, 2));
   };
 
-  const handleDownloadShortDramaJson = () => {
+  const buildExportMetadata = () => ({
+    edited: editableScript !== null,
+    source_mode: effectiveScript?.source_mode ?? null,
+    generated_at: shortDramaGeneratedAt ?? null,
+    last_edited_at: lastEditedAt ?? null,
+    exported_from: "creation_home",
+  });
+
+  const handleDownloadShortDramaJson = async () => {
     if (!effectiveScript) {
       return;
     }
 
-    downloadTextFile(
-      "dramora-short-drama-script.json",
-      JSON.stringify(effectiveScript, null, 2),
-      "application/json;charset=utf-8",
-    );
+    try {
+      const output = await exportDocument({
+        project_title: effectiveScript.project_title,
+        document_type: "short_drama_script",
+        source_stage: "script",
+        structured_payload: effectiveScript as unknown as Record<string, unknown>,
+        export_format: "json",
+        filename: "dramora-short-drama-script.json",
+        metadata: buildExportMetadata(),
+      });
+
+      downloadTextFile(
+        output.filename,
+        output.content_text ?? "",
+        "application/json;charset=utf-8",
+      );
+      setScriptGenerationError("");
+    } catch (error) {
+      setScriptGenerationError(
+        parseApiErrorMessage(error, "导出失败，请稍后重试或联系技术支持。"),
+      );
+    }
   };
 
-  const handleDownloadShortDramaTxt = () => {
+  const handleDownloadShortDramaTxt = async () => {
     if (!effectiveScript) {
       return;
     }
 
-    downloadTextFile(
-      "dramora-short-drama-script.txt",
-      formatShortDramaScriptTxt(
-        effectiveScript,
-        shortDramaSourceLabel ?? "系统默认",
-        buildModelLabel(selectedCreativeModel),
-        shortDramaGeneratedAt ?? "生成后显示",
-      ),
-      "text/plain;charset=utf-8",
+    const contentText = formatShortDramaScriptTxt(
+      effectiveScript,
+      shortDramaSourceLabel ?? "系统默认",
+      buildModelLabel(selectedCreativeModel),
+      shortDramaGeneratedAt ?? "生成后显示",
     );
+
+    try {
+      const output = await exportDocument({
+        project_title: effectiveScript.project_title,
+        document_type: "short_drama_script",
+        source_stage: "script",
+        content_text: contentText,
+        structured_payload: effectiveScript as unknown as Record<string, unknown>,
+        export_format: "txt",
+        filename: "dramora-short-drama-script.txt",
+        metadata: buildExportMetadata(),
+      });
+
+      downloadTextFile(
+        output.filename,
+        output.content_text ?? contentText,
+        "text/plain;charset=utf-8",
+      );
+      setScriptGenerationError("");
+    } catch (error) {
+      setScriptGenerationError(
+        parseApiErrorMessage(error, "导出失败，请稍后重试或联系技术支持。"),
+      );
+    }
   };
 
   const renderPrimaryCards = () => (
