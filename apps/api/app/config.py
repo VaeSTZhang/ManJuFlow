@@ -37,6 +37,18 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8")
 
+    def is_llm_enabled(self) -> bool:
+        provider = (self.default_llm_provider or self.llm_provider or "").lower().strip()
+        provider_api_keys = {
+            "deepseek": self.deepseek_api_key,
+            "mimo": self.mimo_api_key,
+            "kimi": self.kimi_api_key,
+            "minimax": self.minimax_api_key,
+        }
+
+        provider_api_key = provider_api_keys.get(provider, "")
+        return bool(provider_api_key or self.llm_api_key)
+
 
 @lru_cache
 def get_settings() -> Settings:

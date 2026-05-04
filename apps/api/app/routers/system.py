@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api/system", tags=["system"])
 def get_system_status() -> dict[str, str | bool]:
     settings = get_settings()
     script_generation_mode = settings.script_generation_mode
-    llm_enabled = script_generation_mode == "llm" and bool(settings.llm_api_key)
+    llm_enabled = script_generation_mode == "llm" and settings.is_llm_enabled()
 
     return {
         "app_name": settings.app_name,

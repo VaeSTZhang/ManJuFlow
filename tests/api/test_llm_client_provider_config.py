@@ -53,6 +53,53 @@ def test_settings_exposes_dramora_default_llm_fields() -> None:
     assert settings.assistant_generation_mode == "mock"
 
 
+@pytest.mark.parametrize(
+    ("provider_name", "api_key_env_name"),
+    [
+        ("deepseek", "DEEPSEEK_API_KEY"),
+        ("mimo", "MIMO_API_KEY"),
+        ("kimi", "KIMI_API_KEY"),
+        ("minimax", "MINIMAX_API_KEY"),
+    ],
+)
+def test_settings_llm_enabled_uses_default_provider_key(
+    monkeypatch,
+    provider_name: str,
+    api_key_env_name: str,
+) -> None:
+    monkeypatch.setenv("DEFAULT_LLM_PROVIDER", provider_name)
+    monkeypatch.setenv(api_key_env_name, "dummy-provider-key")
+    get_settings.cache_clear()
+
+    settings = get_settings()
+
+    assert settings.is_llm_enabled() is True
+
+
+def test_settings_llm_enabled_false_when_default_provider_key_and_legacy_key_are_empty(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("DEFAULT_LLM_PROVIDER", "deepseek")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "")
+    monkeypatch.setenv("LLM_API_KEY", "")
+    get_settings.cache_clear()
+
+    settings = get_settings()
+
+    assert settings.is_llm_enabled() is False
+
+
+def test_settings_llm_enabled_uses_legacy_llm_api_key_fallback(monkeypatch) -> None:
+    monkeypatch.setenv("DEFAULT_LLM_PROVIDER", "deepseek")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "")
+    monkeypatch.setenv("LLM_API_KEY", "dummy-legacy-key")
+    get_settings.cache_clear()
+
+    settings = get_settings()
+
+    assert settings.is_llm_enabled() is True
+
+
 def test_llm_client_uses_default_provider_config(monkeypatch) -> None:
     monkeypatch.setenv("LLM_PROVIDER", "default")
     monkeypatch.setenv("LLM_BASE_URL", "https://legacy.example.com/")

@@ -69,6 +69,8 @@ DEEPSEEK_API_KEY=只写入本地真实密钥，不要提交
 - `LLM_PROVIDER` / `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY`：保留为兼容字段和通用 OpenAI-compatible fallback
 - `DEEPSEEK_*` / `MIMO_*` / `KIMI_*` / `MINIMAX_*`：各 provider 的独立配置字段
 
+`/api/system/status` 中的 `llm_enabled` 会根据 `DEFAULT_LLM_PROVIDER` 对应的 provider API Key 判断。默认推荐 DeepSeek 时，只需要配置 `DEEPSEEK_API_KEY` 即可让 `llm_enabled=true`；不需要同时维护 `LLM_API_KEY`。`LLM_API_KEY` 仅作为 legacy / fallback OpenAI-compatible key 保留。
+
 ## 安全提醒
 
 - 不要把真实 `.env` 提交到 Git
@@ -132,6 +134,13 @@ DEEPSEEK_API_KEY=不要写入真实密钥
 ```
 
 如果前端创作模型选择“后端默认”，后端默认配置以 `DEFAULT_LLM_PROVIDER` / `DEFAULT_SCRIPT_MODEL` 为当前推荐入口；请求级模型选择通过 `AIRequestOptions` 传递，后续剧本生成、AI Assistant、质量评审、分镜 / Prompt 生成应复用同一结构。不要在业务代码中硬编码 DeepSeek。
+
+系统状态检查：
+
+- `GET /api/system/status` 会返回 `llm_enabled`；
+- `llm_enabled` 基于 `DEFAULT_LLM_PROVIDER` 对应 key 判断；
+- `DEFAULT_LLM_PROVIDER=deepseek` 时检查 `DEEPSEEK_API_KEY`；
+- `LLM_API_KEY` 只作为 legacy / fallback key，不要求和 `DEEPSEEK_API_KEY` 同时配置。
 
 ## 当前限制
 

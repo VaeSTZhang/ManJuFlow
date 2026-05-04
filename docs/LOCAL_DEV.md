@@ -60,6 +60,8 @@ LLM_REQUEST_TIMEOUT_SECONDS=60
 
 当前前端创作模型选择器会通过请求级 `AIRequestOptions` 传递 provider / model / purpose。选择“后端默认”时，应回到后端默认 provider / model；不要通过反复修改业务代码切换模型。
 
+`GET /api/system/status` 的 `llm_enabled` 会根据 `DEFAULT_LLM_PROVIDER` 对应的 provider key 判断。默认推荐 DeepSeek 时，配置 `DEEPSEEK_API_KEY` 即可，不需要同时配置 `LLM_API_KEY`。`LLM_API_KEY` 只作为 legacy / fallback OpenAI-compatible key。
+
 ## 后端启动方式
 
 ```bash
