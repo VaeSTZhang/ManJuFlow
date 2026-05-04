@@ -17,6 +17,7 @@ import {
   useDocumentImportDrafts,
 } from "../../hooks/creation/useDocumentImportDrafts";
 import { useCreationDrafts } from "../../hooks/creation/useCreationDrafts";
+import { useShortDramaEditing } from "../../hooks/creation/useShortDramaEditing";
 import type {
   AdaptationMode,
   CreationMode,
@@ -130,11 +131,18 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const [documentActionNotice, setDocumentActionNotice] = useState("");
   const [selectedCreativeModel, setSelectedCreativeModel] =
     useState<SelectedCreativeModel>(defaultCreativeModel);
-  const [generatedScript, setGeneratedScript] = useState<ShortDramaScriptOutput | null>(null);
-  const [editableScript, setEditableScript] = useState<ShortDramaScriptOutput | null>(null);
-  const [isEditingScript, setIsEditingScript] = useState(false);
-  const [hasUnsavedScriptEdits, setHasUnsavedScriptEdits] = useState(false);
-  const [lastEditedAt, setLastEditedAt] = useState<string | undefined>();
+  const {
+    editableScript,
+    effectiveScript,
+    isEditingScript,
+    hasUnsavedScriptEdits,
+    lastEditedAt,
+    setGeneratedScriptResult,
+    startScriptEditing,
+    saveScriptEditing,
+    cancelScriptEditing,
+    restoreGeneratedScript,
+  } = useShortDramaEditing();
   const [shortDramaSourceLabel, setShortDramaSourceLabel] = useState<string | undefined>();
   const [shortDramaGeneratedAt, setShortDramaGeneratedAt] = useState<string | undefined>();
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
@@ -144,7 +152,6 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     updateDocumentImportDraft,
     clearDocumentImportPreview,
   } = useDocumentImportDrafts();
-  const effectiveScript = editableScript ?? generatedScript;
 
   const handlePrimarySelect = (mode: CreationMode) => {
     if (!isAuthenticated) {
@@ -190,17 +197,13 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     sourceLabel: string,
     requestInput: ShortDramaGenerationInput,
   ) => {
-    setGeneratedScript({
+    setGeneratedScriptResult({
       ...result,
       metadata: {
         ...result.metadata,
         prepared_request: requestInput,
       },
     });
-    setEditableScript(null);
-    setIsEditingScript(false);
-    setHasUnsavedScriptEdits(false);
-    setLastEditedAt(undefined);
     setShortDramaSourceLabel(sourceLabel);
     setShortDramaGeneratedAt(new Date().toISOString());
     setScriptGenerationError("");
@@ -323,38 +326,6 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         : [drafts[mode].sourceText.trim(), importedText].filter(Boolean).join("\n\n"),
     );
     clearDocumentImportPreview(mode);
-  };
-
-  const cloneShortDramaScript = (script: ShortDramaScriptOutput): ShortDramaScriptOutput =>
-    structuredClone(script);
-
-  const startScriptEditing = () => {
-    if (!effectiveScript) {
-      return;
-    }
-
-    setEditableScript(cloneShortDramaScript(effectiveScript));
-    setIsEditingScript(true);
-    setHasUnsavedScriptEdits(false);
-  };
-
-  const saveScriptEditing = () => {
-    setIsEditingScript(false);
-    setHasUnsavedScriptEdits(false);
-    setLastEditedAt(new Date().toISOString());
-  };
-
-  const cancelScriptEditing = () => {
-    setEditableScript(null);
-    setIsEditingScript(false);
-    setHasUnsavedScriptEdits(false);
-  };
-
-  const restoreGeneratedScript = () => {
-    setEditableScript(null);
-    setIsEditingScript(false);
-    setHasUnsavedScriptEdits(false);
-    setLastEditedAt(undefined);
   };
 
   const handleCopyShortDramaJson = async () => {
