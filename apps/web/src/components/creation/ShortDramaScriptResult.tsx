@@ -7,6 +7,7 @@ import type {
   ScriptSourceMode,
   ShortDramaScriptOutput,
 } from "../../types/scriptGeneration";
+import { ShortDramaBasicInfoEditor } from "./ShortDramaBasicInfoEditor";
 
 type ShortDramaScriptResultProps = {
   result: ShortDramaScriptOutput | null;
@@ -180,83 +181,66 @@ export function ShortDramaScriptResult({
   const docxDisabled = isLocked || !onDownloadDocx;
   const startEditing = onStartEditing ?? onEdit;
   const canEditFields = isEditing && !!onUpdateField && !isLocked;
-
-  return (
-    <section className="short-script-result" aria-label="短剧剧本生成结果" data-testid="short-drama-script-result">
-      <div className="short-script-header">
-        <div>
-          <span>短剧剧本结果</span>
-          {canEditFields ? (
-            <label className="short-script-edit-field">
-              <span>剧本标题</span>
-              <input
-                data-testid="script-title-editor"
-                onChange={(event) => onUpdateField("project_title", event.target.value)}
-                value={result.project_title}
-              />
-            </label>
-          ) : (
-            <h2>{result.project_title}</h2>
-          )}
-        </div>
-        <div className="short-script-actions">
+  const resultActions = (
+    <div className="short-script-actions">
+      <button
+        data-testid="copy-script-json"
+        disabled={actionsDisabled || !onCopyJson}
+        onClick={onCopyJson}
+        type="button"
+      >
+        复制 JSON
+      </button>
+      <button
+        data-testid="download-script-json"
+        disabled={actionsDisabled || !onDownloadJson}
+        onClick={onDownloadJson}
+        type="button"
+      >
+        下载 JSON
+      </button>
+      <button
+        data-testid="download-script-txt"
+        disabled={actionsDisabled || !onDownloadTxt}
+        onClick={onDownloadTxt}
+        type="button"
+      >
+        下载 TXT
+      </button>
+      <button disabled={docxDisabled} onClick={onDownloadDocx} type="button">
+        下载 Word
+      </button>
+      {isEditing ? (
+        <>
           <button
-            data-testid="copy-script-json"
-            disabled={actionsDisabled || !onCopyJson}
-            onClick={onCopyJson}
+            data-testid="save-script-editing"
+            disabled={actionsDisabled || !onSaveEditing}
+            onClick={onSaveEditing}
             type="button"
           >
-            复制 JSON
+            保存本次修改
           </button>
-          <button
-            data-testid="download-script-json"
-            disabled={actionsDisabled || !onDownloadJson}
-            onClick={onDownloadJson}
-            type="button"
-          >
-            下载 JSON
+          <button disabled={actionsDisabled || !onCancelEditing} onClick={onCancelEditing} type="button">
+            放弃修改
           </button>
-          <button
-            data-testid="download-script-txt"
-            disabled={actionsDisabled || !onDownloadTxt}
-            onClick={onDownloadTxt}
-            type="button"
-          >
-            下载 TXT
+          <button disabled={actionsDisabled || !onRestoreGenerated} onClick={onRestoreGenerated} type="button">
+            恢复为 AI 原始结果
           </button>
-          <button disabled={docxDisabled} onClick={onDownloadDocx} type="button">
-            下载 Word
-          </button>
-          {isEditing ? (
-            <>
-              <button
-                data-testid="save-script-editing"
-                disabled={actionsDisabled || !onSaveEditing}
-                onClick={onSaveEditing}
-                type="button"
-              >
-                保存本次修改
-              </button>
-              <button disabled={actionsDisabled || !onCancelEditing} onClick={onCancelEditing} type="button">
-                放弃修改
-              </button>
-              <button disabled={actionsDisabled || !onRestoreGenerated} onClick={onRestoreGenerated} type="button">
-                恢复为 AI 原始结果
-              </button>
-            </>
-          ) : (
-            <button
-              data-testid="start-script-editing"
-              disabled={actionsDisabled || !startEditing}
-              onClick={startEditing}
-              type="button"
-            >
-              开始编辑
-            </button>
-          )}
-        </div>
-      </div>
-
+        </>
+      ) : (
+        <button
+          data-testid="start-script-editing"
+          disabled={actionsDisabled || !startEditing}
+          onClick={startEditing}
+          type="button"
+        >
+          开始编辑
+        </button>
+      )}
+    </div>
+  );
+  const resultMetaAndNotes = (
+    <>
       <div className="short-script-meta">
         <span>来源入口：{resolveSourceLabel(result, sourceLabel)}</span>
         <span>使用模型：{modelLabel}</span>
@@ -269,42 +253,18 @@ export function ShortDramaScriptResult({
       {isLocked && <p className="short-script-action-note">登录后可导出生成结果</p>}
       {hasUnsavedEdits && <p className="short-script-action-note">当前有未保存修改</p>}
       {!onDownloadDocx && <p className="short-script-action-note">Word 导出将在文档导出闭环接入</p>}
+    </>
+  );
 
-      <section className="short-script-section">
-        <h3>故事梗概</h3>
-        {canEditFields ? (
-          <label className="short-script-edit-field">
-            <span>核心卖点 / 故事梗概</span>
-            <textarea
-              data-testid="script-logline-editor"
-              onChange={(event) => onUpdateField("logline", event.target.value)}
-              rows={4}
-              value={result.logline}
-            />
-          </label>
-        ) : (
-          <p>{result.logline}</p>
-        )}
-      </section>
-
-      {(result.world_setting || canEditFields) && (
-        <section className="short-script-section">
-          <h3>世界观 / 故事背景</h3>
-          {canEditFields ? (
-            <label className="short-script-edit-field">
-              <span>世界观 / 故事背景</span>
-              <textarea
-                data-testid="script-world-setting-editor"
-                onChange={(event) => onUpdateField("world_setting", event.target.value)}
-                rows={4}
-                value={result.world_setting}
-              />
-            </label>
-          ) : (
-            <p>{result.world_setting}</p>
-          )}
-        </section>
-      )}
+  return (
+    <section className="short-script-result" aria-label="短剧剧本生成结果" data-testid="short-drama-script-result">
+      <ShortDramaBasicInfoEditor
+        actions={resultActions}
+        afterHeader={resultMetaAndNotes}
+        canEditFields={canEditFields}
+        onUpdateField={onUpdateField}
+        result={result}
+      />
 
       {result.characters.length > 0 && (
         <section className="short-script-section">
