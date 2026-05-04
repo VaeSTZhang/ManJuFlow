@@ -1,14 +1,14 @@
-# ManJuFlow｜漫剧流
+# Dramora｜剧作工坊
 
-AI-powered short-drama script generation and adaptation workbench.
+A cinematic script workbench for transforming ideas and source texts into structured short-drama scripts.
 
-面向编剧、短剧策划、漫剧内容团队的 AI 短剧剧本生成与改编工作台。
+面向短剧创作的结构化剧本生成与文本改编工作台。
 
 ![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-646cff)
 ![TypeScript](https://img.shields.io/badge/Frontend-TypeScript-3178c6)
 ![Python](https://img.shields.io/badge/Backend-Python-3776ab)
-![Status](https://img.shields.io/badge/Status-MVP%20%2F%20In%20Development-2563eb)
+![Status](https://img.shields.io/badge/Status-In%20Development-2563eb)
 ![License](https://img.shields.io/badge/License-No%20public%20license%20yet-b42318)
 
 ## Language
@@ -17,90 +17,45 @@ AI-powered short-drama script generation and adaptation workbench.
 | --- | --- |
 | [中文文档](README.zh-CN.md) | [English Docs](README.en.md) |
 
-This default README is a concise bilingual landing page. For full project details, use the language-specific pages above.
-
-当前默认 README 是简洁双语入口页。完整项目说明请进入上方中文或英文主页。
-
 ## Project Overview
 
-ManJuFlow is currently being redesigned as a three-entry AI short-drama script generation and adaptation workbench. It helps creative teams transform ideas, film scripts, or novels into editable short-drama scripts.
+Dramora is a short-drama script generation and text adaptation workbench for writers, short-drama planners, and content teams. It focuses on two core workflows:
 
-ManJuFlow 当前主线是三入口短剧剧本生成与改编：灵感生成短剧剧本、电影剧本改编短剧剧本、小说改编短剧剧本。生成后可继续在线编辑、导出、上传修改稿，并在后续进入短剧剧本切分 / 分镜 / Prompt。
+- Idea to short-drama script;
+- Source text adaptation, including film scripts, novels, web fiction, and long-form story text.
 
-Current focus: **Phase 5 Three-entry Short-drama Script Workbench**.
+Dramora 当前聚焦“剧本创作生成”：从故事灵感、人物关系、电影剧本、小说或网文文本出发，生成适合短剧创作的结构化剧本。分镜、Prompt、图片生成等后续流程保留为后续能力，不作为当前老板演示主界面重点。
 
-当前重点：**第五阶段｜三入口短剧剧本生成与改编工作台**。
+ManJuFlow remains the local engineering directory and early internal project codename. Package names, local scripts, backend module names, and API paths are not renamed in this brand update.
 
-## Current Capabilities
-
-- **Phase 1: Idea → Script**  
-  灵感输入生成结构化短剧剧本。
-- **Phase 2: Script → Storyboard**  
-  剧本生成导演分镜。
-- **Phase 3: Storyboard → Image Prompt**  
-  分镜生成 AI 绘图 Prompt，支持 Prompt 中文 / 英文输出。
-- **Phase 4: Image Prompt → Image Generation Mock / Asset / Task / Workspace**  
-  图片生成 mock、Bundle、Asset、RenderTask 和工作台 UI。
-- **Phase 5: Three-entry Short-drama Script Workbench**  
-  三入口重整：灵感生成短剧、电影剧本改短剧、小说改短剧。电影 / 小说改编仍处于规划和 mock 优先推进阶段。
-
-Current primary entries:
-
-- Idea to Short Drama Script｜灵感生成短剧剧本
-- Film Script to Short Drama｜电影剧本改编短剧剧本
-- Novel to Short Drama｜小说改编短剧剧本
-
-Next major feature after script generation:
-
-- Script Segmentation / Storyboard / ImagePrompt｜短剧剧本切分 / 分镜 / Prompt
-
-Image generation and video generation are not the current market-trial focus.
-
-## Why ManJuFlow
-
-- Modular workflow；
-- Structured JSON / Pydantic data contracts；
-- Prompt versioning；
-- Mock-first development；
-- Frontend-first usability；
-- Private deployment boundary；
-- Designed for non-technical content teams；
-- Safe public repository boundary。
-
-中文概括：
-
-- 模块化创作链路；
-- 数据协议优先；
-- Prompt 版本化；
-- mock 优先；
-- 前端可用性优先；
-- 公开仓库与私有部署边界清晰；
-- 面向非技术内容团队；
-- 不在公开仓库暴露敏感生产资料。
-
-## Workflow Overview
+## Current Product Focus
 
 ```text
-Login / Mock Login
-  -> Choose Creation Entry
-  -> Idea / Film Script / Novel
-  -> Short-drama Script
-  -> Online Edit / Export / Upload Revision
-  -> Next: Segmentation / Storyboard / Prompt
+Login
+  -> Script Creation
+  -> Idea Generation / Text Adaptation
+  -> Editable Short-drama Script
+  -> Export / Document Round-trip
 ```
 
-## Repository Structure
+Primary product entries:
 
-- `apps/api`：FastAPI backend
-- `apps/web`：React + Vite frontend
-- `docs`：architecture, phase plans, runbooks
-- `tests/api`：backend tests
-- `scripts`：local dev scripts
-- `examples`：safe example inputs / outputs
+- **灵感生成**：从故事灵感、人物关系或爽点方向生成短剧剧本。
+- **文本改编**：将电影剧本、小说、网文或长文本改编成短剧节奏。
+
+## Why Dramora
+
+- Focused on script creation before downstream media generation;
+- Designed for non-technical writing and content teams;
+- Structured data contracts and editable outputs;
+- Mock-first engineering loops before private deployment;
+- Clear boundary between public repository and private production assets.
 
 ## Local Development
 
-Quick start:
+Use your own local clone path.
+
+Backend:
 
 ```bash
 cd /path/to/ManJuFlow
@@ -128,8 +83,6 @@ cd /path/to/ManJuFlow/apps/web
 npm run build
 ```
 
-For complete setup details, see [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md).
-
 ## Quick Navigation
 
 - [中文 README](README.zh-CN.md)
@@ -139,26 +92,32 @@ For complete setup details, see [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md).
 - [apps/web](apps/web/)
 - [tests/api](tests/api/)
 - [API Contract](docs/API_CONTRACT.md)
-- [MVP Roadmap](docs/MVP_ROADMAP.md)
+- [Roadmap](docs/MVP_ROADMAP.md)
 
 ## Repository Boundary / Usage Notice
 
 This public repository is currently provided for technical review, project demonstration, and cooperation discussion only.
 
-No open-source license has been granted yet. Public visibility does not mean open-source authorization. Without written permission, commercial use, redistribution, sublicensing, or production deployment is not permitted.
+No public open-source license has been granted. Public visibility does not mean open-source authorization. Without written permission, commercial use, redistribution, sublicensing, or production deployment is not permitted.
 
-Real API keys, server addresses, model weights, customer data, private ComfyUI workflows, private workflow registries, and sensitive cooperation materials are not included in this repository.
+Real API keys, `.env` files, server addresses, model weights, customer scripts, employee data, private workflows, private workflow registries, and sensitive cooperation materials are not included in this repository.
 
 当前公开仓库仅用于技术评审、项目展示和合作沟通。
 
-暂未授予开源许可证。公开可见不等于开源授权。未经书面许可，不得商业使用、再分发、转授权或生产部署。
+当前暂未授予开源许可证。公开可见不等于开源授权。未经书面许可，不得商业使用、再分发、转授权或生产部署。
 
-真实 API Key、服务器地址、模型权重、客户数据、私有 ComfyUI workflow、私有 workflow registry、合作敏感资料不进入公开仓库。
+真实 API Key、`.env`、服务器地址、模型权重、客户剧本、员工数据、私有 workflow、私有 workflow registry、合作敏感资料不进入公开仓库。
 
-## Development Status
+## GitHub About
 
-The project is under active development. Current focus: **Phase 5 Three-entry Short-drama Script Workbench**.
+Recommended description:
 
-项目正在持续开发中，当前重点是第五阶段“三入口短剧剧本生成与改编工作台”。
+```text
+A cinematic script workbench for transforming ideas and source texts into structured short-drama scripts.
+```
 
-For cooperation or technical review, please start with [README.zh-CN.md](README.zh-CN.md) or [README.en.md](README.en.md).
+中文说明：
+
+```text
+面向短剧创作的结构化剧本生成与文本改编工作台。
+```

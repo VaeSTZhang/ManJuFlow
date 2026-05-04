@@ -18,6 +18,7 @@ export type ScriptSegmentationStoryboardPayload = {
 
 type ScriptSegmentationWorkspaceProps = {
   initialProjectTitle?: string;
+  isLocked?: boolean;
   onApplyToStoryboard: (payload: ScriptSegmentationStoryboardPayload) => void;
   onNotify?: (type: NotificationType, title: string, description?: string) => void;
 };
@@ -104,13 +105,14 @@ function formatScriptSegmentationForStoryboard(segmentation: ScriptSegmentationO
     "切分摘要：",
     segmentation.segmentation_summary,
     "",
-    "已有剧本切分片段：",
+    "结构化改编素材片段：",
     segmentsText,
   ].join("\n");
 }
 
 export function ScriptSegmentationWorkspace({
   initialProjectTitle,
+  isLocked = false,
   onApplyToStoryboard,
   onNotify,
 }: ScriptSegmentationWorkspaceProps) {
@@ -150,21 +152,26 @@ export function ScriptSegmentationWorkspace({
   const handleScriptSegmentationSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (isLocked) {
+      notify("warning", "请先登录", "请先登录后开始创作。");
+      return;
+    }
+
     if (!scriptSegmentationForm.project_title.trim()) {
       setScriptSegmentationError("请先填写项目标题。");
-      notify("warning", "缺少必填项", "切分已有剧本前请先填写项目标题。");
+      notify("warning", "缺少必填项", "整理剧本素材前请先填写项目标题。");
       return;
     }
 
     if (!scriptSegmentationForm.script_text?.trim() && !scriptSegmentationForm.source_id?.trim()) {
-      setScriptSegmentationError("请先粘贴已有剧本文本。");
-      notify("warning", "缺少剧本文本", "请粘贴已有剧本文本后再执行切分。");
+      setScriptSegmentationError("请先粘贴待改编文本。");
+      notify("warning", "缺少剧本文本", "请粘贴待改编文本后再执行整理。");
       return;
     }
 
     if (isScriptSegmentationTextTooLong) {
-      setScriptSegmentationError("已有剧本文本已超出 100,000 字，请删减或拆分后再切分。");
-      notify("warning", "文本过长", "已有剧本文本已超出 100,000 字，请删减或拆分后再切分。");
+      setScriptSegmentationError("待改编文本已超出 100,000 字，请删减或拆分后再整理。");
+      notify("warning", "文本过长", "待改编文本已超出 100,000 字，请删减或拆分后再整理。");
       return;
     }
 
@@ -194,11 +201,11 @@ export function ScriptSegmentationWorkspace({
       });
 
       setScriptSegmentationResult(data);
-      notify("success", "切分完成", "已有剧本已生成 mock 结构化片段。");
+      notify("success", "切分完成", "剧本素材已生成结构化片段。");
     } catch (error) {
       const message = parseApiErrorMessage(
         error,
-        "切分已有剧本失败，请确认后端服务已启动：http://127.0.0.1:8000",
+        "整理剧本素材失败，请确认后端服务已启动：http://127.0.0.1:8000",
       );
       setScriptSegmentationError(message);
       notify("error", "切分失败", message);
@@ -208,6 +215,11 @@ export function ScriptSegmentationWorkspace({
   };
 
   const handleMockScriptUpload = async () => {
+    if (isLocked) {
+      notify("warning", "请先登录", "请先登录后开始创作。");
+      return;
+    }
+
     if (!scriptSegmentationForm.project_title.trim()) {
       setScriptUploadError("请先填写项目标题。");
       notify("warning", "缺少必填项", "模拟上传 Word 文档前请先填写项目标题。");
@@ -265,6 +277,11 @@ export function ScriptSegmentationWorkspace({
   };
 
   const copyScriptSegmentationJson = async () => {
+    if (isLocked) {
+      notify("warning", "请先登录", "请先登录后开始创作。");
+      return;
+    }
+
     if (!scriptSegmentationResult) {
       return;
     }
@@ -274,14 +291,19 @@ export function ScriptSegmentationWorkspace({
       setScriptSegmentationCopyStatus("已复制切分 JSON");
       setScriptSegmentationExportStatus("");
       setScriptSegmentationError("");
-      notify("success", "复制成功", "已有剧本切分 JSON 已复制到剪贴板。");
+      notify("success", "复制成功", "剧本改编素材 JSON 已复制到剪贴板。");
     } catch {
       setScriptSegmentationError("复制切分 JSON 失败，请检查浏览器剪贴板权限。");
-      notify("error", "复制失败", "复制已有剧本切分 JSON 失败，请检查浏览器剪贴板权限。");
+      notify("error", "复制失败", "复制剧本改编素材 JSON 失败，请检查浏览器剪贴板权限。");
     }
   };
 
   const exportScriptSegmentationJson = () => {
+    if (isLocked) {
+      notify("warning", "请先登录", "请先登录后开始创作。");
+      return;
+    }
+
     if (!scriptSegmentationResult) {
       return;
     }
@@ -302,10 +324,15 @@ export function ScriptSegmentationWorkspace({
     setScriptSegmentationExportStatus("已导出切分 JSON");
     setScriptSegmentationCopyStatus("");
     setScriptSegmentationError("");
-    notify("success", "导出成功", "已有剧本切分 JSON 已导出。");
+    notify("success", "导出成功", "剧本改编素材 JSON 已导出。");
   };
 
   const transferScriptSegmentationToStoryboard = () => {
+    if (isLocked) {
+      notify("warning", "请先登录", "请先登录后开始创作。");
+      return;
+    }
+
     if (!scriptSegmentationResult || scriptSegmentationResult.segments.length === 0) {
       return;
     }
@@ -320,15 +347,17 @@ export function ScriptSegmentationWorkspace({
     <section className="script-segmentation-workspace">
       <form className="panel form-panel" onSubmit={handleScriptSegmentationSubmit}>
         <div className="panel-heading">
-          <p>第五阶段</p>
-          <h2>已有剧本导入与切分</h2>
-          <span>支持粘贴已有剧本文本，或通过 mock 上传 Word 文档提取文本。切分后可继续进入分镜生成。</span>
+          <p>剧本改编</p>
+          <h2>长文本整理与短剧化改编</h2>
+          <span>将已有文本整理为可改编、可分镜、可生成剧本的结构化素材。</span>
         </div>
+        {isLocked && <p className="login-required-hint">当前为浏览模式，登录后可操作。</p>}
 
         <label className="field field-wide">
           <span>项目标题</span>
           <input
             value={scriptSegmentationForm.project_title}
+            disabled={isLocked}
             onChange={(event) => updateScriptSegmentationField("project_title", event.target.value)}
           />
         </label>
@@ -341,7 +370,7 @@ export function ScriptSegmentationWorkspace({
 
           <button
             className="secondary-button"
-            disabled={scriptUploadLoading}
+            disabled={isLocked || scriptUploadLoading}
             onClick={handleMockScriptUpload}
             type="button"
           >
@@ -381,9 +410,10 @@ export function ScriptSegmentationWorkspace({
         </section>
 
         <label className="field field-wide">
-          <span>已有剧本文本</span>
+          <span>待改编文本</span>
           <textarea
             value={scriptSegmentationForm.script_text || ""}
+            disabled={isLocked}
             onChange={(event) => updateScriptSegmentationField("script_text", event.target.value)}
             rows={10}
           />
@@ -395,7 +425,7 @@ export function ScriptSegmentationWorkspace({
         </div>
 
         {isScriptSegmentationTextTooLong && (
-          <p className="error-message">已有剧本文本已超出 100,000 字，请删减或拆分后再切分。</p>
+          <p className="error-message">待改编文本已超出 100,000 字，请删减或拆分后再整理。</p>
         )}
 
         <div className="field-grid">
@@ -403,6 +433,7 @@ export function ScriptSegmentationWorkspace({
             <span>来源类型</span>
             <select
               value={scriptSegmentationForm.source_type || "pasted_text"}
+              disabled={isLocked}
               onChange={(event) => updateScriptSegmentationField("source_type", event.target.value)}
             >
               <option value="pasted_text">粘贴文本</option>
@@ -415,6 +446,7 @@ export function ScriptSegmentationWorkspace({
             <span>切分粒度</span>
             <select
               value={scriptSegmentationForm.target_segment_level || "scene"}
+              disabled={isLocked}
               onChange={(event) => updateScriptSegmentationField("target_segment_level", event.target.value)}
             >
               <option value="scene">按场景</option>
@@ -427,6 +459,7 @@ export function ScriptSegmentationWorkspace({
             <span>语言</span>
             <select
               value={scriptSegmentationForm.language || "zh"}
+              disabled={isLocked}
               onChange={(event) => updateScriptSegmentationField("language", event.target.value)}
             >
               <option value="zh">中文</option>
@@ -439,6 +472,7 @@ export function ScriptSegmentationWorkspace({
           <span>额外要求</span>
           <textarea
             value={scriptSegmentationForm.extra_requirements || ""}
+            disabled={isLocked}
             onChange={(event) => updateScriptSegmentationField("extra_requirements", event.target.value)}
             rows={3}
           />
@@ -446,10 +480,10 @@ export function ScriptSegmentationWorkspace({
 
         <button
           className="primary-button"
-          disabled={scriptSegmentationLoading || isScriptSegmentationTextTooLong}
+          disabled={isLocked || scriptSegmentationLoading || isScriptSegmentationTextTooLong}
           type="submit"
         >
-          {scriptSegmentationLoading ? "切分中..." : "切分已有剧本"}
+          {scriptSegmentationLoading ? "整理中..." : "整理剧本素材"}
         </button>
 
         {scriptSegmentationError && <p className="error-message">{scriptSegmentationError}</p>}
@@ -459,12 +493,12 @@ export function ScriptSegmentationWorkspace({
         <div className="result-header">
           <div>
             <p>输出预览</p>
-            <h2>剧本切分结果</h2>
+            <h2>剧本改编素材结果</h2>
           </div>
           <div className="result-actions">
             <button
               className="secondary-button"
-              disabled={!scriptSegmentationResult}
+              disabled={isLocked || !scriptSegmentationResult}
               onClick={copyScriptSegmentationJson}
               type="button"
             >
@@ -472,7 +506,7 @@ export function ScriptSegmentationWorkspace({
             </button>
             <button
               className="secondary-button"
-              disabled={!scriptSegmentationResult}
+              disabled={isLocked || !scriptSegmentationResult}
               onClick={exportScriptSegmentationJson}
               type="button"
             >
@@ -480,7 +514,7 @@ export function ScriptSegmentationWorkspace({
             </button>
             <button
               className="primary-button"
-              disabled={!scriptSegmentationResult || scriptSegmentationResult.segments.length === 0}
+              disabled={isLocked || !scriptSegmentationResult || scriptSegmentationResult.segments.length === 0}
               onClick={transferScriptSegmentationToStoryboard}
               type="button"
             >
@@ -493,7 +527,7 @@ export function ScriptSegmentationWorkspace({
         {scriptSegmentationExportStatus && <p className="copy-status">{scriptSegmentationExportStatus}</p>}
 
         {!scriptSegmentationResult ? (
-          <div className="empty-state">粘贴已有剧本或模拟上传 Word 文档后，切分结果将在这里展示。</div>
+          <div className="empty-state">粘贴待改编文本或模拟上传 Word 文档后，结构化结果将在这里展示。</div>
         ) : (
           <article className="script-output script-segmentation-output">
             <section className="result-summary">

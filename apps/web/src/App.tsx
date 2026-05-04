@@ -6,13 +6,9 @@ import { generateStoryboard } from "./api/storyboards";
 import "./App.css";
 import { AppShell } from "./components/layout/AppShell";
 import { CharacterCountHint } from "./components/common/CharacterCountHint";
-import { CreationEntryModal } from "./components/creation/CreationEntryModal";
+import { CreationHome } from "./components/creation/CreationHome";
 import { Sidebar } from "./components/layout/Sidebar";
 import { Toast } from "./components/layout/Toast";
-import {
-  CREATION_ENTRY_REGISTRY,
-  type CreationEntryConfig,
-} from "./constants/creationEntryRegistry";
 import {
   ScriptSegmentationWorkspace,
   type ScriptSegmentationStoryboardPayload,
@@ -216,68 +212,22 @@ function formatPromptItemsJson(items: ImageGenerationPromptItem[]): string {
   return JSON.stringify(items, null, 2);
 }
 
-const stages = [
-  {
-    title: "灵感输入",
-    description: "整理创意、题材、平台和风格要求，形成可生成的结构化输入。",
-  },
-  {
-    title: "结构化剧本",
-    description: "输出标题、卖点、世界观、角色、分集和场景对白。",
-  },
-  {
-    title: "前端展示",
-    description: "以工作台形式预览生成结果，便于内部评审和演示。",
-  },
-  {
-    title: "复制 / 导出",
-    description: "保留完整 JSON，方便后续进入 Prompt、模型和生产流程。",
-  },
-];
-
 const sidebarItems: SidebarItem[] = [
   {
-    id: "idea-script",
-    label: "灵感创作",
-    description: "灵感 → 剧本",
+    id: "creation-home",
+    label: "剧本创作",
+    description: "生成 / 改编",
   },
   {
     id: "script-segmentation",
-    label: "已有剧本",
-    description: "导入 → 切分",
-  },
-  {
-    id: "storyboard",
-    label: "分镜生成",
-    description: "剧本 → 分镜",
-  },
-  {
-    id: "image-prompt",
-    label: "绘图 Prompt",
-    description: "分镜 → Prompt",
-  },
-  {
-    id: "image-generation",
-    label: "图片生成",
-    description: "图片生成模拟",
-  },
-  {
-    id: "assets-tasks",
-    label: "资产与任务",
-    description: "资产 / 任务",
-  },
-  {
-    id: "system-status",
-    label: "系统状态",
-    description: "运行状态",
+    label: "剧本改编",
+    description: "文本整理 / 短剧化",
   },
 ];
 
 function App() {
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState("idea-script");
-  const [isMockLoggedIn, setIsMockLoggedIn] = useState(false);
-  const [isCreationEntryModalOpen, setIsCreationEntryModalOpen] = useState(false);
-  const [selectedCreationEntry, setSelectedCreationEntry] = useState<CreationEntryConfig | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState("creation-home");
   const [form, setForm] = useState<IdeaInput>(defaultForm);
   const [result, setResult] = useState<ScriptOutput | null>(null);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
@@ -314,6 +264,7 @@ function App() {
     useState<ImageGenerationBundleOutput | null>(null);
   const [toastMessages, setToastMessages] = useState<ToastMessage[]>([]);
   const isIdeaTextTooLong = form.idea_text.length > IDEA_TEXT_MAX_CHARS;
+  const isBrowsingMode = !isAuthenticated;
 
   const selectedImagePromptModel =
     imagePromptModelOptions.find((option) => option.provider === imagePromptForm.llm_provider) ||
@@ -330,18 +281,18 @@ function App() {
     window.setTimeout(() => dismissToast(id), 3500);
   };
 
-  const handleMockLogin = () => {
-    setIsMockLoggedIn(true);
-    if (!selectedCreationEntry) {
-      setIsCreationEntryModalOpen(true);
-    }
-    pushToast("success", "Mock 登录成功", "现在可以选择本次短剧创作入口。");
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    pushToast("success", "登录成功", "已进入本地演示账号。");
   };
 
-  const handleSelectCreationEntry = (entry: CreationEntryConfig) => {
-    setSelectedCreationEntry(entry);
-    setIsCreationEntryModalOpen(false);
-    pushToast("success", "已选择创作入口", `当前入口：${entry.label}`);
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    pushToast("info", "已退出登录", "当前为浏览模式，登录后可操作。");
+  };
+
+  const requireLogin = () => {
+    pushToast("warning", "请先登录", "请先登录后开始创作。");
   };
 
   useEffect(() => {
@@ -406,6 +357,11 @@ function App() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (isBrowsingMode) {
+      requireLogin();
+      return;
+    }
 
     if (isIdeaTextTooLong) {
       setError("灵感内容已超出 5,000 字，请删减后再生成。");
@@ -782,7 +738,7 @@ function App() {
       const data = await generateImages(input);
       setImageGenerationResult(data);
     } catch {
-      setImageGenerationError("生成 mock 图片失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      setImageGenerationError("生成本地模拟图片失败，请确认后端服务已启动：http://127.0.0.1:8000");
       pushToast("error", "生成失败", "图片生成接口请求失败，请检查后端是否运行。");
     } finally {
       setImageGenerationLoading(false);
@@ -845,7 +801,7 @@ function App() {
   const generateImagesFromImagePromptResult = async () => {
     if (!imagePromptResult?.items.length) {
       setImageGenerationError("当前没有可用的绘图 Prompt 结果。");
-      pushToast("warning", "缺少绘图 Prompt", "当前没有可用的绘图 Prompt 结果，无法生成 mock 图片。");
+      pushToast("warning", "缺少绘图 Prompt", "当前没有可用的绘图 Prompt 结果，无法生成本地模拟图片。");
       return;
     }
 
@@ -919,8 +875,6 @@ function App() {
 
     return `${Math.round(progress * 100)}%`;
   };
-
-  const activeWorkspace = sidebarItems.find((item) => item.id === activeWorkspaceId) || sidebarItems[0];
 
   const renderAssetTaskDetails = () => {
     if (!imageGenerationBundleResult) {
@@ -999,7 +953,7 @@ function App() {
                       <dd>{asset.task_id || "-"}</dd>
                     </div>
                     <div>
-                      <dt>Mock 图片路径</dt>
+                      <dt>模拟图片路径</dt>
                       <dd className="code-text">{asset.mock_url || "-"}</dd>
                     </div>
                     <div>
@@ -1111,93 +1065,33 @@ function App() {
       }
       toast={<Toast messages={toastMessages} onDismiss={dismissToast} />}
       topbar={
-        <div className="workspace-topbar-content">
-          <div>
-            <span>当前工作区</span>
-            <strong>{activeWorkspace.label}</strong>
-          </div>
-          <p>当前工作区仅显示对应操作区域。</p>
-          <section className="creation-entry-topbar-actions" aria-label="三入口创作选择">
-            <span>{isMockLoggedIn ? "Mock 内部账户：已登录" : "Mock 内部账户：未登录"}</span>
-            <button
-              className="secondary-button"
-              onClick={isMockLoggedIn ? () => setIsCreationEntryModalOpen(true) : handleMockLogin}
-              type="button"
-            >
-              {isMockLoggedIn ? "选择创作入口" : "Mock 登录"}
-            </button>
-          </section>
+        <div className="top-auth-bar">
+          <span>{isAuthenticated ? "本地演示账号" : "浏览模式"}</span>
+          <button
+            className="auth-button"
+            onClick={isAuthenticated ? handleLogout : handleLogin}
+            type="button"
+          >
+            {isAuthenticated ? "退出登录" : "登录"}
+          </button>
         </div>
       }
     >
       <main className="app">
-      <CreationEntryModal
-        entries={CREATION_ENTRY_REGISTRY}
-        isOpen={isCreationEntryModalOpen}
-        onClose={() => setIsCreationEntryModalOpen(false)}
-        onSelect={handleSelectCreationEntry}
-        selectedEntryId={selectedCreationEntry?.id}
-      />
-
-      <section className="creation-entry-summary" aria-label="当前创作入口">
-        <div>
-          <span>三入口短剧工作台</span>
-          <strong>
-            {selectedCreationEntry ? `当前创作入口：${selectedCreationEntry.label}` : "尚未选择创作入口"}
-          </strong>
-          <p>
-            {selectedCreationEntry
-              ? selectedCreationEntry.nextStepLabel
-              : "Mock 登录后可选择灵感生成短剧、电影剧本改短剧或小说改短剧。"}
-          </p>
-        </div>
-        <button
-          className="secondary-button"
-          onClick={isMockLoggedIn ? () => setIsCreationEntryModalOpen(true) : handleMockLogin}
-          type="button"
-        >
-          {isMockLoggedIn ? "重新选择入口" : "Mock 登录并选择入口"}
-        </button>
-      </section>
-
       <div className="workspace-transition" key={activeWorkspaceId}>
+      {activeWorkspaceId === "creation-home" && (
+        <CreationHome
+          isAuthenticated={isAuthenticated}
+          onRequireLogin={requireLogin}
+        />
+      )}
+
+      {activeWorkspaceId !== "creation-home" && !isAuthenticated && (
+        <p className="login-required-hint workspace-login-hint">当前为浏览模式，登录后可操作。</p>
+      )}
+
       {activeWorkspaceId === "idea-script" && (
         <>
-      <header className="page-header">
-        <div>
-          <p className="eyebrow">内部 AI 创作工作台</p>
-          <h1>ManJuFlow｜漫剧流</h1>
-          <p className="subtitle">AI 影视化创作流水线 · 第一阶段 MVP</p>
-          <p className="description">
-            从灵感输入到结构化短剧剧本输出，帮助 AI 生成部门快速获得可复用创作素材。
-          </p>
-        </div>
-
-        <aside className="system-status" aria-label="后端系统状态">
-          <div className={isSystemConnected ? "status-dot status-ok" : "status-dot status-offline"} />
-          <div>
-            <p>{isSystemConnected ? `后端状态：${systemStatus?.status}` : "后端状态：未连接"}</p>
-            {isSystemConnected && systemStatus && (
-              <>
-                <p>运行环境：{systemStatus.app_env}</p>
-                <p>生成模式：{systemStatus.script_generation_mode}</p>
-                <p>LLM：{systemStatus.llm_enabled ? "已启用" : "未启用"}</p>
-              </>
-            )}
-          </div>
-        </aside>
-      </header>
-
-      <section className="stage-grid" aria-label="第一阶段 MVP 状态">
-        {stages.map((stage, index) => (
-          <article className="stage-card" key={stage.title}>
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <h2>{stage.title}</h2>
-            <p>{stage.description}</p>
-          </article>
-        ))}
-      </section>
-
       <section className="workspace">
         <form className="panel form-panel" onSubmit={handleSubmit}>
           <div className="panel-heading">
@@ -1209,6 +1103,7 @@ function App() {
             <span>灵感输入</span>
             <textarea
               value={form.idea_text}
+              disabled={isBrowsingMode}
               onChange={(event) => updateField("idea_text", event.target.value)}
               rows={5}
             />
@@ -1220,13 +1115,18 @@ function App() {
               <span>剧本类型</span>
               <input
                 value={form.script_type}
+                disabled={isBrowsingMode}
                 onChange={(event) => updateField("script_type", event.target.value)}
               />
             </label>
 
             <label className="field">
               <span>类型风格</span>
-              <input value={form.genre} onChange={(event) => updateField("genre", event.target.value)} />
+              <input
+                value={form.genre}
+                disabled={isBrowsingMode}
+                onChange={(event) => updateField("genre", event.target.value)}
+              />
             </label>
 
             <label className="field">
@@ -1235,6 +1135,7 @@ function App() {
                 min={1}
                 type="number"
                 value={form.episode_count}
+                disabled={isBrowsingMode}
                 onChange={(event) => updateField("episode_count", Number(event.target.value) || 1)}
               />
             </label>
@@ -1243,6 +1144,7 @@ function App() {
               <span>单集时长</span>
               <input
                 value={form.episode_duration}
+                disabled={isBrowsingMode}
                 onChange={(event) => updateField("episode_duration", event.target.value)}
               />
             </label>
@@ -1251,32 +1153,42 @@ function App() {
               <span>目标平台</span>
               <input
                 value={form.target_platform}
+                disabled={isBrowsingMode}
                 onChange={(event) => updateField("target_platform", event.target.value)}
               />
             </label>
 
             <label className="field">
               <span>目标受众</span>
-              <input value={form.audience} onChange={(event) => updateField("audience", event.target.value)} />
+              <input
+                value={form.audience}
+                disabled={isBrowsingMode}
+                onChange={(event) => updateField("audience", event.target.value)}
+              />
             </label>
           </div>
 
           <label className="field field-wide">
             <span>风格语气</span>
-            <input value={form.tone} onChange={(event) => updateField("tone", event.target.value)} />
+            <input
+              value={form.tone}
+              disabled={isBrowsingMode}
+              onChange={(event) => updateField("tone", event.target.value)}
+            />
           </label>
 
           <label className="field field-wide">
             <span>额外要求</span>
             <input
               value={form.style_requirements}
+              disabled={isBrowsingMode}
               onChange={(event) => updateField("style_requirements", event.target.value)}
             />
           </label>
 
           {isIdeaTextTooLong && <p className="error-message">灵感内容已超出 5,000 字，请删减后再生成。</p>}
 
-          <button className="primary-button" disabled={isLoading || isIdeaTextTooLong} type="submit">
+          <button className="primary-button" disabled={isBrowsingMode || isLoading || isIdeaTextTooLong} type="submit">
             {isLoading ? "生成中..." : "生成结构化剧本"}
           </button>
 
@@ -1290,13 +1202,13 @@ function App() {
               <h2>结构化剧本</h2>
             </div>
             <div className="result-actions">
-              <button className="secondary-button" disabled={!result} onClick={transferScriptToStoryboard} type="button">
+              <button className="secondary-button" disabled={isBrowsingMode || !result} onClick={transferScriptToStoryboard} type="button">
                 带入分镜生成
               </button>
-              <button className="secondary-button" disabled={!result} onClick={copyJson} type="button">
+              <button className="secondary-button" disabled={isBrowsingMode || !result} onClick={copyJson} type="button">
                 复制 JSON
               </button>
-              <button className="secondary-button" disabled={!result} onClick={exportJson} type="button">
+              <button className="secondary-button" disabled={isBrowsingMode || !result} onClick={exportJson} type="button">
                 导出 JSON
               </button>
             </div>
@@ -1386,7 +1298,7 @@ function App() {
       <section className="storyboard-workspace">
         <form className="panel form-panel" onSubmit={handleStoryboardSubmit}>
           <div className="panel-heading">
-            <p>第二阶段</p>
+            <p>分镜工作区</p>
             <h2>生成分镜</h2>
           </div>
 
@@ -1540,6 +1452,7 @@ function App() {
       {activeWorkspaceId === "script-segmentation" && (
         <ScriptSegmentationWorkspace
           initialProjectTitle={result?.project_title || storyboardForm.project_title}
+          isLocked={isBrowsingMode}
           onApplyToStoryboard={applyScriptSegmentationToStoryboard}
           onNotify={pushToast}
         />
@@ -1549,7 +1462,7 @@ function App() {
       <section className="image-prompt-workspace" id="image-prompt-workspace">
         <form className="panel form-panel" onSubmit={handleImagePromptSubmit}>
           <div className="panel-heading">
-            <p>第三阶段</p>
+            <p>提示词工作区</p>
             <h2>生成绘图 Prompt</h2>
           </div>
 
@@ -1651,7 +1564,7 @@ function App() {
                 ? ` ${selectedImagePromptModel.label}`
                 : " 使用后端默认"}
             </strong>
-            <p>模型选择仅在后端绘图 Prompt 生成模式为 LLM 时生效。mock 模式下不会消耗 API 额度。</p>
+            <p>模型选择仅在后端绘图 Prompt 生成模式为 LLM 时生效。本地模拟模式下不会消耗 API 额度。</p>
           </div>
 
           <button className="primary-button" disabled={imagePromptLoading} type="submit">
@@ -1780,7 +1693,7 @@ function App() {
       <section className="image-generation-workspace">
         <form className="panel form-panel" onSubmit={handleImageGenerationSubmit}>
           <div className="panel-heading">
-            <p>第四阶段</p>
+            <p>图片生成工作区</p>
             <h2>生成图片</h2>
           </div>
 
@@ -1799,7 +1712,7 @@ function App() {
                 value={imageGenerationForm.provider || "mock"}
                 onChange={(event) => updateImageGenerationField("provider", event.target.value)}
               >
-                <option value="mock">Mock（本地模拟）</option>
+                <option value="mock">本地模拟</option>
               </select>
             </label>
 
@@ -2005,7 +1918,7 @@ function App() {
                             <dd>{String(asset.metadata?.source ?? "-")}</dd>
                           </div>
                           <div>
-                            <dt>Mock 图片路径</dt>
+                            <dt>模拟图片路径</dt>
                             <dd className="code-text">{asset.mock_url || "-"}</dd>
                           </div>
                           <div>
@@ -2095,7 +2008,7 @@ function App() {
           )}
 
           {!imageGenerationResult ? (
-            <div className="empty-state">生成图片 mock 结果将在这里展示。</div>
+            <div className="empty-state">本地模拟图片结果将在这里展示。</div>
           ) : (
             <article className="script-output image-generation-output">
               <section className="result-summary">
@@ -2119,7 +2032,7 @@ function App() {
               </section>
 
               <section className="image-generation-items">
-                <h4>Mock 图片结果</h4>
+                <h4>本地模拟图片结果</h4>
                 <div className="image-generation-list">
                   {imageGenerationResult.items.map((item) => (
                     <section className="image-generation-card" key={item.task_id}>
@@ -2146,7 +2059,7 @@ function App() {
                           <dd>{item.shot_id}</dd>
                         </div>
                         <div>
-                          <dt>Mock 图片路径</dt>
+                          <dt>模拟图片路径</dt>
                           <dd>{item.mock_url || "未设置"}</dd>
                         </div>
                         <div>
@@ -2191,7 +2104,7 @@ function App() {
       {activeWorkspaceId === "assets-tasks" && (
         <section className="workspace-section">
           <div className="workspace-header">
-            <p>第四阶段</p>
+            <p>资产与任务工作区</p>
             <h2>资产与任务</h2>
           </div>
           {renderAssetTaskDetails()}
