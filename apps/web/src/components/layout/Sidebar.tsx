@@ -12,10 +12,10 @@ type SidebarProps = {
 
 export function Sidebar({ items, activeItemId, onSelect }: SidebarProps) {
   return (
-    <nav className="sidebar-nav" aria-label="ManJuFlow workspace navigation">
+    <nav className="sidebar-nav" aria-label="Dramora workspace navigation">
       <div className="sidebar-brand">
-        <strong>ManJuFlow｜漫剧流</strong>
-        <span>AI 影视化创作工作台</span>
+        <strong>Dramora｜剧作工坊</strong>
+        <span>短剧剧本生成与改编工作台</span>
       </div>
 
       <div className="sidebar-nav-list">
