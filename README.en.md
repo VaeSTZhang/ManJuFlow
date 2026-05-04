@@ -10,17 +10,17 @@
 
 ## Hero
 
-**ManJuFlow** is an AI-powered cinematic storytelling workflow platform for short drama, manhua-style visual storytelling, and AI-assisted media production.
+**ManJuFlow** is currently being redesigned as an AI-powered short-drama script generation and adaptation workbench for writers, short-drama planners, and manhua-style content teams.
 
-Transform ideas or existing scripts into structured scripts, storyboards, image prompts, mock generation bundles, assets, and task-ready creative outputs.
+Users will log in, choose one of three creation entries, generate or adapt a short-drama script, edit it online, export or download it, upload revisions, and then optionally continue into script segmentation, storyboarding, and prompt generation.
 
-Current stage: **Active MVP Development｜Phase 5 Text-to-Prompt Workbench**
+Current stage: **Active MVP Development｜Phase 5 Three-entry Short-drama Script Workbench**
 
 ## Project Positioning
 
-ManJuFlow is an AI-powered cinematic content production workflow platform. It helps transform creative ideas or existing scripts into structured intermediate assets that can be consumed by downstream media generation tools.
+ManJuFlow is currently being redesigned as a three-entry short-drama script generation and adaptation workbench. It helps transform ideas, film scripts, or novels into editable short-drama scripts that can later flow into segmentation, storyboarding, and prompt generation.
 
-The current focus is not automated film generation. The project is first stabilizing the text-to-prompt pipeline, structured storyboarding, prompt generation, mock image generation, asset and task containers, script upload boundaries, workspace UI, and public repository safety rules.
+The current focus is not automated film generation, image generation, or video generation. The project is first stabilizing short-drama script generation, adaptation, online editing, document round-trip, upload boundaries, Assistant-assisted rewriting, workspace UI, and public repository safety rules.
 
 ManJuFlow is built for short drama, manhua-style visual storytelling, and visual content production workflows. It is designed for non-technical creative teams, supports both idea-first creation and existing-script workflows, and is currently intended for technical review, project showcase, and collaboration discussion.
 
@@ -62,7 +62,7 @@ ManJuFlow is built for short drama, manhua-style visual storytelling, and visual
 - AppShell / Sidebar / Toast;
 - ComfyUI / remote GPU private deployment design docs.
 
-### Phase 5｜Text-to-Prompt Workbench
+### Phase 5｜Three-entry Short-drama Script Workbench
 
 - Existing script segmentation schema / service / endpoint;
 - Frontend Existing Script workspace;
@@ -74,21 +74,59 @@ ManJuFlow is built for short drama, manhua-style visual storytelling, and visual
 - Frontend localization guide;
 - Bilingual README upgrade plan.
 
+### Phase 5 Update｜Three-entry Short-drama Script Workbench
+
+The Phase 5 product direction has been adjusted to a three-entry short-drama script workbench:
+
+- Idea to Short Drama Script: based on the existing Idea → Script capability, with stronger short-drama episode, hook, and scene structure requirements;
+- Film Script Adaptation: planned next, mock-first, with independent prompt and source_mode;
+- Novel Adaptation: planned next, mock-first, with independent prompt and source_mode.
+
+Script segmentation, storyboarding, and ImagePrompt generation remain important, but they are now positioned as the next major capability after short-drama script generation. Image generation and video generation are not the current market-trial focus.
+
+## Current Primary Entries
+
+Planned workbench flow:
+
+1. Internal account / mock login;
+2. Entry selection page;
+3. Choose one creation mode:
+   - Idea to Short Drama Script;
+   - Film Script to Short Drama;
+   - Novel to Short Drama;
+4. Enter the corresponding generation / adaptation page;
+5. Edit the generated short-drama script online;
+6. Download DOCX / TXT / JSON or upload a revised draft;
+7. Optionally continue to script segmentation, storyboard, and prompt generation.
+
+## AI Assistant Positioning
+
+The AI Assistant is not a generic chat box. It is a writer assistant, adaptation assistant, and workflow assistant.
+
+It should help users:
+
+- rewrite ideas;
+- extract film adaptation strategies;
+- summarize novel character relationships;
+- strengthen short-drama hooks;
+- move current results into the next workflow step;
+- execute suggested actions only after user confirmation.
+
+The Assistant must remain independent from the three primary generation flows, with separate schema / service / endpoint / prompt / environment configuration.
+
 ## Workflow Overview
 
 ```mermaid
 flowchart LR
-  Idea[Idea] --> Script[Structured Script]
-  Existing[Existing Script] --> Upload[Mock Word Upload]
-  Upload --> Segments[Script Segmentation]
-  Existing --> Segments
-  Script --> Storyboard[Storyboard]
-  Segments --> Storyboard
-  Storyboard --> Prompt[Image Prompt]
-  Prompt --> ImageMock[Image Generation Mock]
-  ImageMock --> Bundle[Generation Bundle]
-  Bundle --> Assets[Assets]
-  Bundle --> Tasks[Tasks]
+  Login[Internal / Mock Login] --> Entry[Entry Selection]
+  Entry --> Idea[Idea to Short Drama]
+  Entry --> Film[Film Script Adaptation]
+  Entry --> Novel[Novel Adaptation]
+  Idea --> Script[Short-drama Script]
+  Film --> Script
+  Novel --> Script
+  Script --> Edit[Online Edit / Export / Upload Revision]
+  Edit --> Next[Next: Segmentation / Storyboard / Prompt]
 ```
 
 ## Technical Architecture
@@ -263,12 +301,17 @@ The public repository must not contain:
 
 Planned directions:
 
+- Three-entry schema / prompt / source_mode registry;
+- Film script to short-drama mock / llm flow;
+- Novel to short-drama mock / llm flow;
+- Frontend entry selection page;
 - Real `.docx` file upload and text extraction;
+- Online editing and DOCX download;
 - Mock Internal Auth;
-- Assistant Chat with DeepSeek-first but provider-extensible design;
+- Assistant as writer / adaptation / workflow assistant;
 - Assistant suggested actions;
 - UsageLedger for usage and RMB cost estimation;
-- Prompt versioning / translate current prompt;
+- Script segmentation / storyboard / prompt as the next major capability;
 - README maintenance and documentation synchronization;
 - Private ComfyUI small-sample integration;
 - Asset Manager / Task Center improvements;

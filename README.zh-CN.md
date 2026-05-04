@@ -10,17 +10,17 @@
 
 ## Hero
 
-**ManJuFlow｜漫剧流** 是一个面向短剧 / 漫剧 / AI 影视化内容生产的创作流水线平台。
+**ManJuFlow｜漫剧流** 当前正在重整为一个面向编剧、短剧策划、漫剧内容团队的 AI 短剧剧本生成与改编工作台。
 
-从灵感或已有剧本出发，生成结构化剧本、分镜、绘图 Prompt、图片生成 Mock、资产与任务结果包。
+用户先登录内部账户，再选择三种创作方式之一：灵感生成短剧剧本、电影剧本改编短剧剧本、小说改编短剧剧本。生成后可在线编辑、下载 / 导出、上传修改稿，并在后续进入短剧剧本切分 / 分镜 / Prompt。
 
-当前阶段：**Active MVP Development｜Phase 5 Text-to-Prompt Workbench**
+当前阶段：**Active MVP Development｜Phase 5 Three-entry Short-drama Script Workbench**
 
 ## 项目定位
 
-ManJuFlow 是一个 AI 影视化创作流水线平台，用于把灵感或已有剧本逐步转化为可被后续媒体生成工具消费的结构化内容。
+ManJuFlow 当前主产品定位是 AI 短剧剧本生成与改编工作台，用于把灵感、电影剧本片段或小说文本逐步转化为可编辑、可导出、可继续进入后续工作流的短剧剧本。
 
-当前项目重点不是直接“自动成片”，而是先把文字生产、分镜、Prompt、Mock 图片生成、资产任务承载、上传、工作台和安全边界打稳。它面向短剧、漫剧和视觉内容生产场景，重点服务非技术内容团队，让编剧、导演、美术、制片和运营人员可以通过网页工作台完成可追踪、可评审、可交接的前期创作链路。
+当前项目重点不是直接“自动成片”，也不是优先推进文生图 / 文生视频，而是先把短剧剧本生成、改编、在线编辑、下载导出、上传修改稿和 Assistant 辅助工作流打稳。它面向短剧、漫剧和文字内容生产场景，重点服务非技术内容团队，让编剧、短剧策划、漫剧内容团队和运营人员可以通过网页工作台完成可追踪、可评审、可交接的短剧剧本生产链路。
 
 当前公开仓库用于技术评审、项目展示和合作沟通。真实客户数据、真实账号、真实 ComfyUI / GPU 配置、私有 workflow 和模型权重应留在私有部署环境。
 
@@ -62,7 +62,7 @@ ManJuFlow 是一个 AI 影视化创作流水线平台，用于把灵感或已有
 - AppShell / Sidebar / Toast；
 - ComfyUI / 远端 GPU 私有部署文档。
 
-### Phase 5｜Text-to-Prompt Workbench
+### Phase 5｜Three-entry Short-drama Script Workbench
 
 - 已有剧本切分 Schema / Service / Endpoint；
 - 前端“已有剧本”工作区；
@@ -74,21 +74,59 @@ ManJuFlow 是一个 AI 影视化创作流水线平台，用于把灵感或已有
 - 前端中文化规范；
 - README 双语升级规划。
 
+### Phase 5 Update｜Three-entry Short-drama Script Workbench
+
+当前第五阶段产品主线已调整为三入口短剧剧本生成与改编工作台：
+
+- 灵感生成短剧剧本：已具备基础 Idea → Script 能力，继续强化短剧集数、钩子和分集结构；
+- 电影剧本改编短剧剧本：规划中，下一步按 mock 优先、独立 prompt、独立 source_mode 推进；
+- 小说改编短剧剧本：规划中，下一步按 mock 优先、独立 prompt、独立 source_mode 推进。
+
+切分 / 分镜 / Prompt 仍然保留，但调整为生成短剧剧本后的下一大功能预备，不再作为当前首页主入口。Image Generation / Video Generation 暂不作为市场试用重点。
+
+## 当前产品主入口
+
+未来工作台入口规划：
+
+1. 内部账号 / mock login；
+2. 进入三入口选择页；
+3. 选择创作方式：
+   - 灵感生成短剧剧本；
+   - 电影剧本改编短剧剧本；
+   - 小说改编短剧剧本；
+4. 进入对应生成 / 改编页面；
+5. 在线编辑短剧剧本；
+6. 下载 DOCX / TXT / JSON 或上传修改稿；
+7. 后续可继续进入短剧剧本切分 / 分镜 / Prompt。
+
+## AI Assistant 定位
+
+AI Assistant 不是普通聊天框，而是编剧助手 / 改编助手 / 工作流助手。
+
+它未来将辅助：
+
+- 改写灵感；
+- 提炼电影剧本改编策略；
+- 梳理小说人物关系；
+- 增强短剧钩子；
+- 将当前结果带入下一步；
+- 通过 suggested actions 执行操作，并由用户确认。
+
+Assistant 必须独立于三入口主生成链路，拥有独立 schema / service / endpoint / prompt / env 配置。
+
 ## 工作流概览
 
 ```mermaid
 flowchart LR
-  Idea[灵感 Idea] --> Script[结构化剧本 Script]
-  Existing[已有剧本 Existing Script] --> Upload[Mock Word 上传]
-  Upload --> Segments[剧本切分 Script Segmentation]
-  Existing --> Segments
-  Script --> Storyboard[分镜 Storyboard]
-  Segments --> Storyboard
-  Storyboard --> Prompt[绘图 Prompt ImagePrompt]
-  Prompt --> ImageMock[图片生成 Mock]
-  ImageMock --> Bundle[结果包 Bundle]
-  Bundle --> Assets[资产 Assets]
-  Bundle --> Tasks[任务 Tasks]
+  Login[内部账号 / Mock Login] --> Entry[三入口选择]
+  Entry --> Idea[灵感生成短剧]
+  Entry --> Film[电影剧本改短剧]
+  Entry --> Novel[小说改短剧]
+  Idea --> Script[短剧剧本]
+  Film --> Script
+  Novel --> Script
+  Script --> Edit[在线编辑 / 导出 / 上传修改稿]
+  Edit --> Next[下一大功能：切分 / 分镜 / Prompt]
 ```
 
 ## 技术架构
@@ -264,12 +302,17 @@ ManJuFlow/
 
 后续方向：
 
+- 三入口 Schema / Prompt / source_mode 注册；
+- 电影剧本改短剧 mock / llm；
+- 小说改短剧 mock / llm；
+- 前端三入口选择页；
 - 真实 `.docx` 文件上传与文本解析；
+- 在线编辑与 DOCX 下载；
 - Mock Internal Auth；
-- Assistant Chat with DeepSeek-first but provider-extensible design；
+- Assistant 作为编剧助手 / 改编助手 / 工作流助手；
 - Assistant suggested actions；
 - UsageLedger 用量与人民币成本估算；
-- Prompt 版本管理 / 当前 Prompt 翻译；
+- 短剧剧本切分 / 分镜 / Prompt 作为下一大功能；
 - README 后续维护与文档同步；
 - 私有 ComfyUI 小样本联调；
 - Asset Manager / Task Center 深化；

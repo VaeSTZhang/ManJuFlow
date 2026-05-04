@@ -1,120 +1,106 @@
 # ManJuFlow｜漫剧流 MVP Roadmap
 
-## 第一阶段目标
+## 当前产品主线
 
-- 灵感输入
-- 结构化短剧剧本输出
-- 前端页面展示
-- 可复制 / 可导出结果
+ManJuFlow 当前第五阶段主线已调整为：
 
-## 当前已完成
+```text
+内部账号 / mock login
+→ 三入口选择
+→ 灵感生成短剧剧本 / 电影剧本改短剧 / 小说改短剧
+→ 在线编辑 / DOCX 下载 / 上传修改稿
+→ 下一大功能：短剧剧本切分 / 分镜 / Prompt
+```
 
-- 项目初始化
-- FastAPI `/health`
-- 核心 Schema
-- `/api/scripts/generate` mock
-- GitHub 初次推送
-- Storyboard Schema 已完成
-- `script_to_storyboard_v1.md` 已完成
-- Storyboard mock service 已完成
-- `/api/storyboards/generate` 已完成
-- 前端生成分镜 UI 已完成
-- 前端“剧本 → 分镜”衔接已完成
-- Storyboard service 字段覆盖测试已完成
-- Storyboard generation mode 测试覆盖已完成
-- Storyboard endpoint 测试已完成
-- Storyboard Schema 约束测试已完成
-- Storyboard LLM 输出解析测试已完成
-- Storyboard LLM 真实调用测试已完成
-- 第二阶段本地稳定验收已通过
-- 第二阶段最终总结已完成
-- 第三阶段已开始：分镜 → AI 绘图 Prompt
-- ImagePrompt Schema 已完成
-- `storyboard_to_image_prompt_v1.md` 已完成
-- ImagePrompt mock service 已完成
-- `/api/prompts/generate` 已完成
-- mock 模式 curl 测试已通过
-- 前端 ImagePrompt 类型和 API 封装已完成
-- 前端“生成绘图 Prompt”区域已完成
-- 绘图 Prompt JSON 复制 / 导出已完成
-- 分镜结果一键带入绘图 Prompt 生成已完成
-- 前端完整链路“灵感 → 剧本 → 分镜 → 绘图 Prompt”已通过本地验收
-- ImagePrompt LLM parser 已完成
-- ImagePrompt mock / llm 模式切换已完成
-- `IMAGE_PROMPT_GENERATION_MODE` 已加入配置
-- 后端 `tests/api` 已扩展到 44 passed
-- ImagePrompt DeepSeek 真实 LLM 小样本测试已通过
-- `/api/prompts/generate` llm 模式已通过小样本验收
-- `LLM_PROVIDER=deepseek / mimo` 配置支持已完成
-- Mimo / 小米大模型 ImagePrompt 小样本测试已通过
-- Mimo `sk-` API Key 可用于后端直连 API
-- Kimi ImagePrompt 小样本测试已通过
-- MiniMax ImagePrompt 小样本测试已通过
-- 四家 provider：DeepSeek / Mimo / Kimi / MiniMax 均已通过 ImagePrompt 小样本验收
-- S001 四模型 ImagePrompt 对比完成
-- ImagePrompt 输出文件已保存到 `tests/fixtures/image_prompt_outputs/`
-- provider-specific timeout 已完成，Kimi provider 使用更长 timeout
-- ImagePrompt 测试隔离已修复，后端 `tests/api` 当前为 58 passed
-- ImagePrompt 中文空格清洗已完成
-- 后端 `tests/api` 当前为 59 passed
-- 本地后端启动脚本已完成：`scripts/dev_api.sh`
-- 后端启动脚本兼容性修复已完成：`scripts/dev_api.sh` 直接使用 venv python 启动 uvicorn
-- 本地后端端口清理脚本已完成：`scripts/kill_api_port.sh`
-- 请求级 provider/model 选择完成
-- 前端 ImagePrompt 模型选择器完成
-- 前端模型选择器浏览器验收通过
-- README 公开项目展示优化完成
-- 第三阶段总结文档已创建：`docs/PHASE_3_SUMMARY.md`
-- 第四阶段文生图 / 远端 GPU / ComfyUI 方案文档已完成：`docs/PHASE_4_IMAGE_GENERATION_PLAN.md`
-- ImageGeneration Schema 已完成
-- mock image generation service 已完成
-- `POST /api/images/generate` 已完成
-- 前端 ImageGeneration 类型和 API 封装已完成
-- 前端 Image Generation mock UI 已完成
-- 浏览器 mock 联调已通过
-- 手动 `prompt_items` JSON → `/api/images/generate` → mock 图片结果已通过
-- `ImagePromptResult` → `/api/images/generate` → mock 图片结果已通过
-- Workflow Registry 设计文档已完成
-- ComfyUI Provider 技术方案文档已完成
-- ComfyUI 私有小样本联调 checklist 已完成
-- Asset / RenderTask / Bundle 基础能力已完成
-- `/api/images/generate-bundle` 已完成
-- 前端 Asset / RenderTask / Bundle 类型已完成
-- 前端 `generateImageBundle` API 已完成
-- 前端 Bundle Summary / Assets / Tasks 明细展示已完成
-- 前端工作台布局已完成
-- Sidebar workspace 切换已完成
-- Toast Notification 已完成
-- 点击带入下一阶段后自动跳转对应 workspace 已完成
-- ImagePrompt → ImageGeneration 自动跳转修复已完成
-- 当前仍未接真实 ComfyUI / GPU
+当前市场试用重点是 **AI 短剧剧本生成与改编工作台**，不是文生图、文生视频或自动成片。
 
-## 下一步计划
+## 已完成基础能力
 
-- S002-S004 模型对比
-- 合作技术资产与权属边界说明文档
-- 第四阶段接口与本地开发文档更新
-- 第四阶段进度文档补全
-- 设计 ComfyUI adapter interface
-- 设计多 workflow registry / workflow preset 抽象
-- 新增私有部署 runbook 草案
-- README 项目主页展示优化
-- S002-S004 可作为后续模型质量补充对比
+- Phase 1：Idea → Script；
+- Phase 2：Script → Storyboard；
+- Phase 3：Storyboard → ImagePrompt；
+- Phase 4：ImagePrompt → ImageGeneration mock / bundle / asset / task / workspace；
+- Phase 5 已完成部分：
+  - Existing Script Segmentation schema / service / endpoint；
+  - 前端已有剧本工作区；
+  - mock Word upload；
+  - 输入长度限制与前端字数提示；
+  - 后端统一输入长度校验；
+  - Document Round-trip 方案；
+  - Document Export Schema；
+  - 三入口短剧工作台重整方案；
+  - 三入口项目结构重整方案；
+  - 市场试用方案和老板演示脚本已按三入口方向更新。
+
+## P0｜当前优先级
+
+- Three-entry script workbench redesign；
+- Idea to short drama script；
+- Film script to short drama adaptation；
+- Novel to short drama adaptation；
+- Entry selection UI after login；
+- Editable script result；
+- DOCX download；
+- Input limits；
+- AI Assistant planning。
+
+中文说明：
+
+- 三入口短剧剧本工作台重整；
+- 灵感生成短剧剧本；
+- 电影剧本改编短剧剧本；
+- 小说改编短剧剧本；
+- 登录后的入口选择页；
+- 可在线编辑的短剧剧本结果；
+- DOCX 下载；
+- 输入字数限制；
+- AI Assistant 规划。
+
+## P1｜下一阶段能力
+
+- Document round-trip；
+- Assistant mock / LLM；
+- Script segmentation / storyboard / prompt as next big feature。
+
+中文说明：
+
+- 文档往返：在线编辑、下载 Word、离线修改、再上传；
+- Assistant mock / LLM：编剧助手、改编助手、工作流助手；
+- 短剧剧本切分 / 分镜 / Prompt 作为下一大功能。
+
+## P2｜后续媒体生成方向
+
+- Image generation；
+- Video generation；
+- ComfyUI / GPU deployment。
+
+中文说明：
+
+- 图片生成；
+- 视频生成；
+- ComfyUI / GPU 私有部署。
+
+这些能力不作为当前市场试用第一重点。进入真实 ComfyUI / GPU 前，必须继续遵守私有部署 checklist 和公开仓库安全边界。
 
 ## 当前暂不做
 
-- 真实文生图
-- 文生视频
-- 真实 ComfyUI 接入
-- 真实 GPU 服务器接入
-- n8n
-- Redis
-- MinIO
-- 复杂多 Agent
-- Docker 部署
+- 真实文生图作为市场试用主功能；
+- 文生视频；
+- 自动成片；
+- 真实 ComfyUI 公共服务；
+- 真实 GPU 服务器接入；
+- 复杂多租户正式权限系统；
+- 高并发 SaaS；
+- Redis / Celery / MinIO；
+- 复杂多 Agent；
+- Docker 生产部署。
 
 ## 项目推进原则
 
-- 每次只做一个小闭环
-- 每个阶段完成后 commit
-- 后端、前端、Prompt、模型接入分阶段推进
+- 每次只做一个小闭环；
+- 不为了赶进度写死结构；
+- 三入口通过 `source_mode`、独立 prompt、独立 form、独立 service 边界推进；
+- Assistant 独立于主生成链路；
+- Document import/export 独立于 upload mock；
+- 公开仓库不提交 API Key、`.env`、真实客户数据、真实服务器地址、私有 workflow 或模型权重；
+- 每个阶段完成后测试、文档、再提交。

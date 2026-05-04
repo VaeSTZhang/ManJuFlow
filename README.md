@@ -1,8 +1,8 @@
 # ManJuFlow｜漫剧流
 
-AI-powered cinematic creation workflow platform for short drama, manhua-style storytelling, storyboards, visual prompts, and media generation pipelines.
+AI-powered short-drama script generation and adaptation workbench.
 
-面向短剧 / 漫剧 / AI 影视化创作的模块化流水线工作台。
+面向编剧、短剧策划、漫剧内容团队的 AI 短剧剧本生成与改编工作台。
 
 ![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-646cff)
@@ -23,26 +23,38 @@ This default README is a concise bilingual landing page. For full project detail
 
 ## Project Overview
 
-ManJuFlow is a modular AI cinematic creation workflow platform. It helps transform ideas or existing scripts into structured scripts, storyboards, AI image prompts, and media-generation-ready assets.
+ManJuFlow is currently being redesigned as a three-entry AI short-drama script generation and adaptation workbench. It helps creative teams transform ideas, film scripts, or novels into editable short-drama scripts.
 
-ManJuFlow 用于将灵感或已有剧本逐步转化为结构化剧本、导演分镜、AI 绘图 Prompt，以及后续媒体生成链路所需的资产与任务结构。
+ManJuFlow 当前主线是三入口短剧剧本生成与改编：灵感生成短剧剧本、电影剧本改编短剧剧本、小说改编短剧剧本。生成后可继续在线编辑、导出、上传修改稿，并在后续进入短剧剧本切分 / 分镜 / Prompt。
 
-Current focus: **Phase 5 Text-to-Prompt Workbench**.
+Current focus: **Phase 5 Three-entry Short-drama Script Workbench**.
 
-当前重点：**第五阶段｜文字到媒体提示词工作台**。
+当前重点：**第五阶段｜三入口短剧剧本生成与改编工作台**。
 
 ## Current Capabilities
 
 - **Phase 1: Idea → Script**  
-  灵感输入生成结构化剧本。
+  灵感输入生成结构化短剧剧本。
 - **Phase 2: Script → Storyboard**  
   剧本生成导演分镜。
 - **Phase 3: Storyboard → Image Prompt**  
   分镜生成 AI 绘图 Prompt，支持 Prompt 中文 / 英文输出。
 - **Phase 4: Image Prompt → Image Generation Mock / Asset / Task / Workspace**  
   图片生成 mock、Bundle、Asset、RenderTask 和工作台 UI。
-- **Phase 5: Text-to-Prompt Workbench**  
-  已有剧本切分、Upload Mock、Workspace Context Isolation、Assistant Planning。
+- **Phase 5: Three-entry Short-drama Script Workbench**  
+  三入口重整：灵感生成短剧、电影剧本改短剧、小说改短剧。电影 / 小说改编仍处于规划和 mock 优先推进阶段。
+
+Current primary entries:
+
+- Idea to Short Drama Script｜灵感生成短剧剧本
+- Film Script to Short Drama｜电影剧本改编短剧剧本
+- Novel to Short Drama｜小说改编短剧剧本
+
+Next major feature after script generation:
+
+- Script Segmentation / Storyboard / ImagePrompt｜短剧剧本切分 / 分镜 / Prompt
+
+Image generation and video generation are not the current market-trial focus.
 
 ## Why ManJuFlow
 
@@ -69,12 +81,12 @@ Current focus: **Phase 5 Text-to-Prompt Workbench**.
 ## Workflow Overview
 
 ```text
-Idea / Existing Script
-  -> Script / Segments
-  -> Storyboard
-  -> Image Prompt
-  -> Image Generation Mock / Bundle
-  -> Assets / Render Tasks
+Login / Mock Login
+  -> Choose Creation Entry
+  -> Idea / Film Script / Novel
+  -> Short-drama Script
+  -> Online Edit / Export / Upload Revision
+  -> Next: Segmentation / Storyboard / Prompt
 ```
 
 ## Repository Structure
@@ -145,8 +157,8 @@ Real API keys, server addresses, model weights, customer data, private ComfyUI w
 
 ## Development Status
 
-The project is under active development. Current focus: **Phase 5 Text-to-Prompt Workbench**.
+The project is under active development. Current focus: **Phase 5 Three-entry Short-drama Script Workbench**.
 
-项目正在持续开发中，当前重点是第五阶段“文字到媒体提示词工作台”。
+项目正在持续开发中，当前重点是第五阶段“三入口短剧剧本生成与改编工作台”。
 
 For cooperation or technical review, please start with [README.zh-CN.md](README.zh-CN.md) or [README.en.md](README.en.md).
