@@ -47,6 +47,13 @@ from app.services.script_input_limits import (
     validate_text_length,
     validate_upload_file_size,
 )
+from app.services.script_generation import (
+    DEFAULT_SCRIPT_GENERATION_REGISTRY,
+    ScriptGenerationEntryConfig,
+    get_script_generation_entry,
+    get_supported_source_modes,
+    list_script_generation_entries,
+)
 from app.services.script_segmentation_service import (
     generate_script_segmentation,
     generate_script_segmentation_mock,
@@ -69,6 +76,7 @@ __all__ = [
     "count_text_chars",
     "DEFAULT_SCRIPT_CHUNK_OVERLAP_CHARS",
     "DEFAULT_SCRIPT_CHUNK_SIZE_CHARS",
+    "DEFAULT_SCRIPT_GENERATION_REGISTRY",
     "extract_script_text_mock",
     "ImageGenerationProvider",
     "LLMClient",
@@ -91,9 +99,13 @@ __all__ = [
     "generate_storyboard_mock",
     "generate_mock_source_id",
     "get_image_generation_provider",
+    "get_script_generation_entry",
+    "get_supported_source_modes",
     "is_supported_script_filename",
+    "list_script_generation_entries",
     "load_image_prompt_template",
     "parse_image_prompt_llm_response",
+    "ScriptGenerationEntryConfig",
     "validate_extra_requirements",
     "validate_extracted_text",
     "validate_extracted_text_length",
