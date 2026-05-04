@@ -44,6 +44,28 @@ def test_generate_from_source_idea_returns_short_drama_output(monkeypatch) -> No
 
 
 def make_fake_script_output() -> ScriptOutput:
+    episodes = [
+        EpisodeScript(
+            episode_number=episode_number,
+            title=f"第{episode_number}集：归来线索",
+            summary=f"沈知远回到公司，发现第{episode_number}条虚构线索。",
+            hook=f"旧硬盘里出现第{episode_number}条关键署名记录。",
+            scenes=[
+                SceneScript(
+                    scene_number=1,
+                    location="影视公司会议室",
+                    time="夜晚",
+                    description="沈知远与对手在会议室对峙。",
+                    dialogues=[
+                        DialogueLine(character="沈知远", line="这个故事，我三年前就写过。"),
+                    ],
+                    visual_notes="冷光会议室，投影屏压迫人物。",
+                    emotion_curve="归来→对峙→钩子",
+                )
+            ],
+        )
+        for episode_number in range(1, 4)
+    ]
     return ScriptOutput(
         project_title="测试短剧：归来之夜",
         logline="归来的编剧发现旧案与新项目窃取阴谋相连。",
@@ -57,27 +79,7 @@ def make_fake_script_output() -> ScriptOutput:
                 arc="从自证清白到反击对手。",
             )
         ],
-        episodes=[
-            EpisodeScript(
-                episode_number=1,
-                title="第1集：归来",
-                summary="沈知远回到公司。",
-                hook="旧硬盘里出现关键署名记录。",
-                scenes=[
-                    SceneScript(
-                        scene_number=1,
-                        location="影视公司会议室",
-                        time="夜晚",
-                        description="沈知远与对手在会议室对峙。",
-                        dialogues=[
-                            DialogueLine(character="沈知远", line="这个故事，我三年前就写过。"),
-                        ],
-                        visual_notes="冷光会议室，投影屏压迫人物。",
-                        emotion_curve="归来→对峙→钩子",
-                    )
-                ],
-            )
-        ],
+        episodes=episodes,
     )
 
 
@@ -111,8 +113,17 @@ def test_generate_from_source_llm_mode_film_script_returns_short_drama_output(mo
             world_setting="废弃片场与旧电影工业交织。",
             characters=[],
             adaptation_notes=None,
-            episode_count=1,
-            episodes=[],
+            episode_count=3,
+            episodes=[
+                EpisodeScript(
+                    episode_number=episode_number,
+                    title=f"第{episode_number}集：片场线索",
+                    summary=f"女演员发现第{episode_number}条片场旧案线索。",
+                    hook=f"第{episode_number}集结尾，旧道具暴露新的真相。",
+                    scenes=[],
+                )
+                for episode_number in range(1, 4)
+            ],
             metadata={"generation_mode": "llm"},
         ),
     )
@@ -141,8 +152,17 @@ def test_generate_from_source_llm_mode_novel_returns_short_drama_output(monkeypa
             world_setting="旧书店与废弃剧场交织。",
             characters=[],
             adaptation_notes=None,
-            episode_count=1,
-            episodes=[],
+            episode_count=3,
+            episodes=[
+                EpisodeScript(
+                    episode_number=episode_number,
+                    title=f"第{episode_number}集：书店线索",
+                    summary=f"年轻编剧发现第{episode_number}条旧书店线索。",
+                    hook=f"第{episode_number}集结尾，日记出现新的名字。",
+                    scenes=[],
+                )
+                for episode_number in range(1, 4)
+            ],
             metadata={"generation_mode": "llm"},
         ),
     )
@@ -258,7 +278,9 @@ def test_generate_from_source_rejects_uploaded_document_as_400(monkeypatch) -> N
     assert "Document Import" in data["detail"]
 
 
-def test_existing_generate_script_endpoint_still_works() -> None:
+def test_existing_generate_script_endpoint_still_works(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
     client = TestClient(app)
 
     response = client.post(

@@ -18,6 +18,29 @@ from app.services.script_generation.generator import (
 
 
 def make_fake_script_output() -> ScriptOutput:
+    episodes = [
+        EpisodeScript(
+            episode_number=episode_number,
+            title=f"第{episode_number}集：归来线索",
+            summary=f"沈知远回到公司，发现第{episode_number}条新线索。",
+            hook=f"第{episode_number}集结尾，旧硬盘里出现新的署名记录。",
+            scenes=[
+                SceneScript(
+                    scene_number=1,
+                    location="影视公司会议室",
+                    time="夜晚",
+                    description="沈知远推门进入会议室，许竞的项目提案正投在大屏上。",
+                    dialogues=[
+                        DialogueLine(character="沈知远", line="这个故事的第一版，三年前就写在我的电脑里。"),
+                        DialogueLine(character="许竞", line="证据呢？没有证据，就别打扰大家开会。"),
+                    ],
+                    visual_notes="会议室冷光，投影屏形成强压迫感。",
+                    emotion_curve="克制入场→正面对峙→证据钩子",
+                )
+            ],
+        )
+        for episode_number in range(1, 4)
+    ]
     return ScriptOutput(
         project_title="测试短剧：归来之夜",
         logline="被误解离开的编剧归来，发现旧案背后藏着新项目窃取阴谋。",
@@ -38,28 +61,7 @@ def make_fake_script_output() -> ScriptOutput:
                 arc="从掌控公司话语权到被证据反噬。",
             ),
         ],
-        episodes=[
-            EpisodeScript(
-                episode_number=1,
-                title="第1集：归来",
-                summary="沈知远回到公司，发现许竞正在推动疑似抄袭的新项目。",
-                hook="沈知远在旧硬盘里发现当年被篡改的署名记录。",
-                scenes=[
-                    SceneScript(
-                        scene_number=1,
-                        location="影视公司会议室",
-                        time="夜晚",
-                        description="沈知远推门进入会议室，许竞的项目提案正投在大屏上。",
-                        dialogues=[
-                            DialogueLine(character="沈知远", line="这个故事的第一版，三年前就写在我的电脑里。"),
-                            DialogueLine(character="许竞", line="证据呢？没有证据，就别打扰大家开会。"),
-                        ],
-                        visual_notes="会议室冷光，投影屏形成强压迫感。",
-                        emotion_curve="克制入场→正面对峙→证据钩子",
-                    )
-                ],
-            )
-        ],
+        episodes=episodes,
     )
 
 
@@ -134,7 +136,7 @@ def test_generate_short_drama_script_llm_mode_idea_returns_short_drama_output(mo
     assert isinstance(output, ShortDramaScriptOutput)
     assert output.source_mode == "idea"
     assert output.project_title == "测试短剧：归来之夜"
-    assert output.episode_count == 1
+    assert output.episode_count == 3
     assert output.metadata["generation_mode"] == "llm"
     assert output.metadata["provider"] == "deepseek"
     assert output.metadata["model"] == "deepseek-chat"
@@ -170,7 +172,13 @@ def test_generate_short_drama_script_llm_mode_film_script_dispatches_to_film_llm
             characters=[],
             adaptation_notes=None,
             episode_count=1,
-            episodes=[],
+            episodes=[EpisodeScript(
+                episode_number=1,
+                title="第1集：片场归来",
+                summary="女演员回到废弃片场。",
+                hook="旧摄影机突然亮起。",
+                scenes=[],
+            )],
             metadata={"generation_mode": "llm"},
         )
 
@@ -205,7 +213,13 @@ def test_generate_short_drama_script_llm_mode_novel_dispatches_to_novel_llm(monk
             characters=[],
             adaptation_notes=None,
             episode_count=1,
-            episodes=[],
+            episodes=[EpisodeScript(
+                episode_number=1,
+                title="第1集：旧书店",
+                summary="年轻编剧回到旧书店。",
+                hook="旧日记写着她的名字。",
+                scenes=[],
+            )],
             metadata={"generation_mode": "llm"},
         )
 

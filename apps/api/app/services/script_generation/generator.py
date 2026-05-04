@@ -11,6 +11,7 @@ from app.services.script_generation.novel_adaptation import (
     generate_novel_adaptation_llm,
     generate_novel_adaptation_mock,
 )
+from app.services.script_generation.validation import validate_target_episode_count_contract
 from app.services.script_service import generate_script_mock, generate_script_with_llm
 
 
@@ -40,7 +41,7 @@ def convert_script_output_to_short_drama_output(
     metadata = build_script_generation_metadata(input_data, generation_mode=generation_mode)
     metadata["bridge_from"] = "ScriptOutput"
 
-    return ShortDramaScriptOutput(
+    output = ShortDramaScriptOutput(
         project_title=script_output.project_title,
         source_mode=input_data.source_mode,
         logline=script_output.logline,
@@ -51,6 +52,7 @@ def convert_script_output_to_short_drama_output(
         episodes=script_output.episodes,
         metadata=metadata,
     )
+    return validate_target_episode_count_contract(input_data, output)
 
 
 def generate_short_drama_script_mock(
@@ -61,10 +63,12 @@ def generate_short_drama_script_mock(
         return convert_script_output_to_short_drama_output(script_output, input_data)
 
     if input_data.source_mode == "film_script":
-        return generate_film_script_adaptation_mock(input_data)
+        output = generate_film_script_adaptation_mock(input_data)
+        return validate_target_episode_count_contract(input_data, output)
 
     if input_data.source_mode == "novel":
-        return generate_novel_adaptation_mock(input_data)
+        output = generate_novel_adaptation_mock(input_data)
+        return validate_target_episode_count_contract(input_data, output)
 
     if input_data.source_mode == "assistant_rewrite":
         raise NotImplementedError(
@@ -112,10 +116,12 @@ def generate_short_drama_script(
             return generate_idea_short_drama_script_llm(input_data)
 
         if input_data.source_mode == "film_script":
-            return generate_film_script_adaptation_llm(input_data)
+            output = generate_film_script_adaptation_llm(input_data)
+            return validate_target_episode_count_contract(input_data, output)
 
         if input_data.source_mode == "novel":
-            return generate_novel_adaptation_llm(input_data)
+            output = generate_novel_adaptation_llm(input_data)
+            return validate_target_episode_count_contract(input_data, output)
 
         raise NotImplementedError(
             f"SCRIPT_GENERATION_MODE=llm is not implemented for source_mode='{input_data.source_mode}' yet."

@@ -2,12 +2,20 @@ from pathlib import Path
 import sys
 
 from fastapi.testclient import TestClient
+import pytest
 
 
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
+from app.config import get_settings
 from app.main import app
+
+
+@pytest.fixture(autouse=True)
+def force_mock_script_generation_mode(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
 
 
 def make_generate_request(**overrides) -> dict:
