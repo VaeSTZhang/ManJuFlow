@@ -1,4 +1,8 @@
 import { useState } from "react";
+import {
+  CreativeModelPanel,
+  type SelectedCreativeModel,
+} from "../ai/CreativeModelPanel";
 import { ShortDramaScriptResult } from "./ShortDramaScriptResult";
 
 type CreationMode = "idea" | "adaptation";
@@ -58,11 +62,20 @@ const defaultCreationDrafts: CreationDrafts = {
   },
 };
 
+const defaultCreativeModel: SelectedCreativeModel = {
+  provider: "deepseek",
+  model: "deepseek-chat",
+  label: "DeepSeek",
+  source: "user_selected",
+};
+
 export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomeProps) {
   const [selectedMode, setSelectedMode] = useState<CreationMode | null>(null);
   const [selectedAdaptationMode, setSelectedAdaptationMode] = useState<AdaptationMode | null>(null);
   const [drafts, setDrafts] = useState<CreationDrafts>(defaultCreationDrafts);
   const [documentActionNotice, setDocumentActionNotice] = useState("");
+  const [selectedCreativeModel, setSelectedCreativeModel] =
+    useState<SelectedCreativeModel>(defaultCreativeModel);
 
   const handlePrimarySelect = (mode: CreationMode) => {
     if (!isAuthenticated) {
@@ -441,11 +454,21 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         </aside>
       </section>
 
+      <CreativeModelPanel
+        disabled={!isAuthenticated}
+        onChange={setSelectedCreativeModel}
+        selectedModel={selectedCreativeModel}
+      />
+
       {!selectedMode && renderPrimaryCards()}
       {selectedMode === "idea" && renderIdeaForm()}
       {selectedMode === "adaptation" && !selectedAdaptationMode && renderAdaptationChoices()}
       {selectedMode === "adaptation" && selectedAdaptationMode && renderAdaptationForm(selectedAdaptationMode)}
-      <ShortDramaScriptResult result={null} isLocked={!isAuthenticated} />
+      <ShortDramaScriptResult
+        isLocked={!isAuthenticated}
+        modelLabel={selectedCreativeModel.label}
+        result={null}
+      />
     </>
   );
 }
