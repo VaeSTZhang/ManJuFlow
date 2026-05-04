@@ -19,6 +19,9 @@ const editedWorldSetting = "当代都市旧楼即将拆迁，所有角色都被�
 const editedCharacterName = "林灯";
 const editedCharacterPersonality = "冷静、敏锐，习惯用剧本逻辑拆解现实冲突。";
 const editedCharacterArc = "从逃避旧楼真相，到主动完成父亲留下的最后一场戏。";
+const editedEpisodeTitle = "灯火重启";
+const editedEpisodeSummary = "林灯回到旧楼后，发现父亲留下的剧本与拆迁名单同时指向同一个秘密。";
+const editedEpisodeHook = "她翻到最后一页，发现下一场戏的主角写着自己的名字。";
 
 const creativeModelCases = [
   {
@@ -160,6 +163,14 @@ async function editFirstCharacterFields(page: Page) {
   await page.getByTestId("character-name-editor-0").fill(editedCharacterName);
   await page.getByTestId("character-personality-editor-0").fill(editedCharacterPersonality);
   await page.getByTestId("character-arc-editor-0").fill(editedCharacterArc);
+  await page.getByTestId("save-script-editing").click();
+}
+
+async function editFirstEpisodeFields(page: Page) {
+  await page.getByTestId("start-script-editing").click();
+  await page.getByTestId("episode-title-editor-0").fill(editedEpisodeTitle);
+  await page.getByTestId("episode-summary-editor-0").fill(editedEpisodeSummary);
+  await page.getByTestId("episode-hook-editor-0").fill(editedEpisodeHook);
   await page.getByTestId("save-script-editing").click();
 }
 
@@ -348,5 +359,45 @@ test.describe("Dramora creation home smoke", () => {
     expect(downloadedText).toContain(editedCharacterName);
     expect(downloadedText).toContain(editedCharacterPersonality);
     expect(downloadedText).toContain(editedCharacterArc);
+  });
+
+  test("uses edited episode content for copy and text download", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await mockScriptGeneration(page);
+    await generateIdeaScript(page);
+    await editFirstEpisodeFields(page);
+
+    await expect(page.getByText(editedEpisodeTitle)).toBeVisible();
+    await expect(page.getByText(editedEpisodeSummary)).toBeVisible();
+    await expect(page.getByText(`钩子：${editedEpisodeHook}`)).toBeVisible();
+
+    await page.getByTestId("copy-script-json").click();
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    const copiedScript = JSON.parse(clipboardText) as {
+      episodes: Array<{
+        title: string;
+        summary: string;
+        hook: string;
+      }>;
+    };
+
+    expect(copiedScript.episodes[0].title).toBe(editedEpisodeTitle);
+    expect(copiedScript.episodes[0].summary).toBe(editedEpisodeSummary);
+    expect(copiedScript.episodes[0].hook).toBe(editedEpisodeHook);
+    expect(copiedScript.episodes[0].title).not.toBe(generatedScriptFixture.episodes[0].title);
+    expect(copiedScript.episodes[0].summary).not.toBe(generatedScriptFixture.episodes[0].summary);
+    expect(copiedScript.episodes[0].hook).not.toBe(generatedScriptFixture.episodes[0].hook);
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByTestId("download-script-txt").click();
+    const download = await downloadPromise;
+    const downloadPath = await download.path();
+
+    expect(downloadPath).not.toBeNull();
+    const downloadedText = await readFile(downloadPath as string, "utf-8");
+
+    expect(downloadedText).toContain(editedEpisodeTitle);
+    expect(downloadedText).toContain(editedEpisodeSummary);
+    expect(downloadedText).toContain(editedEpisodeHook);
   });
 });
