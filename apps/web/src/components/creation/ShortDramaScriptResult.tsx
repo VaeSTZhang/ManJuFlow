@@ -1,5 +1,6 @@
 import type {
   AdaptationNotes,
+  CharacterProfile,
   DialogueLine,
   EpisodeScript,
   SceneScript,
@@ -31,6 +32,11 @@ type ShortDramaScriptResultProps = {
   onUpdateField?: <K extends keyof ShortDramaScriptOutput>(
     field: K,
     value: ShortDramaScriptOutput[K],
+  ) => void;
+  onUpdateCharacterField?: (
+    characterIndex: number,
+    field: keyof CharacterProfile,
+    value: string,
   ) => void;
 };
 
@@ -152,6 +158,7 @@ export function ShortDramaScriptResult({
   onCancelEditing,
   onRestoreGenerated,
   onUpdateField,
+  onUpdateCharacterField,
 }: ShortDramaScriptResultProps) {
   if (!result) {
     return (
@@ -254,7 +261,11 @@ export function ShortDramaScriptResult({
         result={result}
       />
 
-      <ShortDramaCharacterEditor characters={result.characters} />
+      <ShortDramaCharacterEditor
+        canEditFields={canEditFields}
+        characters={result.characters}
+        onUpdateCharacterField={onUpdateCharacterField}
+      />
 
       {renderAdaptationNotes(result.adaptation_notes)}
 
