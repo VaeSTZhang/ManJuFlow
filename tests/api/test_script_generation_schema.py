@@ -11,6 +11,7 @@ sys.path.insert(0, str(API_ROOT))
 from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript
 from app.schemas.script_generation import (
     AdaptationNotes,
+    AIRequestOptions,
     ShortDramaGenerationInput,
     ShortDramaScriptOutput,
 )
@@ -111,6 +112,60 @@ def test_short_drama_generation_input_metadata_default_is_independent_dict() -> 
     first_input.metadata["source"] = "test"
 
     assert second_input.metadata == {}
+
+
+def test_short_drama_generation_input_can_omit_ai_options() -> None:
+    input_data = ShortDramaGenerationInput(idea_text="一个编剧在旧电影院发现父亲遗稿。")
+
+    assert input_data.ai_options is None
+
+
+def test_short_drama_generation_input_accepts_ai_options_provider_and_model() -> None:
+    input_data = ShortDramaGenerationInput(
+        idea_text="一个编剧在旧电影院发现父亲遗稿。",
+        ai_options=AIRequestOptions(
+            provider="deepseek",
+            model="deepseek-chat",
+            purpose="script_generation",
+        ),
+    )
+
+    assert input_data.ai_options is not None
+    assert input_data.ai_options.provider == "deepseek"
+    assert input_data.ai_options.model == "deepseek-chat"
+    assert input_data.ai_options.language == "zh"
+
+
+def test_ai_request_options_rejects_temperature_out_of_range() -> None:
+    with pytest.raises(ValidationError):
+        AIRequestOptions(temperature=2.1)
+
+
+@pytest.mark.parametrize("purpose", ["script_generation", "film_adaptation", "novel_adaptation"])
+def test_ai_request_options_supports_script_creation_purposes(purpose: str) -> None:
+    options = AIRequestOptions(purpose=purpose)
+
+    assert options.purpose == purpose
+
+
+def test_short_drama_generation_input_model_dump_contains_ai_options() -> None:
+    input_data = ShortDramaGenerationInput(
+        source_mode="film_script",
+        source_text="虚构电影剧本片段。",
+        ai_options=AIRequestOptions(
+            provider="mimo",
+            model="mimo-v2.5-pro",
+            purpose="film_adaptation",
+            temperature=0.7,
+            max_tokens=1200,
+        ),
+    )
+
+    dumped = input_data.model_dump()
+
+    assert dumped["ai_options"]["provider"] == "mimo"
+    assert dumped["ai_options"]["model"] == "mimo-v2.5-pro"
+    assert dumped["ai_options"]["purpose"] == "film_adaptation"
 
 
 def test_adaptation_notes_list_defaults_are_independent() -> None:

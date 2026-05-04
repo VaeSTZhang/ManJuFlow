@@ -28,6 +28,8 @@ from app.schemas.script import (
 )
 from app.schemas.script_generation import (
     AdaptationNotes,
+    AIRequestOptions,
+    AIRequestPurpose,
     ScriptSourceMode,
     ShortDramaGenerationInput,
     ShortDramaScriptOutput,
@@ -54,6 +56,8 @@ __all__ = [
     "AssetCollection",
     "AssetItem",
     "AdaptationNotes",
+    "AIRequestOptions",
+    "AIRequestPurpose",
     "CharacterProfile",
     "DialogueLine",
     "DocumentExportFormat",

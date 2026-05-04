@@ -64,7 +64,7 @@ DeepSeek 是当前内部默认推荐模型，但 DeepSeek 不能写死。
 - 保留“使用后端默认”选项；
 - 保留 Mimo、Kimi、MiniMax 等已配置 provider 的扩展位；
 - 不在业务 service 中硬编码具体 provider；
-- 请求级 metadata 应记录本次使用的 provider / model / purpose。
+- 请求级 `AIRequestOptions` 应记录本次使用的 provider / model / purpose。
 
 ## 5. 统一“创作模型”小窗口设计
 
@@ -127,7 +127,7 @@ selectedCreativeModel = {
 
 ## 7. 建议的后端数据结构
 
-后续建议统一 `AIRequestOptions`：
+当前已开始落地统一 `AIRequestOptions`：
 
 - provider；
 - model；
@@ -145,7 +145,7 @@ selectedCreativeModel = {
 - script_rewrite；
 - quality_review。
 
-这些字段应进入请求级上下文，不应散落硬编码。业务 service 可以接收 `AIRequestOptions`，再由统一 LLM client / provider adapter 决定具体调用。
+这些字段应进入请求级上下文，不应散落硬编码。业务 service 可以接收 `AIRequestOptions`，再由统一 LLM client / provider adapter 决定具体调用。当前三入口剧本生成请求已开始携带该结构，但真实模型切换仍需后续接入。
 
 ## 8. AI 功能覆盖范围
 

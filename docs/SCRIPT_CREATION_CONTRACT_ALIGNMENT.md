@@ -104,6 +104,7 @@
 - `project_id: str | None`
 - `session_id: str | None`
 - `user_id: str | None`
+- `ai_options: AIRequestOptions | None`
 - `metadata: dict[str, Any]`
 
 当前后端路由：
@@ -144,16 +145,20 @@
 | 当前无显式字段 | `key_plot_must_keep` | `film_script` / `novel` | 可从 `focus` 或后续独立字段扩展，不建议当前强塞。 |
 | 当前无显式字段 | `main_characters` | `idea` / `film_script` / `novel` | 可后续扩展人物输入。 |
 | 当前无显式字段 | `key_relationships` | `idea` / `film_script` / `novel` | 可后续扩展关系输入。 |
-| `selectedCreativeModel.provider` | 后续 `AIRequestOptions.provider` 或请求级模型覆盖 | `idea` / `film_script` / `novel` | 后端 `ShortDramaGenerationInput` 当前没有 provider 字段；不建议直接塞散字段。 |
-| `selectedCreativeModel.model` | 后续 `AIRequestOptions.model` 或请求级模型覆盖 | `idea` / `film_script` / `novel` | 下一阶段应统一模型选项，不要每个功能各写一套。 |
+| `selectedCreativeModel.provider` | `ai_options.provider` | `idea` / `film_script` / `novel` | 使用后端默认时为空。 |
+| `selectedCreativeModel.model` | `ai_options.model` | `idea` / `film_script` / `novel` | 使用后端默认时为空；不再放入 `metadata.creative_model`。 |
+| 固定值 `"zh"` | `ai_options.language` | `idea` / `film_script` / `novel` | 与请求主体 `language` 保持一致。 |
+| 固定 purpose `"script_generation"` | `ai_options.purpose` | `idea` | 灵感生成用途。 |
+| 固定 purpose `"film_adaptation"` | `ai_options.purpose` | `film_script` | 电影剧本改编用途。 |
+| 固定 purpose `"novel_adaptation"` | `ai_options.purpose` | `novel` | 小说 / 网文改编用途。 |
 
 关于 provider / model：
 
 - 当前前端 `CreativeModelPanel` 已有统一选择状态；
-- 当前后端 `ShortDramaGenerationInput` 尚未定义 `provider` / `model` / `AIRequestOptions`；
-- 下一步如果只是调用现有 mock endpoint，可以暂不传 provider / model；
-- 第 217 步再设计请求级模型覆盖，建议统一为 `AIRequestOptions`，而不是在每个业务输入里复制一组模型字段；
-- 临时过渡也可以放入 `metadata.creative_model`，但这不应成为长期契约。
+- `ShortDramaGenerationInput` 已新增 `ai_options`；
+- `ai_options` 是请求级模型与生成选项入口；
+- `metadata.creative_model` 已迁移为 `ai_options`，metadata 继续保留 `source_entry` / `source_title` 等兼容扩展信息；
+- 当前后端 mock service 接收但不执行真实模型切换，后续再由统一 LLM client / provider adapter 消费。
 
 ## 6. 统一结果字段
 
@@ -210,7 +215,7 @@ Dramora 当前第一主线是剧本创作生成 / 剧本改编。
 - 该 payload 应包含 `project_title`、`source_mode`、`episodes`、`characters`、`logline`、`world_setting` 和必要 metadata；
 - 分镜工作区再负责把短剧剧本转换为 `StoryboardInput`；
 - Prompt 工作区继续消费分镜结果，而不是直接依赖 CreationHome 内部状态；
-- AI 模型选择应复用 `CreativeModelPanel` 或统一 `AIRequestOptions`，不要在剧本生成、分镜、Prompt、Assistant、质量评审里各写一套模型选择。
+- AI 模型选择应复用 `CreativeModelPanel` 并通过统一 `AIRequestOptions` 传递，不要在剧本生成、分镜、Prompt、Assistant、质量评审里各写一套模型选择。
 
 ## 8. 当前发现的问题
 
@@ -221,6 +226,7 @@ Dramora 当前第一主线是剧本创作生成 / 剧本改编。
 - 前后端都有 `ScriptSourceMode`；
 - 前后端都有 `ShortDramaGenerationInput`；
 - 前后端都有 `ShortDramaScriptOutput`；
+- 前后端都有 `AIRequestOptions`；
 - 三入口 `idea` / `film_script` / `novel` 在后端 mock endpoint 中均已支持；
 - 前端 `ShortDramaScriptResult` 已能展示统一结果。
 
@@ -229,13 +235,12 @@ Dramora 当前第一主线是剧本创作生成 / 剧本改编。
 - `genreStyle` 是前端合并字段，后端是 `genre` + `style` 两个字段。下一步请求构造器应先同时映射，后续再考虑 UI 拆分；
 - `sourceTitle` 后端没有独立字段，建议放入 `metadata.source_title`；
 - `focus` 应映射到 `adaptation_goal`；
-- provider / model 当前不在 `ShortDramaGenerationInput` 中。第 217 步应设计统一 `AIRequestOptions` 或请求级模型覆盖；
-- `apps/web/src/api/scriptGeneration.ts` 已有 `generateShortDramaScript` 封装，但 `CreationHome` 当前仍只生成前端本地演示结果，尚未调用该 API。
+- provider / model 已通过 `ai_options` 传入请求体，但当前后端 mock service 尚未真实消费模型切换；
+- `apps/web/src/api/scriptGeneration.ts` 已有 `generateShortDramaScript` 封装，`CreationHome` 已可调用当前后端 mock endpoint。
 
 ## 9. 下一步建议
 
 - 第 215 步：前端三入口请求构造器；
 - 第 216 步：三入口调用 `generate-from-source` mock；
-- 第 217 步：请求携带 provider / model；
 - 第 218 步：真实 DeepSeek 小样本验收；
 - 第 219 步：短剧剧本结果带入分镜 / Prompt 的 payload 设计。

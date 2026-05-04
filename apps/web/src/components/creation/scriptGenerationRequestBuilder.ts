@@ -1,5 +1,5 @@
 import type { SelectedCreativeModel } from "../ai/CreativeModelPanel";
-import type { ShortDramaGenerationInput } from "../../types/scriptGeneration";
+import type { AIRequestPurpose, ShortDramaGenerationInput } from "../../types/scriptGeneration";
 
 export type IdeaGenerationDraftInput = {
   projectTitle: string;
@@ -32,14 +32,17 @@ function resolveEpisodeCount(value: number): number {
   return normalized > 0 ? normalized : 10;
 }
 
-function buildCreativeModelMetadata(selectedModel: SelectedCreativeModel): Record<string, unknown> {
-  // metadata.creative_model is transitional: step 217 should replace this with
-  // AIRequestOptions or another explicit request-level model override contract.
+function buildAIRequestOptions(
+  selectedModel: SelectedCreativeModel,
+  purpose: AIRequestPurpose,
+): ShortDramaGenerationInput["ai_options"] {
+  const useSystemDefault = selectedModel.source === "system_default";
+
   return {
-    provider: selectedModel.provider,
-    model: selectedModel.model,
-    label: selectedModel.label,
-    source: selectedModel.source,
+    provider: useSystemDefault ? undefined : selectedModel.provider,
+    model: useSystemDefault ? undefined : selectedModel.model,
+    language: "zh",
+    purpose,
   };
 }
 
@@ -58,9 +61,9 @@ export function buildIdeaGenerationInput(
     style: genreStyle,
     extra_requirements: trimToOptional(draft.extraRequirements),
     language: "zh",
+    ai_options: buildAIRequestOptions(selectedModel, "script_generation"),
     metadata: {
       source_entry: "idea",
-      creative_model: buildCreativeModelMetadata(selectedModel),
     },
   };
 }
@@ -79,10 +82,10 @@ export function buildFilmScriptGenerationInput(
     adaptation_goal: trimToOptional(draft.focus),
     extra_requirements: trimToOptional(draft.extraRequirements),
     language: "zh",
+    ai_options: buildAIRequestOptions(selectedModel, "film_adaptation"),
     metadata: {
       source_entry: "film_script",
       source_title: trimToOptional(draft.sourceTitle),
-      creative_model: buildCreativeModelMetadata(selectedModel),
     },
   };
 }
@@ -101,10 +104,10 @@ export function buildNovelGenerationInput(
     adaptation_goal: trimToOptional(draft.focus),
     extra_requirements: trimToOptional(draft.extraRequirements),
     language: "zh",
+    ai_options: buildAIRequestOptions(selectedModel, "novel_adaptation"),
     metadata: {
       source_entry: "novel",
       source_title: trimToOptional(draft.sourceTitle),
-      creative_model: buildCreativeModelMetadata(selectedModel),
     },
   };
 }

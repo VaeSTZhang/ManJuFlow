@@ -5,6 +5,25 @@ export type ScriptSourceMode =
   | "assistant_rewrite"
   | "uploaded_document";
 
+export type AIRequestPurpose =
+  | "script_generation"
+  | "film_adaptation"
+  | "novel_adaptation"
+  | "assistant_chat"
+  | "script_rewrite"
+  | "quality_review"
+  | "storyboard_generation"
+  | "prompt_generation";
+
+export type AIRequestOptions = {
+  provider?: string | null;
+  model?: string | null;
+  temperature?: number | null;
+  max_tokens?: number | null;
+  language: string;
+  purpose: AIRequestPurpose;
+};
+
 export type ShortDramaGenerationInput = {
   project_title?: string | null;
   source_mode: ScriptSourceMode;
@@ -25,6 +44,7 @@ export type ShortDramaGenerationInput = {
   project_id?: string | null;
   session_id?: string | null;
   user_id?: string | null;
+  ai_options?: AIRequestOptions | null;
   metadata?: Record<string, unknown>;
 };
 

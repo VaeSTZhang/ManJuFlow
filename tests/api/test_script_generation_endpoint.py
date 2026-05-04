@@ -76,6 +76,27 @@ def test_generate_from_source_novel_returns_expected_episode_count() -> None:
     assert len(data["episodes"]) == 4
 
 
+def test_generate_from_source_accepts_ai_options() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/generate-from-source",
+        json=make_source_request(
+            ai_options={
+                "provider": "deepseek",
+                "model": "deepseek-chat",
+                "language": "zh",
+                "purpose": "script_generation",
+            },
+        ),
+    )
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["source_mode"] == "idea"
+    assert data["episode_count"] == 3
+
+
 def test_generate_from_source_rejects_assistant_rewrite_as_400() -> None:
     client = TestClient(app)
 

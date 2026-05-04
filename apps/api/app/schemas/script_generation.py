@@ -13,6 +13,26 @@ ScriptSourceMode = Literal[
     "uploaded_document",
 ]
 
+AIRequestPurpose = Literal[
+    "script_generation",
+    "film_adaptation",
+    "novel_adaptation",
+    "assistant_chat",
+    "script_rewrite",
+    "quality_review",
+    "storyboard_generation",
+    "prompt_generation",
+]
+
+
+class AIRequestOptions(BaseModel):
+    provider: str | None = Field(None, description="请求级模型 provider。为空时使用后端默认。")
+    model: str | None = Field(None, description="请求级模型名称。为空时使用 provider 默认模型。")
+    temperature: float | None = Field(None, ge=0, le=2, description="生成温度，可选。")
+    max_tokens: int | None = Field(None, ge=1, description="最大输出 token，可选。")
+    language: str = Field("zh", description="输出语言。")
+    purpose: AIRequestPurpose = Field("script_generation", description="本次 AI 请求用途。")
+
 
 class ShortDramaGenerationInput(BaseModel):
     project_title: str | None = Field(None, min_length=1, description="项目标题，可选。")
@@ -34,6 +54,7 @@ class ShortDramaGenerationInput(BaseModel):
     project_id: str | None = Field(None, min_length=1, description="项目 ID，可选。")
     session_id: str | None = Field(None, min_length=1, description="会话 ID，可选。")
     user_id: str | None = Field(None, min_length=1, description="用户 ID，可选。")
+    ai_options: AIRequestOptions | None = Field(None, description="请求级 AI 模型与生成选项。")
     metadata: dict[str, Any] = Field(default_factory=dict, description="扩展元信息。")
 
 
