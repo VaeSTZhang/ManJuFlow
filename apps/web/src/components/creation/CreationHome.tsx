@@ -3,12 +3,18 @@ import {
   CreativeModelPanel,
   type SelectedCreativeModel,
 } from "../ai/CreativeModelPanel";
+import {
+  buildFilmScriptGenerationInput,
+  buildIdeaGenerationInput,
+  buildNovelGenerationInput,
+} from "./scriptGenerationRequestBuilder";
 import { ShortDramaScriptResult } from "./ShortDramaScriptResult";
 import type {
   AdaptationNotes,
   DialogueLine,
   EpisodeScript,
   SceneScript,
+  ShortDramaGenerationInput,
   ScriptSourceMode,
   ShortDramaScriptOutput,
 } from "../../types/scriptGeneration";
@@ -396,8 +402,18 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     setDocumentActionNotice("");
   };
 
-  const setGeneratedResult = (result: ShortDramaScriptOutput, sourceLabel: string) => {
-    setShortDramaResult(result);
+  const setGeneratedResult = (
+    result: ShortDramaScriptOutput,
+    sourceLabel: string,
+    requestInput: ShortDramaGenerationInput,
+  ) => {
+    setShortDramaResult({
+      ...result,
+      metadata: {
+        ...result.metadata,
+        prepared_request: requestInput,
+      },
+    });
     setShortDramaSourceLabel(sourceLabel);
     setShortDramaGeneratedAt(new Date().toLocaleString("zh-CN"));
   };
@@ -410,6 +426,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
 
     const draft = drafts.idea;
     const sourceLabel = "灵感生成";
+    const requestInput = buildIdeaGenerationInput(draft, selectedCreativeModel);
 
     setGeneratedResult(
       generateMockShortDramaScript({
@@ -423,6 +440,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         extraRequirements: draft.extraRequirements,
       }),
       sourceLabel,
+      requestInput,
     );
   };
 
@@ -435,6 +453,9 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     const draft = drafts[mode];
     const isFilm = mode === "film";
     const sourceLabel = isFilm ? "电影剧本改编" : "小说 / 网文改编";
+    const requestInput = isFilm
+      ? buildFilmScriptGenerationInput(draft, selectedCreativeModel)
+      : buildNovelGenerationInput(draft, selectedCreativeModel);
 
     setGeneratedResult(
       generateMockShortDramaScript({
@@ -449,6 +470,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         extraRequirements: draft.extraRequirements,
       }),
       sourceLabel,
+      requestInput,
     );
   };
 
