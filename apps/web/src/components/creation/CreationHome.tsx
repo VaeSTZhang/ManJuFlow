@@ -4,6 +4,14 @@ import {
   type SelectedCreativeModel,
 } from "../ai/CreativeModelPanel";
 import { ShortDramaScriptResult } from "./ShortDramaScriptResult";
+import type {
+  AdaptationNotes,
+  DialogueLine,
+  EpisodeScript,
+  SceneScript,
+  ScriptSourceMode,
+  ShortDramaScriptOutput,
+} from "../../types/scriptGeneration";
 
 type CreationMode = "idea" | "adaptation";
 type AdaptationMode = "film" | "novel";
@@ -34,6 +42,18 @@ type CreationDrafts = {
 type CreationHomeProps = {
   isAuthenticated: boolean;
   onRequireLogin: () => void;
+};
+
+type MockGenerationDraft = {
+  projectTitle: string;
+  sourceMode: Extract<ScriptSourceMode, "idea" | "film_script" | "novel">;
+  sourceLabel: string;
+  premise: string;
+  genreStyle: string;
+  episodeCount: number;
+  focus?: string;
+  sourceTitle?: string;
+  extraRequirements?: string;
 };
 
 const defaultCreationDrafts: CreationDrafts = {
@@ -69,6 +89,236 @@ const defaultCreativeModel: SelectedCreativeModel = {
   source: "user_selected",
 };
 
+function normalizeText(value: string | undefined, fallback: string): string {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : fallback;
+}
+
+function clampEpisodeCount(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 1;
+  }
+
+  return Math.min(Math.max(Math.round(value), 1), 24);
+}
+
+function buildModelLabel(selectedModel: SelectedCreativeModel): string {
+  return selectedModel.model ? `${selectedModel.label} / ${selectedModel.model}` : selectedModel.label;
+}
+
+function buildScene(
+  sceneNumber: number,
+  location: string,
+  time: string,
+  description: string,
+  dialogues: DialogueLine[],
+  visualNotes: string,
+  emotionCurve: string,
+): SceneScript {
+  return {
+    scene_number: sceneNumber,
+    location,
+    time,
+    description,
+    dialogues,
+    visual_notes: visualNotes,
+    emotion_curve: emotionCurve,
+  };
+}
+
+function buildEpisode(index: number, projectTitle: string, premise: string, focus: string): EpisodeScript {
+  const isOpening = index === 1;
+
+  return {
+    episode_number: index,
+    title: isOpening ? "钩子开场" : `第 ${index} 次反转`,
+    summary: isOpening
+      ? `${projectTitle} 以强冲突开场，主角被迫面对 ${premise} 带来的第一道选择。`
+      : `围绕 ${focus} 推进人物关系，旧线索被重新解释，结尾留下新的选择压力。`,
+    hook: isOpening
+      ? "主角在最不该暴露真相的时刻，被迫公开一个关键秘密。"
+      : "上一场看似解决的问题，在结尾变成更大的误会和危机。",
+    scenes: [
+      buildScene(
+        1,
+        isOpening ? "公司走廊" : "临时会议室",
+        isOpening ? "清晨" : "夜晚",
+        isOpening
+          ? "主角在拥挤走廊里听见一段关键对话，意识到自己被卷入一场精心安排的局。"
+          : "主角和搭档复盘线索，发现真正被隐瞒的不是事件本身，而是背后的动机。",
+        [
+          { character: "林夏", line: "如果现在退后，我们就只剩下被安排的结局。" },
+          { character: "顾然", line: "那就别退。先把最危险的那一页翻开。" },
+        ],
+        "镜头贴近人物表情，环境保持克制，让信息和情绪成为重点。",
+        isOpening ? "压迫感快速升高" : "怀疑转为短暂同盟",
+      ),
+      buildScene(
+        2,
+        isOpening ? "天台" : "旧档案室",
+        isOpening ? "傍晚" : "深夜",
+        isOpening
+          ? "主角独自整理线索，却收到一条来自陌生人的提醒，结尾出现第一处反转。"
+          : "两人找到旧证据，但证据指向的对象与预期完全相反。",
+        [
+          { character: "林夏", line: "你早就知道这件事，对不对？" },
+          { character: "顾然", line: "我知道的不够多，但足够证明我们都被骗了。" },
+        ],
+        "场景用少量道具承载线索，结尾给出清晰视觉记忆点。",
+        isOpening ? "孤立无援转为主动追查" : "信任建立后立刻被新证据冲击",
+      ),
+    ],
+  };
+}
+
+function buildAdaptationNotes(
+  sourceMode: Extract<ScriptSourceMode, "film_script" | "novel">,
+  sourceTitle: string,
+  focus: string,
+  extraRequirements: string,
+): AdaptationNotes {
+  const sourceType = sourceMode === "film_script" ? "原剧本" : "原小说 / 网文";
+
+  return {
+    source_mode: sourceMode,
+    adaptation_strategy: `保留${sourceType}《${sourceTitle}》中的核心人物关系和主要冲突，将铺垫压缩为短剧节奏，并把 ${focus} 放到每集关键选择里。`,
+    preserved_elements: ["核心人物关系", "主要矛盾", "关键情绪转折"],
+    changed_elements: ["压缩长铺垫", "强化每集开场冲突", "把解释性段落改为可表演场景"],
+    short_drama_hooks: ["开场 30 秒给出明确冲突", "每集结尾保留一次选择或反转", "对白服务人物关系推进"],
+    risk_notes: [extraRequirements || "真实改编前需要确认素材授权与人工审阅。"],
+  };
+}
+
+function generateMockShortDramaScript(draft: MockGenerationDraft): ShortDramaScriptOutput {
+  const episodeCount = clampEpisodeCount(draft.episodeCount);
+  const projectTitle = normalizeText(draft.projectTitle, "未命名短剧项目");
+  const premise = normalizeText(draft.premise, "一个普通人在关键选择中发现身边关系并不简单");
+  const focus = normalizeText(draft.focus, "人物关系、误会反转和每集结尾钩子");
+  const genreStyle = normalizeText(draft.genreStyle, "都市情感 / 快节奏");
+  const sourceTitle = normalizeText(draft.sourceTitle, projectTitle);
+  const extraRequirements = normalizeText(draft.extraRequirements, "节奏紧凑，保留强钩子。");
+  const episodes = Array.from({ length: episodeCount }, (_, index) =>
+    buildEpisode(index + 1, projectTitle, premise, focus),
+  );
+
+  return {
+    project_title: projectTitle,
+    source_mode: draft.sourceMode,
+    logline:
+      draft.sourceMode === "idea"
+        ? `围绕“${premise}”，主角在 ${genreStyle} 的短剧节奏中不断被迫选择，最终揭开真正的关系真相。`
+        : `改编自“${sourceTitle}”的核心设定，围绕 ${focus} 形成适合短剧传播的强冲突连续剧本。`,
+    world_setting: `故事发生在当代城市环境，人物关系紧密，信息差和情绪选择推动每集反转。创作要求：${extraRequirements}`,
+    characters: [
+      {
+        name: "林夏",
+        role: "女主 / 事件推动者",
+        age: "28",
+        personality: "敏锐、克制，不轻易相信表面解释。",
+        arc: "从被动承受误解，到主动拆解关系真相。",
+      },
+      {
+        name: "顾然",
+        role: "男主 / 关键同盟",
+        age: "31",
+        personality: "冷静、有边界感，习惯用事实保护情绪。",
+        arc: "从隐藏信息到选择共同承担风险。",
+      },
+    ],
+    adaptation_notes:
+      draft.sourceMode === "idea"
+        ? null
+        : buildAdaptationNotes(draft.sourceMode, sourceTitle, focus, extraRequirements),
+    episode_count: episodeCount,
+    episodes,
+    metadata: {
+      demo_mode: "local_frontend",
+      source_label: draft.sourceLabel,
+      generated_by: "CreationHome",
+    },
+  };
+}
+
+function downloadTextFile(filename: string, content: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function formatShortDramaScriptTxt(
+  result: ShortDramaScriptOutput,
+  sourceLabel: string,
+  modelLabel: string,
+  generatedAt: string,
+): string {
+  const characters = result.characters
+    .map((character) => `- ${character.name}（${character.role}）：${character.personality} 人物弧光：${character.arc}`)
+    .join("\n");
+
+  const episodes = result.episodes
+    .map((episode) => {
+      const scenes = episode.scenes
+        .map((scene) => {
+          const dialogues = scene.dialogues
+            .map((dialogue) => `    ${dialogue.character}：${dialogue.line}`)
+            .join("\n");
+
+          return [
+            `  第 ${scene.scene_number} 场｜${scene.location}｜${scene.time}`,
+            `  场景：${scene.description}`,
+            dialogues ? `  对白：\n${dialogues}` : "  对白：无",
+            `  画面：${scene.visual_notes}`,
+            `  情绪：${scene.emotion_curve}`,
+          ].join("\n");
+        })
+        .join("\n\n");
+
+      return [
+        `第 ${episode.episode_number} 集：${episode.title}`,
+        `概要：${episode.summary}`,
+        `钩子：${episode.hook}`,
+        scenes,
+      ].join("\n");
+    })
+    .join("\n\n");
+
+  const adaptation = result.adaptation_notes
+    ? [
+        "改编策略：",
+        result.adaptation_notes.adaptation_strategy ?? "无",
+        "保留元素：",
+        result.adaptation_notes.preserved_elements.map((item) => `- ${item}`).join("\n"),
+        "短剧钩子 / 爆点：",
+        result.adaptation_notes.short_drama_hooks.map((item) => `- ${item}`).join("\n"),
+      ].join("\n")
+    : "改编策略：无";
+
+  return [
+    `项目标题：${result.project_title}`,
+    `来源入口：${sourceLabel}`,
+    `使用模型：${modelLabel}`,
+    `生成时间：${generatedAt}`,
+    "",
+    `故事梗概：${result.logline}`,
+    `世界观 / 故事背景：${result.world_setting}`,
+    "",
+    "主要人物：",
+    characters || "无",
+    "",
+    adaptation,
+    "",
+    "分集内容：",
+    episodes || "无",
+  ].join("\n");
+}
+
 export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomeProps) {
   const [selectedMode, setSelectedMode] = useState<CreationMode | null>(null);
   const [selectedAdaptationMode, setSelectedAdaptationMode] = useState<AdaptationMode | null>(null);
@@ -76,6 +326,9 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const [documentActionNotice, setDocumentActionNotice] = useState("");
   const [selectedCreativeModel, setSelectedCreativeModel] =
     useState<SelectedCreativeModel>(defaultCreativeModel);
+  const [shortDramaResult, setShortDramaResult] = useState<ShortDramaScriptOutput | null>(null);
+  const [shortDramaSourceLabel, setShortDramaSourceLabel] = useState<string | undefined>();
+  const [shortDramaGeneratedAt, setShortDramaGeneratedAt] = useState<string | undefined>();
 
   const handlePrimarySelect = (mode: CreationMode) => {
     if (!isAuthenticated) {
@@ -141,6 +394,99 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     setSelectedMode(null);
     setSelectedAdaptationMode(null);
     setDocumentActionNotice("");
+  };
+
+  const setGeneratedResult = (result: ShortDramaScriptOutput, sourceLabel: string) => {
+    setShortDramaResult(result);
+    setShortDramaSourceLabel(sourceLabel);
+    setShortDramaGeneratedAt(new Date().toLocaleString("zh-CN"));
+  };
+
+  const handleGenerateIdea = () => {
+    if (!isAuthenticated) {
+      onRequireLogin();
+      return;
+    }
+
+    const draft = drafts.idea;
+    const sourceLabel = "灵感生成";
+
+    setGeneratedResult(
+      generateMockShortDramaScript({
+        projectTitle: draft.projectTitle,
+        sourceMode: "idea",
+        sourceLabel,
+        premise: draft.ideaText,
+        genreStyle: draft.genreStyle,
+        episodeCount: draft.episodeCount,
+        focus: "原创设定、人物关系和每集强钩子",
+        extraRequirements: draft.extraRequirements,
+      }),
+      sourceLabel,
+    );
+  };
+
+  const handleGenerateAdaptation = (mode: AdaptationMode) => {
+    if (!isAuthenticated) {
+      onRequireLogin();
+      return;
+    }
+
+    const draft = drafts[mode];
+    const isFilm = mode === "film";
+    const sourceLabel = isFilm ? "电影剧本改编" : "小说 / 网文改编";
+
+    setGeneratedResult(
+      generateMockShortDramaScript({
+        projectTitle: draft.projectTitle,
+        sourceMode: isFilm ? "film_script" : "novel",
+        sourceLabel,
+        premise: draft.sourceText,
+        genreStyle: isFilm ? "影视文本短剧化" : "小说 / 网文短剧化",
+        episodeCount: draft.episodeCount,
+        focus: draft.focus,
+        sourceTitle: draft.sourceTitle,
+        extraRequirements: draft.extraRequirements,
+      }),
+      sourceLabel,
+    );
+  };
+
+  const handleCopyShortDramaJson = async () => {
+    if (!shortDramaResult) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(JSON.stringify(shortDramaResult, null, 2));
+  };
+
+  const handleDownloadShortDramaJson = () => {
+    if (!shortDramaResult) {
+      return;
+    }
+
+    downloadTextFile(
+      "dramora-short-drama-script.json",
+      JSON.stringify(shortDramaResult, null, 2),
+      "application/json;charset=utf-8",
+    );
+  };
+
+  const handleDownloadShortDramaTxt = () => {
+    if (!shortDramaResult) {
+      return;
+    }
+
+    downloadTextFile(
+      "dramora-short-drama-script.txt",
+      formatShortDramaScriptTxt(
+        shortDramaResult,
+        shortDramaSourceLabel ?? "后端默认",
+        buildModelLabel(selectedCreativeModel),
+        shortDramaGeneratedAt ?? "生成后显示",
+      ),
+      "text/plain;charset=utf-8",
+    );
   };
 
   const renderPrimaryCards = () => (
@@ -301,14 +647,19 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
 
         <div className="creation-draft-actions">
           <div className="export-actions">
-            <button className="primary-button" disabled type="button">
-              生成短剧剧本（即将接入）
+            <button
+              className="primary-button"
+              disabled={!isAuthenticated}
+              onClick={handleGenerateIdea}
+              type="button"
+            >
+              生成短剧剧本
             </button>
             <button className="secondary-button" disabled type="button">
               下载 Word（生成后可用）
             </button>
           </div>
-          <p>当前为创作草稿区，下一步将接入统一短剧剧本生成接口。生成短剧剧本后，可下载为 Word 文档。</p>
+          <p>当前为本地演示结果，下一步将接入统一短剧剧本生成接口。生成短剧剧本后，可下载为 Word 文档。</p>
         </div>
       </section>
     );
@@ -426,10 +777,15 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         </div>
 
         <div className="creation-draft-actions">
-          <button className="primary-button" disabled type="button">
-            生成改编短剧本（即将接入）
+          <button
+            className="primary-button"
+            disabled={!isAuthenticated}
+            onClick={() => handleGenerateAdaptation(mode)}
+            type="button"
+          >
+            生成改编短剧本
           </button>
-          <p>当前为创作草稿区，下一步将接入统一短剧剧本生成接口。</p>
+          <p>当前为本地演示结果，下一步将接入统一短剧剧本生成接口。</p>
         </div>
       </section>
     );
@@ -466,8 +822,13 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       {selectedMode === "adaptation" && selectedAdaptationMode && renderAdaptationForm(selectedAdaptationMode)}
       <ShortDramaScriptResult
         isLocked={!isAuthenticated}
-        modelLabel={selectedCreativeModel.label}
-        result={null}
+        generatedAt={shortDramaGeneratedAt}
+        modelLabel={buildModelLabel(selectedCreativeModel)}
+        onCopyJson={handleCopyShortDramaJson}
+        onDownloadJson={handleDownloadShortDramaJson}
+        onDownloadTxt={handleDownloadShortDramaTxt}
+        result={shortDramaResult}
+        sourceLabel={shortDramaSourceLabel}
       />
     </>
   );
