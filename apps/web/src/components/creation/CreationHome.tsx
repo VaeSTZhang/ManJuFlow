@@ -11,39 +11,21 @@ import {
   buildIdeaGenerationInput,
   buildNovelGenerationInput,
 } from "./scriptGenerationRequestBuilder";
+import { AdaptationDraftForm } from "./AdaptationDraftForm";
 import { DocumentImportPanel } from "./DocumentImportPanel";
+import { IdeaDraftForm } from "./IdeaDraftForm";
 import { ShortDramaScriptResult } from "./ShortDramaScriptResult";
 import {
   useDocumentImportDrafts,
-  type DocumentImportAdaptationMode,
 } from "../../hooks/creation/useDocumentImportDrafts";
+import type {
+  AdaptationDraft,
+  AdaptationMode,
+  CreationDrafts,
+  CreationMode,
+  IdeaCreationDraft,
+} from "./creationDraftTypes";
 import type { ShortDramaGenerationInput, ShortDramaScriptOutput } from "../../types/scriptGeneration";
-
-type CreationMode = "idea" | "adaptation";
-type AdaptationMode = DocumentImportAdaptationMode;
-
-type IdeaCreationDraft = {
-  projectTitle: string;
-  ideaText: string;
-  genreStyle: string;
-  episodeCount: number;
-  extraRequirements: string;
-};
-
-type AdaptationDraft = {
-  projectTitle: string;
-  sourceTitle: string;
-  sourceText: string;
-  focus: string;
-  episodeCount: number;
-  extraRequirements: string;
-};
-
-type CreationDrafts = {
-  idea: IdeaCreationDraft;
-  film: AdaptationDraft;
-  novel: AdaptationDraft;
-};
 
 type CreationHomeProps = {
   isAuthenticated: boolean;
@@ -530,58 +512,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
           </button>
         </div>
 
-        <div className="creation-draft-form">
-          <div className="creation-draft-grid">
-            <label className="field creation-draft-field">
-              <span>项目标题</span>
-              <input
-                disabled={!isAuthenticated}
-                onChange={(event) => updateIdeaDraft("projectTitle", event.target.value)}
-                value={draft.projectTitle}
-              />
-            </label>
-            <label className="field creation-draft-field">
-              <span>类型 / 风格</span>
-              <input
-                disabled={!isAuthenticated}
-                onChange={(event) => updateIdeaDraft("genreStyle", event.target.value)}
-                value={draft.genreStyle}
-              />
-            </label>
-            <label className="field creation-draft-field">
-              <span>目标集数</span>
-              <input
-                disabled={!isAuthenticated}
-                min={1}
-                onChange={(event) => updateIdeaDraft("episodeCount", Number(event.target.value) || 1)}
-                type="number"
-                value={draft.episodeCount}
-              />
-            </label>
-          </div>
-
-          <label className="field field-wide creation-draft-field">
-            <span>灵感内容</span>
-            <textarea
-              disabled={!isAuthenticated}
-              onChange={(event) => updateIdeaDraft("ideaText", event.target.value)}
-              placeholder="例如：一个失意编剧在旧电影院发现父亲留下的未完成剧本，每一页都指向一段被隐藏的真相。"
-              rows={5}
-              value={draft.ideaText}
-            />
-          </label>
-
-          <label className="field field-wide creation-draft-field">
-            <span>额外要求</span>
-            <textarea
-              disabled={!isAuthenticated}
-              onChange={(event) => updateIdeaDraft("extraRequirements", event.target.value)}
-              placeholder="例如：节奏更紧，前 30 秒必须有强钩子，每集结尾留反转。"
-              rows={3}
-              value={draft.extraRequirements}
-            />
-          </label>
-        </div>
+        <IdeaDraftForm draft={draft} isAuthenticated={isAuthenticated} onChange={updateIdeaDraft} />
 
         <div className="creation-draft-actions">
           <div className="export-actions">
@@ -621,129 +552,41 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
           </button>
         </div>
 
-        <div className="creation-draft-form">
-          <section className="document-action-card" aria-label="文档导入与导出">
-            <div>
-              <h3>Word 文档导入</h3>
-              <p>
-                上传 Word 后会显示导入预览，确认后可填入下方文本区域。请继续填写“改编方向 /
-                重点要求”，让系统知道你希望改成什么短剧方向。
-              </p>
-            </div>
-            <div className="document-action-row">
-              <button
-                className="secondary-button document-action-button"
-                disabled={!isAuthenticated}
-                onClick={handlePendingWordUpload}
-                type="button"
-              >
-                上传 Word 文档
-              </button>
-              <button className="secondary-button document-action-button" disabled type="button">
-                下载 Word（生成后可用）
-              </button>
-            </div>
-            <p className="document-action-note">
-              支持电影剧本、小说、网文或长文本。导入后请检查文本内容，并补充改编方向。
-            </p>
-            {documentActionNotice && <p className="copy-status">{documentActionNotice}</p>}
-          </section>
-
-          <DocumentImportPanel
-            error={importDraft.error}
-            filename={importDraft.filename}
-            isAuthenticated={isAuthenticated}
-            isFilm={isFilm}
-            isLoading={importDraft.isLoading}
-            onApplyAppend={() => applyDocumentImportPreview(mode, "append")}
-            onApplyFill={() => applyDocumentImportPreview(mode, "fill")}
-            onCancel={() => applyDocumentImportPreview(mode, "cancel")}
-            onFilenameChange={(value) => {
-              updateDocumentImportDraft(mode, {
-                filename: value,
-                error: "",
-              });
-            }}
-            onGeneratePreview={() => handleGenerateDocumentImportPreview(mode)}
-            onTextChange={(value) => {
-              updateDocumentImportDraft(mode, {
-                text: value,
-                error: "",
-              });
-            }}
-            preview={importDraft.preview}
-            text={importDraft.text}
-          />
-
-          <div className="creation-draft-grid">
-            <label className="field creation-draft-field">
-              <span>项目标题</span>
-              <input
-                disabled={!isAuthenticated}
-                onChange={(event) => updateAdaptationDraft(mode, "projectTitle", event.target.value)}
-                value={draft.projectTitle}
-              />
-            </label>
-            <label className="field creation-draft-field">
-              <span>{isFilm ? "原片 / 原剧本标题" : "原小说 / 文本标题"}</span>
-              <input
-                disabled={!isAuthenticated}
-                onChange={(event) => updateAdaptationDraft(mode, "sourceTitle", event.target.value)}
-                value={draft.sourceTitle}
-              />
-            </label>
-            <label className="field creation-draft-field">
-              <span>目标集数</span>
-              <input
-                disabled={!isAuthenticated}
-                min={1}
-                onChange={(event) => updateAdaptationDraft(mode, "episodeCount", Number(event.target.value) || 1)}
-                type="number"
-                value={draft.episodeCount}
-              />
-            </label>
-          </div>
-
-          <label className="field field-wide creation-draft-field">
-            <span>{isFilm ? "原剧本 / 长文本内容" : "小说 / 网文 / 故事文本"}</span>
-            <textarea
-              disabled={!isAuthenticated}
-              onChange={(event) => updateAdaptationDraft(mode, "sourceText", event.target.value)}
-              placeholder={
-                isFilm
-                  ? "上传 Word 后会显示导入预览，确认后可填入这里。也可以直接粘贴电影剧本、长剧本或分场文本。"
-                  : "上传 Word 后会显示导入预览，确认后可填入这里。也可以直接粘贴小说、网文、故事片段或人物小传。"
-              }
-              rows={6}
-              value={draft.sourceText}
+        <AdaptationDraftForm
+          documentActionNotice={documentActionNotice}
+          documentImportPanel={
+            <DocumentImportPanel
+              error={importDraft.error}
+              filename={importDraft.filename}
+              isAuthenticated={isAuthenticated}
+              isFilm={isFilm}
+              isLoading={importDraft.isLoading}
+              onApplyAppend={() => applyDocumentImportPreview(mode, "append")}
+              onApplyFill={() => applyDocumentImportPreview(mode, "fill")}
+              onCancel={() => applyDocumentImportPreview(mode, "cancel")}
+              onFilenameChange={(value) => {
+                updateDocumentImportDraft(mode, {
+                  filename: value,
+                  error: "",
+                });
+              }}
+              onGeneratePreview={() => handleGenerateDocumentImportPreview(mode)}
+              onTextChange={(value) => {
+                updateDocumentImportDraft(mode, {
+                  text: value,
+                  error: "",
+                });
+              }}
+              preview={importDraft.preview}
+              text={importDraft.text}
             />
-          </label>
-
-          <label className="field field-wide creation-draft-field">
-            <span>改编方向 / 重点要求</span>
-            <textarea
-              disabled={!isAuthenticated}
-              onChange={(event) => updateAdaptationDraft(mode, "focus", event.target.value)}
-              placeholder={
-                isFilm
-                  ? "例如：改成 10 集都市复仇短剧；保留原主线，强化反派压迫感；每集结尾增加反转；对白更短剧化。"
-                  : "例如：突出女主成长线；弱化原作支线；强化家庭伦理冲突；每集设置强钩子；保留核心人物关系。"
-              }
-              rows={3}
-              value={draft.focus}
-            />
-          </label>
-
-          <label className="field field-wide creation-draft-field">
-            <span>额外要求</span>
-            <textarea
-              disabled={!isAuthenticated}
-              onChange={(event) => updateAdaptationDraft(mode, "extraRequirements", event.target.value)}
-              rows={3}
-              value={draft.extraRequirements}
-            />
-          </label>
-        </div>
+          }
+          draft={draft}
+          isAuthenticated={isAuthenticated}
+          isFilm={isFilm}
+          onChange={(field, value) => updateAdaptationDraft(mode, field, value)}
+          onPendingWordUpload={handlePendingWordUpload}
+        />
 
         <div className="creation-draft-actions">
           <button
