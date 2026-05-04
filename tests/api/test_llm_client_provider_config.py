@@ -12,6 +12,10 @@ from app.services.llm_client import LLMClient
 
 
 LLM_ENV_NAMES = [
+    "DEFAULT_LLM_PROVIDER",
+    "DEFAULT_SCRIPT_MODEL",
+    "LLM_REQUEST_TIMEOUT_SECONDS",
+    "ASSISTANT_GENERATION_MODE",
     "LLM_PROVIDER",
     "LLM_BASE_URL",
     "LLM_MODEL",
@@ -38,6 +42,15 @@ def clean_llm_env(monkeypatch):
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
+
+
+def test_settings_exposes_dramora_default_llm_fields() -> None:
+    settings = get_settings()
+
+    assert settings.default_llm_provider == "deepseek"
+    assert settings.default_script_model == "deepseek-chat"
+    assert settings.llm_request_timeout_seconds > 0
+    assert settings.assistant_generation_mode == "mock"
 
 
 def test_llm_client_uses_default_provider_config(monkeypatch) -> None:

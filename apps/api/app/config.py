@@ -10,7 +10,10 @@ ENV_FILE = PROJECT_ROOT / ".env"
 
 class Settings(BaseSettings):
     app_name: str = "Dramora"
-    app_env: str = "development"
+    app_env: str = "local"
+    default_llm_provider: str = "deepseek"
+    default_script_model: str = "deepseek-chat"
+    llm_request_timeout_seconds: int = 60
     llm_provider: str = "default"
     llm_api_key: str = ""
     llm_base_url: str = ""
@@ -30,6 +33,7 @@ class Settings(BaseSettings):
     script_generation_mode: str = "mock"
     storyboard_generation_mode: str = "mock"
     image_prompt_generation_mode: str = "mock"
+    assistant_generation_mode: str = "mock"
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8")
 

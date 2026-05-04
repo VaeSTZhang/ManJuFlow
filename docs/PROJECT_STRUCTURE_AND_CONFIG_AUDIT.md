@@ -50,10 +50,11 @@
 - `apps/api/.env` 当前不存在；
 - `docs/LOCAL_DEV.md` 和 `docs/LLM_SETUP.md` 已说明真实配置统一放项目根目录 `.env`，不再需要 `apps/api/.env`；
 - `.env.example` 中 DeepSeek / Mimo / Kimi / MiniMax 均为公开占位字段，没有真实 Key。
+- 第 219 步已补齐 `DEFAULT_LLM_PROVIDER`、`DEFAULT_SCRIPT_MODEL`、`LLM_REQUEST_TIMEOUT_SECONDS`、`ASSISTANT_GENERATION_MODE`，并保留 `LLM_PROVIDER` / `LLM_MODEL` 兼容字段。
 
 ## 4. LLM 配置建议
 
-后续建议逐步统一字段命名，并以 `.env.example` 和 `apps/api/app/config.py` 为准。
+第 219 步已开始统一字段命名，并以 `.env.example` 和 `apps/api/app/config.py` 为准。
 
 建议字段：
 
@@ -68,7 +69,7 @@
 - `IMAGE_PROMPT_GENERATION_MODE`
 - `ASSISTANT_GENERATION_MODE`
 
-当前已有字段包括：
+保留兼容字段包括：
 
 - `LLM_PROVIDER`
 - `LLM_BASE_URL`
@@ -90,11 +91,13 @@
 - `STORYBOARD_GENERATION_MODE`
 - `IMAGE_PROMPT_GENERATION_MODE`
 
-需要后续统一的问题：
+当前状态：
 
-- 当前 `.env.example` 使用 `LLM_PROVIDER`，而新产品设计中更倾向 `DEFAULT_LLM_PROVIDER`；
-- 当前尚未在 `config.py` 中看到 `LLM_REQUEST_TIMEOUT_SECONDS` 和 `ASSISTANT_GENERATION_MODE`；
-- 后续 CreativeModelPanel 接入后，请求级 provider / model 应进入统一 `AIRequestOptions`，而不是要求用户修改 `.env` 才能切换模型。
+- `DEFAULT_LLM_PROVIDER` 和 `DEFAULT_SCRIPT_MODEL` 已作为 Dramora 推荐默认配置入口；
+- `LLM_PROVIDER` / `LLM_MODEL` 继续保留，避免破坏当前 LLMClient 兼容路径；
+- `LLM_REQUEST_TIMEOUT_SECONDS` 与 `ASSISTANT_GENERATION_MODE` 已进入配置模板和 `config.py`；
+- 请求级 provider / model 已进入统一 `AIRequestOptions`，不要求用户每次修改 `.env` 才能切换前端创作模型；
+- 后续真实 LLM 接入时，应继续避免在业务 service 中硬编码 DeepSeek。
 
 ## 5. 公开仓库安全边界
 
@@ -208,7 +211,7 @@ LLM provider 配置统一走 `config.py` + `LLMClient`。不要在业务 service
 
 - `.gitignore` 建议补充 `.env.*` 与 `!.env.example`；
 - `.gitignore` 建议显式补充上传 / 导出目录；
-- `.env.example` 与 `config.py` 后续应统一 `DEFAULT_LLM_PROVIDER`、`DEFAULT_SCRIPT_MODEL`、`LLM_REQUEST_TIMEOUT_SECONDS`、`ASSISTANT_GENERATION_MODE` 等字段；
+- `.env.example` 与 `config.py` 的 LLM 默认字段已在第 219 步部分落地，后续真实 LLM 验收时再确认 LLMClient 使用路径；
 - 当前 `docs/` 文件数量较多，后续应单独做分层整理；
 - `tests/api/__pycache__` 和 `apps/api/app/__pycache__` 等本地缓存存在，但已被 `.gitignore` 覆盖且未被 Git 跟踪。
 

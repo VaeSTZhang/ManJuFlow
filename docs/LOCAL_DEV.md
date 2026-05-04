@@ -21,8 +21,10 @@ cp .env.example .env
 注意：
 
 - 不要提交 `.env`
+- `.env.example` 是唯一公开模板
 - 不再需要 `apps/api/.env`
 - 后端从 `apps/api` 启动时，也会读取项目根目录 `.env`
+- 真实配置只维护根目录 `.env` 一个文件，不需要两个文件同时修改
 
 ## 生成模式配置
 
@@ -32,6 +34,7 @@ cp .env.example .env
 SCRIPT_GENERATION_MODE=mock
 STORYBOARD_GENERATION_MODE=mock
 IMAGE_PROMPT_GENERATION_MODE=mock
+ASSISTANT_GENERATION_MODE=mock
 ```
 
 `STORYBOARD_GENERATION_MODE` 支持 `mock` / `llm`。当前 Storyboard 真实 LLM 尚未正式接入，即使配置为 `llm`，服务层也会暂时 fallback 到 mock；后续接真实 LLM 时再补充 JSON 解析、Schema 校验与修复逻辑。
@@ -42,6 +45,20 @@ IMAGE_PROMPT_GENERATION_MODE=mock
 - `llm`：调用 `LLMClient`，并解析为 `ImagePromptOutput`。
 
 修改 `.env` 后需要重启后端 `uvicorn`。`llm` 模式需要确保已有 LLM API 配置可用，建议先用小样本测试，不要直接大批量调用。
+
+## LLM 默认模型配置
+
+Dramora 当前内部默认推荐 DeepSeek，但不要在业务代码中硬编码 DeepSeek。后端默认模型入口建议使用：
+
+```env
+DEFAULT_LLM_PROVIDER=deepseek
+DEFAULT_SCRIPT_MODEL=deepseek-chat
+LLM_REQUEST_TIMEOUT_SECONDS=60
+```
+
+`LLM_PROVIDER` / `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY` 保留为当前兼容字段和通用 OpenAI-compatible fallback。DeepSeek / Mimo / Kimi / MiniMax 可分别通过 `DEEPSEEK_*`、`MIMO_*`、`KIMI_*`、`MINIMAX_*` 配置扩展。
+
+当前前端创作模型选择器会通过请求级 `AIRequestOptions` 传递 provider / model / purpose。选择“后端默认”时，应回到后端默认 provider / model；不要通过反复修改业务代码切换模型。
 
 ## 后端启动方式
 
@@ -57,6 +74,7 @@ uvicorn app.main:app --reload
 
 - 修改 `.env`
 - 修改 `LLM_PROVIDER`
+- 修改 `DEFAULT_LLM_PROVIDER` / `DEFAULT_SCRIPT_MODEL`
 - 修改 `*_GENERATION_MODE`
 - 修改后端 Python 代码
 - 修改依赖
@@ -90,7 +108,7 @@ uvicorn app.main:app --reload
 
 - 前端代码未变化时，前端不需要重启。
 - 只切换后端 provider / `.env` 时，通常只需要重启后端。
-- 当前模型对比流程中，每次切换 `LLM_PROVIDER` 后都需要重启后端。
+- 当前模型对比流程中，修改根目录 `.env` 后需要重启后端。
 - 测试结束后切回 `IMAGE_PROMPT_GENERATION_MODE=mock` 后，也需要重启后端恢复安全状态。
 - 前端 ImagePrompt 模型选择器可用于本地选择 provider。
 - 切换前端模型选择器本身不需要重启后端。
