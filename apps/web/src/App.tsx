@@ -6,8 +6,13 @@ import { generateStoryboard } from "./api/storyboards";
 import "./App.css";
 import { AppShell } from "./components/layout/AppShell";
 import { CharacterCountHint } from "./components/common/CharacterCountHint";
+import { CreationEntryModal } from "./components/creation/CreationEntryModal";
 import { Sidebar } from "./components/layout/Sidebar";
 import { Toast } from "./components/layout/Toast";
+import {
+  CREATION_ENTRY_REGISTRY,
+  type CreationEntryConfig,
+} from "./constants/creationEntryRegistry";
 import {
   ScriptSegmentationWorkspace,
   type ScriptSegmentationStoryboardPayload,
@@ -270,6 +275,9 @@ const sidebarItems: SidebarItem[] = [
 
 function App() {
   const [activeWorkspaceId, setActiveWorkspaceId] = useState("idea-script");
+  const [isMockLoggedIn, setIsMockLoggedIn] = useState(false);
+  const [isCreationEntryModalOpen, setIsCreationEntryModalOpen] = useState(false);
+  const [selectedCreationEntry, setSelectedCreationEntry] = useState<CreationEntryConfig | null>(null);
   const [form, setForm] = useState<IdeaInput>(defaultForm);
   const [result, setResult] = useState<ScriptOutput | null>(null);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
@@ -320,6 +328,20 @@ function App() {
 
     setToastMessages((current) => [...current, { id, type, title, description }]);
     window.setTimeout(() => dismissToast(id), 3500);
+  };
+
+  const handleMockLogin = () => {
+    setIsMockLoggedIn(true);
+    if (!selectedCreationEntry) {
+      setIsCreationEntryModalOpen(true);
+    }
+    pushToast("success", "Mock 登录成功", "现在可以选择本次短剧创作入口。");
+  };
+
+  const handleSelectCreationEntry = (entry: CreationEntryConfig) => {
+    setSelectedCreationEntry(entry);
+    setIsCreationEntryModalOpen(false);
+    pushToast("success", "已选择创作入口", `当前入口：${entry.label}`);
   };
 
   useEffect(() => {
@@ -1095,10 +1117,49 @@ function App() {
             <strong>{activeWorkspace.label}</strong>
           </div>
           <p>当前工作区仅显示对应操作区域。</p>
+          <section className="creation-entry-topbar-actions" aria-label="三入口创作选择">
+            <span>{isMockLoggedIn ? "Mock 内部账户：已登录" : "Mock 内部账户：未登录"}</span>
+            <button
+              className="secondary-button"
+              onClick={isMockLoggedIn ? () => setIsCreationEntryModalOpen(true) : handleMockLogin}
+              type="button"
+            >
+              {isMockLoggedIn ? "选择创作入口" : "Mock 登录"}
+            </button>
+          </section>
         </div>
       }
     >
       <main className="app">
+      <CreationEntryModal
+        entries={CREATION_ENTRY_REGISTRY}
+        isOpen={isCreationEntryModalOpen}
+        onClose={() => setIsCreationEntryModalOpen(false)}
+        onSelect={handleSelectCreationEntry}
+        selectedEntryId={selectedCreationEntry?.id}
+      />
+
+      <section className="creation-entry-summary" aria-label="当前创作入口">
+        <div>
+          <span>三入口短剧工作台</span>
+          <strong>
+            {selectedCreationEntry ? `当前创作入口：${selectedCreationEntry.label}` : "尚未选择创作入口"}
+          </strong>
+          <p>
+            {selectedCreationEntry
+              ? selectedCreationEntry.nextStepLabel
+              : "Mock 登录后可选择灵感生成短剧、电影剧本改短剧或小说改短剧。"}
+          </p>
+        </div>
+        <button
+          className="secondary-button"
+          onClick={isMockLoggedIn ? () => setIsCreationEntryModalOpen(true) : handleMockLogin}
+          type="button"
+        >
+          {isMockLoggedIn ? "重新选择入口" : "Mock 登录并选择入口"}
+        </button>
+      </section>
+
       <div className="workspace-transition" key={activeWorkspaceId}>
       {activeWorkspaceId === "idea-script" && (
         <>
