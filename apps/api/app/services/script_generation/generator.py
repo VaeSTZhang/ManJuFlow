@@ -2,7 +2,10 @@ from app.config import get_settings
 from app.schemas.idea import IdeaInput
 from app.schemas.script import ScriptOutput
 from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
-from app.services.script_generation.film_adaptation import generate_film_script_adaptation_mock
+from app.services.script_generation.film_adaptation import (
+    generate_film_script_adaptation_llm,
+    generate_film_script_adaptation_mock,
+)
 from app.services.script_generation.metadata import build_script_generation_metadata
 from app.services.script_generation.novel_adaptation import generate_novel_adaptation_mock
 from app.services.script_service import generate_script_mock, generate_script_with_llm
@@ -104,6 +107,9 @@ def generate_short_drama_script(
     if mode == "llm":
         if input_data.source_mode == "idea":
             return generate_idea_short_drama_script_llm(input_data)
+
+        if input_data.source_mode == "film_script":
+            return generate_film_script_adaptation_llm(input_data)
 
         raise NotImplementedError(
             f"SCRIPT_GENERATION_MODE=llm is not implemented for source_mode='{input_data.source_mode}' yet."

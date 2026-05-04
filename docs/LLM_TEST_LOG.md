@@ -56,6 +56,16 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 - `film_script` / `novel` 的 llm path 尚未实现，仍返回清晰未实现错误；
 - 本步骤单元测试使用 fake LLM，未调用真实 DeepSeek；下一步可以进行 idea + DeepSeek 虚构样本真实 smoke test。
 
+第 229 步更新：
+
+- 已为 `source_mode=film_script` 增加 `SCRIPT_GENERATION_MODE=llm` path；
+- film_script llm path 复用 `film_script_to_short_drama_v1.md` Prompt，并直接校验为 `ShortDramaScriptOutput`；
+- `ai_options.provider` / `ai_options.model` 已传入 `LLMClient(provider=..., model=...)`；
+- metadata 会记录 `generation_mode=llm`、source_mode、provider、model、purpose；
+- 当前只完成代码路径与 fake LLM 测试，尚未进行真实 DeepSeek film_script 样本；
+- `novel` 的 llm path 尚未实现，仍返回清晰未实现错误；
+- 下一步建议做 film_script + DeepSeek 虚构样本验收。
+
 ### 是否真实调用 DeepSeek
 
 否。
@@ -66,14 +76,15 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 
 已进入请求 schema。
 
-`ShortDramaGenerationInput.ai_options` 已支持 provider / model / language / purpose，mock metadata 也会记录这些字段。第 223 步后，idea llm path 已会把 provider / model 传入 `LLMClient`；film_script / novel 仍未接入真实 LLM。
+`ShortDramaGenerationInput.ai_options` 已支持 provider / model / language / purpose，mock metadata 也会记录这些字段。第 223 步后，idea llm path 已会把 provider / model 传入 `LLMClient`；第 229 步后，film_script llm path 也已接入 provider / model。novel 仍未接入真实 LLM。
 
 ### 阻塞点
 
 - 第 221 步检查时，`generate-from-source` router 直接调用 `generate_short_drama_script_mock`；
 - 第 222 步已新增统一 `generate_short_drama_script` 入口，并开始读取 `SCRIPT_GENERATION_MODE`；
 - idea source_mode 已具备真实 LLM prompt 组装、调用、JSON 解析、清洗和 `ShortDramaScriptOutput` 转换闭环；
-- film_script / novel 尚未实现真实 LLM prompt 组装、调用、JSON 解析、清洗和 `ShortDramaScriptOutput` 校验闭环。
+- film_script source_mode 已具备真实 LLM prompt 组装、调用、JSON 解析、清洗和 `ShortDramaScriptOutput` 校验闭环；
+- novel 尚未实现真实 LLM prompt 组装、调用、JSON 解析、清洗和 `ShortDramaScriptOutput` 校验闭环。
 
 ### 下一步建议
 
@@ -83,7 +94,9 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 - 第 223 步已实现 idea llm 分支，并调用 `LLMClient(provider=input_data.ai_options.provider, model=input_data.ai_options.model)`；
 - 第 223 步已将 idea 真实模型输出转换为 `ShortDramaScriptOutput`，并复用 metadata helper 记录 provider / model / purpose；
 - 下一步执行 DeepSeek 小样本 smoke test；
-- 后续再分步实现 film_script / novel 的 llm path。
+- 第 229 步已实现 film_script llm 分支，但尚未做真实 DeepSeek film_script 样本；
+- 下一步执行 film_script DeepSeek 虚构样本 smoke test；
+- 后续再分步实现 novel 的 llm path。
 
 安全记录：
 

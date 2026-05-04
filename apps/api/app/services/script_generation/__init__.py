@@ -1,4 +1,5 @@
 from app.services.script_generation.film_adaptation import (
+    generate_film_script_adaptation_llm,
     generate_film_script_adaptation_mock,
     load_film_script_prompt_template,
 )
@@ -24,6 +25,7 @@ __all__ = [
     "DEFAULT_SCRIPT_GENERATION_REGISTRY",
     "ScriptGenerationEntryConfig",
     "convert_script_output_to_short_drama_output",
+    "generate_film_script_adaptation_llm",
     "generate_film_script_adaptation_mock",
     "generate_idea_short_drama_script_llm",
     "generate_novel_adaptation_mock",

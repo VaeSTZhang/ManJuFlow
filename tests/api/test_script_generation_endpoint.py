@@ -10,6 +10,7 @@ sys.path.insert(0, str(API_ROOT))
 from app.main import app  # noqa: E402
 from app.config import get_settings  # noqa: E402
 from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript, ScriptOutput  # noqa: E402
+from app.schemas.script_generation import ShortDramaScriptOutput  # noqa: E402
 
 
 def make_source_request(**overrides) -> dict:
@@ -96,9 +97,23 @@ def test_generate_from_source_llm_mode_idea_returns_short_drama_output(monkeypat
     assert data["metadata"]["generation_mode"] == "llm"
 
 
-def test_generate_from_source_llm_mode_film_script_returns_clear_not_implemented_error(monkeypatch) -> None:
+def test_generate_from_source_llm_mode_film_script_returns_short_drama_output(monkeypatch) -> None:
     settings = get_settings()
     monkeypatch.setattr(settings, "script_generation_mode", "llm")
+    monkeypatch.setattr(
+        "app.services.script_generation.generator.generate_film_script_adaptation_llm",
+        lambda input_data: ShortDramaScriptOutput(
+            project_title="旧片场复仇夜",
+            source_mode="film_script",
+            logline="女演员回到废弃片场追查父亲失踪真相。",
+            world_setting="废弃片场与旧电影工业交织。",
+            characters=[],
+            adaptation_notes=None,
+            episode_count=1,
+            episodes=[],
+            metadata={"generation_mode": "llm"},
+        ),
+    )
     client = TestClient(app)
 
     response = client.post(
@@ -107,8 +122,9 @@ def test_generate_from_source_llm_mode_film_script_returns_clear_not_implemented
     )
     data = response.json()
 
-    assert response.status_code == 400
-    assert "SCRIPT_GENERATION_MODE=llm is not implemented for source_mode='film_script' yet." in data["detail"]
+    assert response.status_code == 200
+    assert data["source_mode"] == "film_script"
+    assert data["metadata"]["generation_mode"] == "llm"
 
 
 def test_generate_from_source_film_script_returns_expected_episode_count() -> None:
