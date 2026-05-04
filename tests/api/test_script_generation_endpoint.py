@@ -28,7 +28,9 @@ def make_source_request(**overrides) -> dict:
     return data
 
 
-def test_generate_from_source_idea_returns_short_drama_output() -> None:
+def test_generate_from_source_idea_returns_short_drama_output(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
     client = TestClient(app)
 
     response = client.post("/api/scripts/generate-from-source", json=make_source_request())
@@ -127,7 +129,9 @@ def test_generate_from_source_llm_mode_film_script_returns_short_drama_output(mo
     assert data["metadata"]["generation_mode"] == "llm"
 
 
-def test_generate_from_source_film_script_returns_expected_episode_count() -> None:
+def test_generate_from_source_film_script_returns_expected_episode_count(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
     client = TestClient(app)
 
     response = client.post(
@@ -146,7 +150,9 @@ def test_generate_from_source_film_script_returns_expected_episode_count() -> No
     assert len(data["episodes"]) == 4
 
 
-def test_generate_from_source_novel_returns_expected_episode_count() -> None:
+def test_generate_from_source_novel_returns_expected_episode_count(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
     client = TestClient(app)
 
     response = client.post(
@@ -165,7 +171,9 @@ def test_generate_from_source_novel_returns_expected_episode_count() -> None:
     assert len(data["episodes"]) == 4
 
 
-def test_generate_from_source_accepts_ai_options() -> None:
+def test_generate_from_source_accepts_ai_options(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
     client = TestClient(app)
 
     response = client.post(
@@ -190,7 +198,9 @@ def test_generate_from_source_accepts_ai_options() -> None:
     assert data["metadata"]["ai_options"]["provider"] == "deepseek"
 
 
-def test_generate_from_source_rejects_assistant_rewrite_as_400() -> None:
+def test_generate_from_source_rejects_assistant_rewrite_as_400(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
     client = TestClient(app)
 
     response = client.post(
@@ -203,7 +213,9 @@ def test_generate_from_source_rejects_assistant_rewrite_as_400() -> None:
     assert "Assistant module" in data["detail"]
 
 
-def test_generate_from_source_rejects_uploaded_document_as_400() -> None:
+def test_generate_from_source_rejects_uploaded_document_as_400(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
     client = TestClient(app)
 
     response = client.post(
