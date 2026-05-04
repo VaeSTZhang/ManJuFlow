@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ShortDramaScriptResult } from "./ShortDramaScriptResult";
 
 type CreationMode = "idea" | "adaptation";
 type AdaptationMode = "film" | "novel";
@@ -444,6 +445,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       {selectedMode === "idea" && renderIdeaForm()}
       {selectedMode === "adaptation" && !selectedAdaptationMode && renderAdaptationChoices()}
       {selectedMode === "adaptation" && selectedAdaptationMode && renderAdaptationForm(selectedAdaptationMode)}
+      <ShortDramaScriptResult result={null} isLocked={!isAuthenticated} />
     </>
   );
 }
