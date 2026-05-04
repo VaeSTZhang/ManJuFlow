@@ -26,6 +26,12 @@ from app.schemas.script import (
     SceneScript,
     ScriptOutput,
 )
+from app.schemas.script_generation import (
+    AdaptationNotes,
+    ScriptSourceMode,
+    ShortDramaGenerationInput,
+    ShortDramaScriptOutput,
+)
 from app.schemas.script_segmentation import (
     ExistingScriptInput,
     ScriptSegment,
@@ -47,6 +53,7 @@ from app.schemas.upload import (
 __all__ = [
     "AssetCollection",
     "AssetItem",
+    "AdaptationNotes",
     "CharacterProfile",
     "DialogueLine",
     "DocumentExportFormat",
@@ -67,8 +74,11 @@ __all__ = [
     "SceneScript",
     "SceneStoryboard",
     "ShotStoryboard",
+    "ScriptSourceMode",
     "RenderTaskItem",
     "RenderTaskOutput",
+    "ShortDramaGenerationInput",
+    "ShortDramaScriptOutput",
     "ScriptSegment",
     "ScriptSegmentationOutput",
     "ScriptOutput",
