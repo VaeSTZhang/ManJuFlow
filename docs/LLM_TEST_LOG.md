@@ -158,6 +158,57 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 - 下一步建议做前端 idea 入口真实 llm 浏览器验收；
 - 之后再分步接入 `film_script` / `novel` 的真实 llm path。
 
+## Dramora Frontend Idea DeepSeek Browser Acceptance - 2026-05-04
+
+### 验收目标
+
+验证 Dramora 前端“剧本创作 / 灵感生成”入口在登录后可选择 DeepSeek，并通过后端真实 LLM 链路生成、展示和导出 `ShortDramaScriptOutput`。
+
+### 前端入口
+
+- 页面：剧本创作
+- 入口：灵感生成
+
+### 模型配置
+
+- provider：`deepseek`
+- model：`deepseek-chat`
+- generation_mode：`llm`
+
+### system/status
+
+浏览器验收时系统状态显示：
+
+- `app_name = Dramora`
+- `script_generation_mode = llm`
+- `llm_enabled = true`
+
+### 验收结果
+
+通过。
+
+### 验收内容
+
+- 登录后可选择 DeepSeek；
+- 登录后可从灵感生成入口发起真实 LLM 生成；
+- 结果区可展示后端真实返回的 `ShortDramaScriptOutput`；
+- JSON 导出可用；
+- TXT 导出可用；
+- Word 导出仍为后续接入状态。
+
+### 安全说明
+
+- 未提交 `.env`；
+- 未打印 API Key；
+- 未使用真实客户剧本；
+- 验收样本为虚构内容。
+
+### 后续限制
+
+- 当前仅 idea 入口完成真实 LLM 浏览器验收；
+- `film_script` / `novel` 的 LLM path 尚未接入；
+- Word 导出仍需后续接入完整文档导出闭环。
+
 ## Dramora Script Generation DeepSeek Smoke Test - 2026-05-04
 
 ### 测试目标
