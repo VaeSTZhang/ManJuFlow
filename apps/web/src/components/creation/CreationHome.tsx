@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { previewDocumentImport } from "../../api/documentImport";
 import { parseApiErrorMessage } from "../../api/errors";
 import { generateShortDramaScript } from "../../api/scriptGeneration";
 import {
@@ -11,6 +12,7 @@ import {
   buildNovelGenerationInput,
 } from "./scriptGenerationRequestBuilder";
 import { ShortDramaScriptResult } from "./ShortDramaScriptResult";
+import type { DocumentImportOutput } from "../../types/documentImport";
 import type { ShortDramaGenerationInput, ShortDramaScriptOutput } from "../../types/scriptGeneration";
 
 type CreationMode = "idea" | "adaptation";
@@ -173,6 +175,12 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const [shortDramaGeneratedAt, setShortDramaGeneratedAt] = useState<string | undefined>();
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
   const [scriptGenerationError, setScriptGenerationError] = useState("");
+  const [documentImportFilename, setDocumentImportFilename] = useState("");
+  const [documentImportText, setDocumentImportText] = useState("");
+  const [documentImportPreview, setDocumentImportPreview] = useState<DocumentImportOutput | null>(null);
+  const [documentImportError, setDocumentImportError] = useState("");
+  const [isDocumentImportPreviewLoading, setIsDocumentImportPreviewLoading] = useState(false);
+  const [documentImportTargetMode, setDocumentImportTargetMode] = useState<AdaptationMode | null>(null);
 
   const handlePrimarySelect = (mode: CreationMode) => {
     if (!isAuthenticated) {
@@ -205,6 +213,11 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     }
 
     setDocumentActionNotice("真实 Word 上传将在文档导入闭环接入，当前可先粘贴文本。");
+  };
+
+  const clearDocumentImportPreview = () => {
+    setDocumentImportPreview(null);
+    setDocumentImportError("");
   };
 
   const updateIdeaDraft = <K extends keyof IdeaCreationDraft>(
@@ -303,6 +316,69 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       : buildNovelGenerationInput(draft, selectedCreativeModel);
 
     await runScriptGeneration(requestInput, sourceLabel);
+  };
+
+  const handleGenerateDocumentImportPreview = async (mode: AdaptationMode) => {
+    if (!isAuthenticated) {
+      onRequireLogin();
+      return;
+    }
+
+    const filename = documentImportFilename.trim();
+    const extractedText = documentImportText.trim();
+
+    if (!filename) {
+      setDocumentImportError("请先填写文件名。");
+      return;
+    }
+
+    if (!extractedText) {
+      setDocumentImportError("请先粘贴文档文本。");
+      return;
+    }
+
+    const draft = drafts[mode];
+    setIsDocumentImportPreviewLoading(true);
+    setDocumentImportError("");
+    setDocumentImportTargetMode(mode);
+
+    try {
+      const preview = await previewDocumentImport({
+        filename,
+        extracted_text: extractedText,
+        source_type: mode === "novel" ? "novel" : "docx",
+        project_title: draft.projectTitle.trim() || draft.sourceTitle.trim() || null,
+      });
+      setDocumentImportPreview(preview);
+    } catch (error) {
+      setDocumentImportError(
+        parseApiErrorMessage(error, "生成文档导入预览失败，请确认后端服务已启动：http://127.0.0.1:8000"),
+      );
+    } finally {
+      setIsDocumentImportPreviewLoading(false);
+    }
+  };
+
+  const applyDocumentImportPreview = (mode: AdaptationMode, action: "fill" | "append" | "cancel") => {
+    if (action === "cancel") {
+      clearDocumentImportPreview();
+      return;
+    }
+
+    if (!documentImportPreview || documentImportTargetMode !== mode) {
+      return;
+    }
+
+    const importedText = documentImportPreview.preview.extracted_text;
+
+    updateAdaptationDraft(
+      mode,
+      "sourceText",
+      action === "fill"
+        ? importedText
+        : [drafts[mode].sourceText.trim(), importedText].filter(Boolean).join("\n\n"),
+    );
+    clearDocumentImportPreview();
   };
 
   const handleCopyShortDramaJson = async () => {
@@ -522,6 +598,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const renderAdaptationForm = (mode: AdaptationMode) => {
     const isFilm = mode === "film";
     const draft = drafts[mode];
+    const activeImportPreview = documentImportTargetMode === mode ? documentImportPreview : null;
 
     return (
       <section className="creation-draft-panel" aria-label={isFilm ? "电影剧本改编草稿" : "小说改编草稿"}>
@@ -561,6 +638,122 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
               支持电影剧本、小说、网文或长文本。导入后请检查文本内容，并补充改编方向。
             </p>
             {documentActionNotice && <p className="copy-status">{documentActionNotice}</p>}
+          </section>
+
+          <section className="document-import-panel" aria-label="文档导入预览">
+            <div>
+              <h3>导入剧本文档内容</h3>
+              <p>
+                先粘贴文档解析出的文本生成预览，确认后再填入待改编文本。上传 Word 文件将在后续版本接入。
+              </p>
+            </div>
+
+            <div className="document-import-grid">
+              <label className="field creation-draft-field">
+                <span>文件名</span>
+                <input
+                  disabled={!isAuthenticated || isDocumentImportPreviewLoading}
+                  onChange={(event) => {
+                    setDocumentImportFilename(event.target.value);
+                    setDocumentImportError("");
+                  }}
+                  placeholder={isFilm ? "example-film-script.docx" : "example-novel.docx"}
+                  value={documentImportFilename}
+                />
+              </label>
+              <label className="field creation-draft-field">
+                <span>文档文本</span>
+                <textarea
+                  disabled={!isAuthenticated || isDocumentImportPreviewLoading}
+                  onChange={(event) => {
+                    setDocumentImportText(event.target.value);
+                    setDocumentImportError("");
+                  }}
+                  placeholder={
+                    isFilm
+                      ? "粘贴电影剧本、长剧本或分场文本，生成预览后再确认填入。"
+                      : "粘贴小说、网文、故事片段或人物小传，生成预览后再确认填入。"
+                  }
+                  rows={5}
+                  value={documentImportText}
+                />
+              </label>
+            </div>
+
+            <div className="document-import-actions">
+              <button
+                className="secondary-button"
+                disabled={!isAuthenticated || isDocumentImportPreviewLoading}
+                onClick={() => handleGenerateDocumentImportPreview(mode)}
+                type="button"
+              >
+                {isDocumentImportPreviewLoading && documentImportTargetMode === mode
+                  ? "生成预览中..."
+                  : "生成导入预览"}
+              </button>
+            </div>
+
+            {documentImportError && <p className="form-error">{documentImportError}</p>}
+
+            {activeImportPreview && (
+              <article className="document-import-preview">
+                <div className="document-import-preview-header">
+                  <div>
+                    <span>文档导入预览</span>
+                    <strong>{activeImportPreview.preview.detected_title || "未识别标题"}</strong>
+                  </div>
+                  <small>{activeImportPreview.preview.source.filename}</small>
+                </div>
+
+                <dl className="document-import-preview-meta">
+                  <div>
+                    <dt>字数</dt>
+                    <dd>{activeImportPreview.preview.character_count}</dd>
+                  </div>
+                  <div>
+                    <dt>段落数</dt>
+                    <dd>{activeImportPreview.preview.paragraph_count ?? 0}</dd>
+                  </div>
+                </dl>
+
+                {activeImportPreview.preview.warnings.length > 0 && (
+                  <div className="document-import-warning">
+                    {activeImportPreview.preview.warnings.map((warning) => (
+                      <p key={warning}>{warning}</p>
+                    ))}
+                  </div>
+                )}
+
+                <p className="document-import-preview-text">{activeImportPreview.preview.preview_text}</p>
+
+                <div className="document-import-actions">
+                  <button
+                    className="primary-button"
+                    disabled={!isAuthenticated}
+                    onClick={() => applyDocumentImportPreview(mode, "fill")}
+                    type="button"
+                  >
+                    填入待改编文本
+                  </button>
+                  <button
+                    className="secondary-button"
+                    disabled={!isAuthenticated}
+                    onClick={() => applyDocumentImportPreview(mode, "append")}
+                    type="button"
+                  >
+                    追加到当前文本后
+                  </button>
+                  <button
+                    className="secondary-button"
+                    disabled={!isAuthenticated}
+                    onClick={() => applyDocumentImportPreview(mode, "cancel")}
+                    type="button"
+                  >
+                    取消导入
+                  </button>
+                </div>
+              </article>
+            )}
           </section>
 
           <div className="creation-draft-grid">
