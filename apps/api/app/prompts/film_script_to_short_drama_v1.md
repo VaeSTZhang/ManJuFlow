@@ -33,6 +33,31 @@
 
 改编目标是让内容更适合短剧用户追看，而不是保留电影叙事的慢节奏和长铺垫。
 
+## 目标集数硬约束
+
+`target_episode_count` 是硬约束，不是建议值。
+
+如果输入中提供 `target_episode_count=N`：
+
+- 输出根字段 `episode_count` 必须等于 N；
+- `episodes` 数组长度必须等于 N；
+- `episode_number` 必须从 1 到 N 连续编号；
+- 不得自行压缩为 1 集；
+- 不得把多集故事合并成单集；
+- 不得在 `adaptation_strategy`、`changed_elements`、`risk_notes` 或 `metadata` 中声明“压缩为单集”“合并为一集”“compressed to one episode”或类似策略；
+- 只有当用户明确要求单集，或 `target_episode_count=1` 时，才允许输出单集短剧。
+
+电影三幕结构不等于单集短剧。你必须把电影剧本 / 长剧本的三幕结构拆分成 N 集短剧节奏：
+
+- 每集都要有独立 `title`、`summary`、`hook` 和 `scenes`；
+- 每集结尾都要有短剧钩子、反转、危险、选择或新的信息差；
+- 可以压缩电影长铺垫，但不能压缩目标集数；
+- 可以合并电影场景，但不能合并短剧集数；
+- 如果 N=3，建议使用：
+  - 第 1 集：人物回归 / 冲突建立 / 第一个悬念；
+  - 第 2 集：误会加深 / 关键线索 / 情绪反转；
+  - 第 3 集：真相揭开 / 情感释放 / 结尾钩子或余韵。
+
 ## 输入说明
 
 输入可能包含以下字段：
@@ -114,6 +139,8 @@
 - `summary`
 - `hook`
 - `scenes`
+
+如果输入提供 `target_episode_count=N`，这里必须输出 N 个 episode，不能少于 N，也不能多于 N。每个 episode 必须按 `episode_number` 从 1 到 N 连续编号。
 
 ### scenes
 
@@ -199,7 +226,10 @@
 - `source_mode` 必须是 `film_script`；
 - `characters`、`episodes`、`scenes`、`dialogues` 必须是数组；
 - `episode_number`、`scene_number` 必须是数字；
-- `episode_count` 应与 `episodes` 数量一致，或尽量接近 `target_episode_count`；
+- 如果输入提供 `target_episode_count=N`，`episode_count` 必须等于 N；
+- 如果输入提供 `target_episode_count=N`，`episodes.length` 必须等于 N；
+- 如果输入提供 `target_episode_count=N`，所有 `episode_number` 必须从 1 到 N 连续编号；
+- 不允许输出“compressed to one episode”“压缩为单集”“合并为一集”等策略，除非 `target_episode_count=1` 或用户明确要求单集；
 - 每集至少包含 1 个 `scene`；
 - 每个 `scene` 至少包含 2 句 `dialogue`；
 - 所有字符串字段必须使用简体中文；
@@ -218,6 +248,9 @@
 - `adaptation_notes` 是否说明改编策略；
 - 是否保留了核心人物关系和主线冲突；
 - 是否压缩了不适合短剧的长铺垫；
+- 如果输入提供 `target_episode_count`，`episode_count` 是否严格等于该值；
+- 如果输入提供 `target_episode_count`，`episodes` 数组长度是否严格等于该值；
+- `episode_number` 是否从 1 到目标集数连续编号；
 - 每集是否有 `hook`；
 - 每集结尾是否有追看点；
 - 场景是否适合手机竖屏观看；
