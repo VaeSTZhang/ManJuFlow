@@ -5,7 +5,7 @@ from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaS
 from app.services.script_generation.film_adaptation import generate_film_script_adaptation_mock
 from app.services.script_generation.metadata import build_script_generation_metadata
 from app.services.script_generation.novel_adaptation import generate_novel_adaptation_mock
-from app.services.script_service import generate_script_mock
+from app.services.script_service import generate_script_mock, generate_script_with_llm
 
 
 def _build_idea_input(input_data: ShortDramaGenerationInput) -> IdeaInput:
@@ -26,16 +26,17 @@ def _build_idea_input(input_data: ShortDramaGenerationInput) -> IdeaInput:
     )
 
 
-def _map_script_output_to_short_drama_output(
+def convert_script_output_to_short_drama_output(
     script_output: ScriptOutput,
     input_data: ShortDramaGenerationInput,
+    generation_mode: str = "mock",
 ) -> ShortDramaScriptOutput:
-    metadata = build_script_generation_metadata(input_data)
+    metadata = build_script_generation_metadata(input_data, generation_mode=generation_mode)
     metadata["bridge_from"] = "ScriptOutput"
 
     return ShortDramaScriptOutput(
         project_title=script_output.project_title,
-        source_mode="idea",
+        source_mode=input_data.source_mode,
         logline=script_output.logline,
         world_setting=script_output.world_setting,
         characters=script_output.characters,
@@ -51,7 +52,7 @@ def generate_short_drama_script_mock(
 ) -> ShortDramaScriptOutput:
     if input_data.source_mode == "idea":
         script_output = generate_script_mock(_build_idea_input(input_data))
-        return _map_script_output_to_short_drama_output(script_output, input_data)
+        return convert_script_output_to_short_drama_output(script_output, input_data)
 
     if input_data.source_mode == "film_script":
         return generate_film_script_adaptation_mock(input_data)
@@ -74,6 +75,24 @@ def generate_short_drama_script_mock(
     raise ValueError(f"Unsupported source_mode: {input_data.source_mode}")
 
 
+def generate_idea_short_drama_script_llm(
+    input_data: ShortDramaGenerationInput,
+) -> ShortDramaScriptOutput:
+    if input_data.source_mode != "idea":
+        raise ValueError("generate_idea_short_drama_script_llm only supports source_mode='idea'.")
+
+    idea_input = _build_idea_input(input_data)
+    provider = input_data.ai_options.provider if input_data.ai_options else None
+    model = input_data.ai_options.model if input_data.ai_options else None
+    script_output = generate_script_with_llm(idea_input, provider=provider, model=model)
+
+    return convert_script_output_to_short_drama_output(
+        script_output,
+        input_data,
+        generation_mode="llm",
+    )
+
+
 def generate_short_drama_script(
     input_data: ShortDramaGenerationInput,
 ) -> ShortDramaScriptOutput:
@@ -83,8 +102,11 @@ def generate_short_drama_script(
         return generate_short_drama_script_mock(input_data)
 
     if mode == "llm":
+        if input_data.source_mode == "idea":
+            return generate_idea_short_drama_script_llm(input_data)
+
         raise NotImplementedError(
-            "SCRIPT_GENERATION_MODE=llm is not implemented for generate-from-source yet."
+            f"SCRIPT_GENERATION_MODE=llm is not implemented for source_mode='{input_data.source_mode}' yet."
         )
 
     raise ValueError("SCRIPT_GENERATION_MODE only supports 'mock' or 'llm'.")

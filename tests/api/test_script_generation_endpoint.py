@@ -9,6 +9,7 @@ sys.path.insert(0, str(API_ROOT))
 
 from app.main import app  # noqa: E402
 from app.config import get_settings  # noqa: E402
+from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript, ScriptOutput  # noqa: E402
 
 
 def make_source_request(**overrides) -> dict:
@@ -39,16 +40,75 @@ def test_generate_from_source_idea_returns_short_drama_output() -> None:
     assert len(data["episodes"]) == 3
 
 
-def test_generate_from_source_llm_mode_returns_clear_not_implemented_error(monkeypatch) -> None:
+def make_fake_script_output() -> ScriptOutput:
+    return ScriptOutput(
+        project_title="测试短剧：归来之夜",
+        logline="归来的编剧发现旧案与新项目窃取阴谋相连。",
+        world_setting="现代都市影视公司。",
+        characters=[
+            CharacterProfile(
+                name="沈知远",
+                role="主角",
+                age="32",
+                personality="冷静、敏锐",
+                arc="从自证清白到反击对手。",
+            )
+        ],
+        episodes=[
+            EpisodeScript(
+                episode_number=1,
+                title="第1集：归来",
+                summary="沈知远回到公司。",
+                hook="旧硬盘里出现关键署名记录。",
+                scenes=[
+                    SceneScript(
+                        scene_number=1,
+                        location="影视公司会议室",
+                        time="夜晚",
+                        description="沈知远与对手在会议室对峙。",
+                        dialogues=[
+                            DialogueLine(character="沈知远", line="这个故事，我三年前就写过。"),
+                        ],
+                        visual_notes="冷光会议室，投影屏压迫人物。",
+                        emotion_curve="归来→对峙→钩子",
+                    )
+                ],
+            )
+        ],
+    )
+
+
+def test_generate_from_source_llm_mode_idea_returns_short_drama_output(monkeypatch) -> None:
     settings = get_settings()
     monkeypatch.setattr(settings, "script_generation_mode", "llm")
+    monkeypatch.setattr(
+        "app.services.script_generation.generator.generate_script_with_llm",
+        lambda idea_input, provider=None, model=None: make_fake_script_output(),
+    )
     client = TestClient(app)
 
     response = client.post("/api/scripts/generate-from-source", json=make_source_request())
     data = response.json()
 
+    assert response.status_code == 200
+    assert data["source_mode"] == "idea"
+    assert data["project_title"] == "测试短剧：归来之夜"
+    assert data["metadata"]["generation_mode"] == "llm"
+
+
+def test_generate_from_source_llm_mode_film_script_returns_clear_not_implemented_error(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "llm")
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/generate-from-source",
+        json=make_source_request(source_mode="film_script"),
+    )
+    data = response.json()
+
     assert response.status_code == 400
-    assert "SCRIPT_GENERATION_MODE=llm is not implemented for generate-from-source yet." in data["detail"]
+    assert "SCRIPT_GENERATION_MODE=llm is not implemented for source_mode='film_script' yet." in data["detail"]
 
 
 def test_generate_from_source_film_script_returns_expected_episode_count() -> None:

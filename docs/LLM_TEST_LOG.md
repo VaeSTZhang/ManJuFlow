@@ -46,6 +46,16 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 - `SCRIPT_GENERATION_MODE=llm` 已被识别，但暂时返回清晰未实现错误；
 - 当前仍未调用真实 LLM，下一步将实现 `source_mode=idea` 的真实 LLM path。
 
+第 223 步更新：
+
+- 已为 `source_mode=idea` 增加 `SCRIPT_GENERATION_MODE=llm` path；
+- idea llm path 复用既有 `idea_to_script_v1.md`、`generate_script_with_llm`、`ScriptOutput` 解析能力；
+- `ScriptOutput` 已转换为 `ShortDramaScriptOutput`；
+- `ai_options.provider` / `ai_options.model` 已传入 `LLMClient(provider=..., model=...)`；
+- metadata 会记录 `generation_mode=llm`、source_mode、provider、model、purpose；
+- `film_script` / `novel` 的 llm path 尚未实现，仍返回清晰未实现错误；
+- 本步骤单元测试使用 fake LLM，未调用真实 DeepSeek；下一步可以进行 idea + DeepSeek 虚构样本真实 smoke test。
+
 ### 是否真实调用 DeepSeek
 
 否。
@@ -56,23 +66,24 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 
 已进入请求 schema。
 
-`ShortDramaGenerationInput.ai_options` 已支持 provider / model / language / purpose，mock metadata 也会记录这些字段。但这些字段目前只进入 mock 输出追踪，不会驱动真实 `LLMClient` provider / model 选择。
+`ShortDramaGenerationInput.ai_options` 已支持 provider / model / language / purpose，mock metadata 也会记录这些字段。第 223 步后，idea llm path 已会把 provider / model 传入 `LLMClient`；film_script / novel 仍未接入真实 LLM。
 
 ### 阻塞点
 
 - 第 221 步检查时，`generate-from-source` router 直接调用 `generate_short_drama_script_mock`；
 - 第 222 步已新增统一 `generate_short_drama_script` 入口，并开始读取 `SCRIPT_GENERATION_MODE`；
-- 三入口服务没有真实 LLM prompt 组装、调用、JSON 解析、清洗和 `ShortDramaScriptOutput` 校验闭环；
-- `ai_options.provider` / `ai_options.model` 尚未传入 `LLMClient(provider=..., model=...)`。
+- idea source_mode 已具备真实 LLM prompt 组装、调用、JSON 解析、清洗和 `ShortDramaScriptOutput` 转换闭环；
+- film_script / novel 尚未实现真实 LLM prompt 组装、调用、JSON 解析、清洗和 `ShortDramaScriptOutput` 校验闭环。
 
 ### 下一步建议
 
 - 第 222 步已完成统一入口 `generate_short_drama_script(input_data)`；
 - 第 222 步已在该入口读取 `SCRIPT_GENERATION_MODE`；
 - `mock` 分支继续复用现有 `generate_short_drama_script_mock`；
-- 下一步实现 `llm` 分支：按 source_mode 选择 prompt，并调用 `LLMClient(provider=input_data.ai_options.provider, model=input_data.ai_options.model)`；
-- 解析真实模型输出为 `ShortDramaScriptOutput`，并复用 metadata helper 记录 provider / model / purpose；
-- 完成后再执行 DeepSeek 小样本 smoke test。
+- 第 223 步已实现 idea llm 分支，并调用 `LLMClient(provider=input_data.ai_options.provider, model=input_data.ai_options.model)`；
+- 第 223 步已将 idea 真实模型输出转换为 `ShortDramaScriptOutput`，并复用 metadata helper 记录 provider / model / purpose；
+- 下一步执行 DeepSeek 小样本 smoke test；
+- 后续再分步实现 film_script / novel 的 llm path。
 
 安全记录：
 
@@ -100,7 +111,7 @@ B. 只具备 mock path，尚未实现真实 LLM path。
 
 未进入真实 LLM 调用。
 
-当前代码检查结果显示，`/api/scripts/generate-from-source` 仍直接调用 `generate_short_drama_script_mock(input_data)`，尚未根据 `SCRIPT_GENERATION_MODE=llm` 切换到真实 LLM 生成路径。因此本次未启动真实 DeepSeek 请求，避免在链路未就绪时进行无效调用或误判。
+第 220 步代码检查结果显示，`/api/scripts/generate-from-source` 仍直接调用 `generate_short_drama_script_mock(input_data)`，尚未根据 `SCRIPT_GENERATION_MODE=llm` 切换到真实 LLM 生成路径。因此当时未启动真实 DeepSeek 请求，避免在链路未就绪时进行无效调用或误判。
 
 ### 结果
 
