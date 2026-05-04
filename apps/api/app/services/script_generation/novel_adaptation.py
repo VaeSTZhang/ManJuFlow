@@ -6,6 +6,7 @@ from app.schemas.script_generation import (
     ShortDramaGenerationInput,
     ShortDramaScriptOutput,
 )
+from app.services.script_generation.metadata import build_script_generation_metadata
 
 
 NOVEL_PROMPT_TEMPLATE_NAME = "novel_to_short_drama_v1.md"
@@ -97,6 +98,13 @@ def generate_novel_adaptation_mock(
         _build_novel_adaptation_episode(episode_number)
         for episode_number in range(1, episode_count + 1)
     ]
+    metadata = build_script_generation_metadata(input_data)
+    metadata.update(
+        {
+            "prompt_template_name": NOVEL_PROMPT_TEMPLATE_NAME,
+            "context_policy": "current_project_only",
+        }
+    )
 
     return ShortDramaScriptOutput(
         project_title=project_title,
@@ -132,10 +140,5 @@ def generate_novel_adaptation_mock(
         ),
         episode_count=episode_count,
         episodes=episodes,
-        metadata={
-            "generation_mode": "mock",
-            "source_mode": "novel",
-            "prompt_template_name": NOVEL_PROMPT_TEMPLATE_NAME,
-            "context_policy": "current_project_only",
-        },
+        metadata=metadata,
     )

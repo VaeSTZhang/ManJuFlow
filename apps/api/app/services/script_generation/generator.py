@@ -2,6 +2,7 @@ from app.schemas.idea import IdeaInput
 from app.schemas.script import ScriptOutput
 from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
 from app.services.script_generation.film_adaptation import generate_film_script_adaptation_mock
+from app.services.script_generation.metadata import build_script_generation_metadata
 from app.services.script_generation.novel_adaptation import generate_novel_adaptation_mock
 from app.services.script_service import generate_script_mock
 
@@ -26,7 +27,11 @@ def _build_idea_input(input_data: ShortDramaGenerationInput) -> IdeaInput:
 
 def _map_script_output_to_short_drama_output(
     script_output: ScriptOutput,
+    input_data: ShortDramaGenerationInput,
 ) -> ShortDramaScriptOutput:
+    metadata = build_script_generation_metadata(input_data)
+    metadata["bridge_from"] = "ScriptOutput"
+
     return ShortDramaScriptOutput(
         project_title=script_output.project_title,
         source_mode="idea",
@@ -36,11 +41,7 @@ def _map_script_output_to_short_drama_output(
         adaptation_notes=None,
         episode_count=len(script_output.episodes),
         episodes=script_output.episodes,
-        metadata={
-            "generation_mode": "mock",
-            "source_mode": "idea",
-            "bridge_from": "ScriptOutput",
-        },
+        metadata=metadata,
     )
 
 
@@ -49,7 +50,7 @@ def generate_short_drama_script_mock(
 ) -> ShortDramaScriptOutput:
     if input_data.source_mode == "idea":
         script_output = generate_script_mock(_build_idea_input(input_data))
-        return _map_script_output_to_short_drama_output(script_output)
+        return _map_script_output_to_short_drama_output(script_output, input_data)
 
     if input_data.source_mode == "film_script":
         return generate_film_script_adaptation_mock(input_data)

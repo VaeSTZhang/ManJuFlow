@@ -7,7 +7,7 @@ import pytest
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
-from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
+from app.schemas.script_generation import AIRequestOptions, ShortDramaGenerationInput, ShortDramaScriptOutput
 from app.services.script_generation import (  # noqa: E402
     generate_film_script_adaptation_mock,
     load_film_script_prompt_template,
@@ -84,6 +84,23 @@ def test_generate_film_script_adaptation_mock_metadata_marks_mock_generation() -
     assert output.metadata["source_mode"] == "film_script"
     assert output.metadata["prompt_template_name"] == "film_script_to_short_drama_v1.md"
     assert output.metadata["context_policy"] == "current_project_only"
+
+
+def test_generate_film_script_adaptation_mock_records_ai_options_metadata() -> None:
+    output = generate_film_script_adaptation_mock(
+        make_film_input(
+            ai_options=AIRequestOptions(
+                provider="mimo",
+                model="mimo-v2.5-pro",
+                purpose="film_adaptation",
+            )
+        )
+    )
+
+    assert output.metadata["ai_options"]["purpose"] == "film_adaptation"
+    assert output.metadata["provider"] == "mimo"
+    assert output.metadata["model"] == "mimo-v2.5-pro"
+    assert output.metadata["purpose"] == "film_adaptation"
 
 
 def test_generate_film_script_adaptation_mock_rejects_non_film_source_mode() -> None:

@@ -95,6 +95,10 @@ def test_generate_from_source_accepts_ai_options() -> None:
     assert response.status_code == 200
     assert data["source_mode"] == "idea"
     assert data["episode_count"] == 3
+    assert data["metadata"]["provider"] == "deepseek"
+    assert data["metadata"]["model"] == "deepseek-chat"
+    assert data["metadata"]["purpose"] == "script_generation"
+    assert data["metadata"]["ai_options"]["provider"] == "deepseek"
 
 
 def test_generate_from_source_rejects_assistant_rewrite_as_400() -> None:

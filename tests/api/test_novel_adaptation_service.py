@@ -7,7 +7,7 @@ import pytest
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
-from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
+from app.schemas.script_generation import AIRequestOptions, ShortDramaGenerationInput, ShortDramaScriptOutput
 from app.services.script_generation import (  # noqa: E402
     generate_novel_adaptation_mock,
     load_novel_prompt_template,
@@ -88,6 +88,23 @@ def test_generate_novel_adaptation_mock_metadata_marks_mock_generation() -> None
     assert output.metadata["source_mode"] == "novel"
     assert output.metadata["prompt_template_name"] == "novel_to_short_drama_v1.md"
     assert output.metadata["context_policy"] == "current_project_only"
+
+
+def test_generate_novel_adaptation_mock_records_ai_options_metadata() -> None:
+    output = generate_novel_adaptation_mock(
+        make_novel_input(
+            ai_options=AIRequestOptions(
+                provider="kimi",
+                model="kimi-k2.5",
+                purpose="novel_adaptation",
+            )
+        )
+    )
+
+    assert output.metadata["ai_options"]["purpose"] == "novel_adaptation"
+    assert output.metadata["provider"] == "kimi"
+    assert output.metadata["model"] == "kimi-k2.5"
+    assert output.metadata["purpose"] == "novel_adaptation"
 
 
 def test_generate_novel_adaptation_mock_rejects_non_novel_source_mode() -> None:

@@ -7,7 +7,7 @@ import pytest
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
-from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
+from app.schemas.script_generation import AIRequestOptions, ShortDramaGenerationInput, ShortDramaScriptOutput
 from app.services.script_generation.generator import generate_short_drama_script_mock
 
 
@@ -28,6 +28,30 @@ def test_generate_short_drama_script_mock_for_idea_returns_short_drama_output():
     assert output.episode_count == 3
     assert len(output.episodes) == 3
     assert output.metadata["bridge_from"] == "ScriptOutput"
+
+
+def test_generate_short_drama_script_mock_idea_records_ai_options_metadata():
+    input_data = ShortDramaGenerationInput(
+        source_mode="idea",
+        idea_text="雨夜里，女主收到一封来自十年前的信。",
+        target_episode_count=3,
+        genre="悬疑短剧",
+        style="强钩子、快节奏",
+        ai_options=AIRequestOptions(
+            provider="deepseek",
+            model="deepseek-chat",
+            purpose="script_generation",
+        ),
+    )
+
+    output = generate_short_drama_script_mock(input_data)
+
+    assert output.metadata["ai_options"]["provider"] == "deepseek"
+    assert output.metadata["ai_options"]["model"] == "deepseek-chat"
+    assert output.metadata["ai_options"]["purpose"] == "script_generation"
+    assert output.metadata["provider"] == "deepseek"
+    assert output.metadata["model"] == "deepseek-chat"
+    assert output.metadata["purpose"] == "script_generation"
 
 
 def test_generate_short_drama_script_mock_for_film_script_dispatches_to_film_mock():
