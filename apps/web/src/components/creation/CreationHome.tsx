@@ -41,6 +41,16 @@ type CreationDrafts = {
   novel: AdaptationDraft;
 };
 
+type DocumentImportDraftState = {
+  filename: string;
+  text: string;
+  preview: DocumentImportOutput | null;
+  error: string;
+  isLoading: boolean;
+};
+
+type DocumentImportDraftsByMode = Record<AdaptationMode, DocumentImportDraftState>;
+
 type CreationHomeProps = {
   isAuthenticated: boolean;
   onRequireLogin: () => void;
@@ -77,6 +87,19 @@ const defaultCreativeModel: SelectedCreativeModel = {
   model: "deepseek-chat",
   label: "DeepSeek",
   source: "user_selected",
+};
+
+const defaultDocumentImportDraftState: DocumentImportDraftState = {
+  filename: "",
+  text: "",
+  preview: null,
+  error: "",
+  isLoading: false,
+};
+
+const defaultDocumentImportDrafts: DocumentImportDraftsByMode = {
+  film: { ...defaultDocumentImportDraftState },
+  novel: { ...defaultDocumentImportDraftState },
 };
 
 function buildModelLabel(selectedModel: SelectedCreativeModel): string {
@@ -175,12 +198,8 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const [shortDramaGeneratedAt, setShortDramaGeneratedAt] = useState<string | undefined>();
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
   const [scriptGenerationError, setScriptGenerationError] = useState("");
-  const [documentImportFilename, setDocumentImportFilename] = useState("");
-  const [documentImportText, setDocumentImportText] = useState("");
-  const [documentImportPreview, setDocumentImportPreview] = useState<DocumentImportOutput | null>(null);
-  const [documentImportError, setDocumentImportError] = useState("");
-  const [isDocumentImportPreviewLoading, setIsDocumentImportPreviewLoading] = useState(false);
-  const [documentImportTargetMode, setDocumentImportTargetMode] = useState<AdaptationMode | null>(null);
+  const [documentImportDrafts, setDocumentImportDrafts] =
+    useState<DocumentImportDraftsByMode>(defaultDocumentImportDrafts);
 
   const handlePrimarySelect = (mode: CreationMode) => {
     if (!isAuthenticated) {
@@ -215,9 +234,24 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     setDocumentActionNotice("真实 Word 上传将在文档导入闭环接入，当前可先粘贴文本。");
   };
 
-  const clearDocumentImportPreview = () => {
-    setDocumentImportPreview(null);
-    setDocumentImportError("");
+  const updateDocumentImportDraft = (
+    mode: AdaptationMode,
+    patch: Partial<DocumentImportDraftState>,
+  ) => {
+    setDocumentImportDrafts((current) => ({
+      ...current,
+      [mode]: {
+        ...current[mode],
+        ...patch,
+      },
+    }));
+  };
+
+  const clearDocumentImportPreview = (mode: AdaptationMode) => {
+    updateDocumentImportDraft(mode, {
+      preview: null,
+      error: "",
+    });
   };
 
   const updateIdeaDraft = <K extends keyof IdeaCreationDraft>(
@@ -324,23 +358,25 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       return;
     }
 
-    const filename = documentImportFilename.trim();
-    const extractedText = documentImportText.trim();
+    const importDraft = documentImportDrafts[mode];
+    const filename = importDraft.filename.trim();
+    const extractedText = importDraft.text.trim();
 
     if (!filename) {
-      setDocumentImportError("请先填写文件名。");
+      updateDocumentImportDraft(mode, { error: "请先填写文件名。" });
       return;
     }
 
     if (!extractedText) {
-      setDocumentImportError("请先粘贴文档文本。");
+      updateDocumentImportDraft(mode, { error: "请先粘贴文档文本。" });
       return;
     }
 
     const draft = drafts[mode];
-    setIsDocumentImportPreviewLoading(true);
-    setDocumentImportError("");
-    setDocumentImportTargetMode(mode);
+    updateDocumentImportDraft(mode, {
+      isLoading: true,
+      error: "",
+    });
 
     try {
       const preview = await previewDocumentImport({
@@ -349,27 +385,32 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         source_type: mode === "novel" ? "novel" : "docx",
         project_title: draft.projectTitle.trim() || draft.sourceTitle.trim() || null,
       });
-      setDocumentImportPreview(preview);
+      updateDocumentImportDraft(mode, { preview });
     } catch (error) {
-      setDocumentImportError(
-        parseApiErrorMessage(error, "生成文档导入预览失败，请确认后端服务已启动：http://127.0.0.1:8000"),
-      );
+      updateDocumentImportDraft(mode, {
+        error: parseApiErrorMessage(
+          error,
+          "生成文档导入预览失败，请确认后端服务已启动：http://127.0.0.1:8000",
+        ),
+      });
     } finally {
-      setIsDocumentImportPreviewLoading(false);
+      updateDocumentImportDraft(mode, { isLoading: false });
     }
   };
 
   const applyDocumentImportPreview = (mode: AdaptationMode, action: "fill" | "append" | "cancel") => {
     if (action === "cancel") {
-      clearDocumentImportPreview();
+      clearDocumentImportPreview(mode);
       return;
     }
 
-    if (!documentImportPreview || documentImportTargetMode !== mode) {
+    const importDraft = documentImportDrafts[mode];
+
+    if (!importDraft.preview) {
       return;
     }
 
-    const importedText = documentImportPreview.preview.extracted_text;
+    const importedText = importDraft.preview.preview.extracted_text;
 
     updateAdaptationDraft(
       mode,
@@ -378,7 +419,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         ? importedText
         : [drafts[mode].sourceText.trim(), importedText].filter(Boolean).join("\n\n"),
     );
-    clearDocumentImportPreview();
+    clearDocumentImportPreview(mode);
   };
 
   const handleCopyShortDramaJson = async () => {
@@ -598,7 +639,8 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
   const renderAdaptationForm = (mode: AdaptationMode) => {
     const isFilm = mode === "film";
     const draft = drafts[mode];
-    const activeImportPreview = documentImportTargetMode === mode ? documentImportPreview : null;
+    const importDraft = documentImportDrafts[mode];
+    const activeImportPreview = importDraft.preview;
 
     return (
       <section className="creation-draft-panel" aria-label={isFilm ? "电影剧本改编草稿" : "小说改编草稿"}>
@@ -652,22 +694,26 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
               <label className="field creation-draft-field">
                 <span>文件名</span>
                 <input
-                  disabled={!isAuthenticated || isDocumentImportPreviewLoading}
+                  disabled={!isAuthenticated || importDraft.isLoading}
                   onChange={(event) => {
-                    setDocumentImportFilename(event.target.value);
-                    setDocumentImportError("");
+                    updateDocumentImportDraft(mode, {
+                      filename: event.target.value,
+                      error: "",
+                    });
                   }}
                   placeholder={isFilm ? "example-film-script.docx" : "example-novel.docx"}
-                  value={documentImportFilename}
+                  value={importDraft.filename}
                 />
               </label>
               <label className="field creation-draft-field">
                 <span>文档文本</span>
                 <textarea
-                  disabled={!isAuthenticated || isDocumentImportPreviewLoading}
+                  disabled={!isAuthenticated || importDraft.isLoading}
                   onChange={(event) => {
-                    setDocumentImportText(event.target.value);
-                    setDocumentImportError("");
+                    updateDocumentImportDraft(mode, {
+                      text: event.target.value,
+                      error: "",
+                    });
                   }}
                   placeholder={
                     isFilm
@@ -675,7 +721,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
                       : "粘贴小说、网文、故事片段或人物小传，生成预览后再确认填入。"
                   }
                   rows={5}
-                  value={documentImportText}
+                  value={importDraft.text}
                 />
               </label>
             </div>
@@ -683,17 +729,15 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
             <div className="document-import-actions">
               <button
                 className="secondary-button"
-                disabled={!isAuthenticated || isDocumentImportPreviewLoading}
+                disabled={!isAuthenticated || importDraft.isLoading}
                 onClick={() => handleGenerateDocumentImportPreview(mode)}
                 type="button"
               >
-                {isDocumentImportPreviewLoading && documentImportTargetMode === mode
-                  ? "生成预览中..."
-                  : "生成导入预览"}
+                {importDraft.isLoading ? "生成预览中..." : "生成导入预览"}
               </button>
             </div>
 
-            {documentImportError && <p className="form-error">{documentImportError}</p>}
+            {importDraft.error && <p className="form-error">{importDraft.error}</p>}
 
             {activeImportPreview && (
               <article className="document-import-preview">
