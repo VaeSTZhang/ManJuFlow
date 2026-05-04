@@ -145,8 +145,11 @@ test.describe("Dramora creation home smoke", () => {
 
     await expect(page.getByText("创作模型：DeepSeek")).toBeVisible();
     await page.getByRole("button", { name: "切换" }).click();
-    await expect(page.getByText("系统默认模型")).toBeVisible();
-    await expect(page.getByText("沿用当前系统配置的创作模型。")).toBeVisible();
+    await expect(page.getByRole("button", { name: /DeepSeek/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Mimo/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Kimi/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /MiniMax/ })).toBeVisible();
+    await expect(page.getByText("系统默认模型")).toHaveCount(0);
     await expect(page.getByText("使用后端默认", { exact: false })).toHaveCount(0);
   });
 

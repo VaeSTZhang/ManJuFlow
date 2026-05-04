@@ -24,11 +24,6 @@ type CreativeModelPanelProps = {
 
 const creativeModelOptions: CreativeModelOption[] = [
   {
-    id: "system-default",
-    label: "系统默认模型",
-    description: "沿用当前系统配置的创作模型。",
-  },
-  {
     id: "deepseek",
     label: "DeepSeek",
     provider: "deepseek",
