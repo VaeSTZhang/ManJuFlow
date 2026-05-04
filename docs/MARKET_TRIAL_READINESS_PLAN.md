@@ -252,21 +252,21 @@ Assistant 在三入口工作台中应辅助：
 后端测试：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 python -m pytest tests/api
 ```
 
 前端构建：
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run build
 ```
 
 Git 状态：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 git status
 ```
 

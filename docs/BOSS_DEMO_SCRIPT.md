@@ -62,26 +62,26 @@
 后端：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 bash scripts/dev_api.sh
 ```
 
 前端：
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run dev
 ```
 
 验收：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 python -m pytest tests/api
 ```
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run build
 ```
 

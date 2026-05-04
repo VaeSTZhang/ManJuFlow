@@ -46,33 +46,33 @@ Dramora｜剧作工坊 是一个面向短剧创作的剧本生成与文本改编
 
 ## 本地开发
 
-ManJuFlow 仍然是本地工程目录和早期工程代号。本次只调整对外品牌，不重命名本地路径、脚本、后端包名、前端 package 名或 API。
+ManJuFlow 是早期工程代号。当前公开仓库和本地工程目录统一使用 Dramora；脚本、后端包名、前端 package 名和 API 路径不因品牌名调整而重命名。
 
 后端启动：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 bash scripts/dev_api.sh
 ```
 
 前端启动：
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run dev
 ```
 
 后端测试：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 python -m pytest tests/api
 ```
 
 前端构建：
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run build
 ```
 

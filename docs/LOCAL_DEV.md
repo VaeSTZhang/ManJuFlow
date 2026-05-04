@@ -1,4 +1,6 @@
-# ManJuFlow｜漫剧流本地开发运行说明
+# Dramora｜剧作工坊本地开发运行说明
+
+ManJuFlow 是早期工程代号。当前本地工程目录和公开仓库使用 Dramora。
 
 ## 前置条件
 
@@ -189,7 +191,7 @@ curl -X POST "http://127.0.0.1:8000/api/prompts/generate" \
 启动后端：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 bash scripts/kill_api_port.sh
 bash scripts/dev_api.sh
 ```
@@ -347,7 +349,7 @@ npm run dev
 启动前端：
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run dev
 ```
 

@@ -14,7 +14,7 @@
 
 当前产品重点是“剧本创作生成”，而不是直接做文生图、文生视频或自动成片。它服务编剧、短剧策划、漫剧内容团队和内容运营人员，帮助用户从一句灵感、一段电影剧本或一篇小说文本出发，生成可编辑、可导出、可继续加工的短剧剧本。
 
-本地工程目录和早期工程代号仍然保留为 `ManJuFlow`。本次调整只修改对外展示品牌，不重命名本地路径、脚本、后端包名、前端 package 名或 API。
+`ManJuFlow` 是早期工程代号。当前公开仓库和本地工程目录统一使用 `Dramora`；脚本、后端包名、前端 package 名和 API 路径不因品牌名调整而重命名。
 
 ## 当前主功能
 
@@ -102,28 +102,28 @@
 后端启动：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 bash scripts/dev_api.sh
 ```
 
 前端启动：
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run dev
 ```
 
 后端测试：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 python -m pytest tests/api
 ```
 
 前端构建：
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run build
 ```
 
@@ -132,7 +132,7 @@ npm run build
 ## 项目结构
 
 ```text
-ManJuFlow/
+Dramora/
 ├── apps/
 │   ├── api/
 │   │   └── app/

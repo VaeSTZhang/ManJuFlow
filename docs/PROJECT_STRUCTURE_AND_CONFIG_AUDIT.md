@@ -214,8 +214,9 @@ LLM provider 配置统一走 `config.py` + `LLMClient`。不要在业务 service
 
 ## 10. 后续建议步骤
 
-- 第 206 步：统一 `.env.example` 与 `config.py` 的 LLM 配置字段；
-- 第 207 步：补充 `LOCAL_DEV` / `LLM_SETUP` 的单一配置源说明；
-- 第 208 步：前端 `App.tsx` 拆分计划；
-- 第 209 步：`ShortDramaScriptResult` 组件；
-- 第 210 步：`CreativeModelPanel` 组件。
+- 第 206 步：更新当前 README 和本地开发文档里的 Dramora 路径说明；
+- 第 207 步：统一 `.env.example` 与 `config.py` 的 LLM 配置字段；
+- 第 208 步：补充 `LOCAL_DEV` / `LLM_SETUP` 的单一配置源说明；
+- 第 209 步：前端 `App.tsx` 拆分计划；
+- 第 210 步：`ShortDramaScriptResult` 组件；
+- 第 211 步：`CreativeModelPanel` 组件。

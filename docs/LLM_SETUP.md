@@ -1,4 +1,6 @@
-# ManJuFlow｜漫剧流真实 LLM 接入配置说明
+# Dramora｜剧作工坊真实 LLM 接入配置说明
+
+ManJuFlow 是早期工程代号。当前配置说明以 Dramora 仓库和项目根目录 `.env` 为准。
 
 ## 当前默认模式
 
@@ -106,7 +108,7 @@ curl -X POST http://127.0.0.1:8000/api/scripts/generate \
 
 ## DeepSeek 示例配置
 
-以下只展示字段示例，不包含真实 Key：
+DeepSeek 是当前默认推荐模型，但不应在业务代码中写死。Mimo / Kimi / MiniMax 等 provider 可通过统一 LLM 配置扩展。以下只展示字段示例，不包含真实 Key：
 
 ```text
 SCRIPT_GENERATION_MODE=llm

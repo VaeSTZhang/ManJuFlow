@@ -140,7 +140,7 @@ Existing Script Input
 建议市场试用前至少运行：
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 python -m pytest tests/api
 ```
 

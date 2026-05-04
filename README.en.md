@@ -16,7 +16,7 @@ The current product focus is script creation and text adaptation. It is not posi
 
 Dramora is designed for writers, short-drama planners, manhua-style content teams, and creative operators who need an editable and reviewable script workflow before downstream media generation.
 
-The local engineering directory and early internal project codename remain `ManJuFlow`. This brand update does not rename local paths, scripts, backend packages, frontend package names, or API paths.
+`ManJuFlow` was the early internal project codename. The public repository and local engineering directory now use `Dramora`; scripts, backend packages, frontend package names, and API paths are not renamed as part of the brand update.
 
 ## Core Workflows
 
@@ -104,28 +104,28 @@ Use your own local clone path.
 Backend:
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 bash scripts/dev_api.sh
 ```
 
 Frontend:
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run dev
 ```
 
 Backend tests:
 
 ```bash
-cd /path/to/ManJuFlow
+cd /path/to/Dramora
 python -m pytest tests/api
 ```
 
 Frontend build:
 
 ```bash
-cd /path/to/ManJuFlow/apps/web
+cd /path/to/Dramora/apps/web
 npm run build
 ```
 
@@ -134,7 +134,7 @@ Do not commit `.env`, API keys, customer scripts, real server addresses, or sens
 ## Project Structure
 
 ```text
-ManJuFlow/
+Dramora/
 ├── apps/
 │   ├── api/
 │   │   └── app/

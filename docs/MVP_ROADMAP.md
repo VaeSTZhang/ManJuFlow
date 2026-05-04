@@ -1,8 +1,8 @@
-# ManJuFlow｜漫剧流 MVP Roadmap
+# Dramora｜剧作工坊 MVP Roadmap
 
 ## 当前产品主线
 
-ManJuFlow 当前第五阶段主线已调整为：
+Dramora 当前第五阶段主线已调整为：
 
 ```text
 内部账号 / mock login
