@@ -6,7 +6,10 @@ import type {
 } from "../../types/scriptGeneration";
 import { ShortDramaBasicInfoEditor } from "./ShortDramaBasicInfoEditor";
 import { ShortDramaCharacterEditor } from "./ShortDramaCharacterEditor";
-import { ShortDramaEpisodeEditor } from "./ShortDramaEpisodeEditor";
+import {
+  ShortDramaEpisodeEditor,
+  type EditableEpisodeField,
+} from "./ShortDramaEpisodeEditor";
 
 type ShortDramaScriptResultProps = {
   result: ShortDramaScriptOutput | null;
@@ -34,6 +37,11 @@ type ShortDramaScriptResultProps = {
   onUpdateCharacterField?: (
     characterIndex: number,
     field: keyof CharacterProfile,
+    value: string,
+  ) => void;
+  onUpdateEpisodeField?: (
+    episodeIndex: number,
+    field: EditableEpisodeField,
     value: string,
   ) => void;
 };
@@ -111,6 +119,7 @@ export function ShortDramaScriptResult({
   onRestoreGenerated,
   onUpdateField,
   onUpdateCharacterField,
+  onUpdateEpisodeField,
 }: ShortDramaScriptResultProps) {
   if (!result) {
     return (
@@ -221,7 +230,11 @@ export function ShortDramaScriptResult({
 
       {renderAdaptationNotes(result.adaptation_notes)}
 
-      <ShortDramaEpisodeEditor episodes={result.episodes} />
+      <ShortDramaEpisodeEditor
+        canEditFields={canEditFields}
+        episodes={result.episodes}
+        onUpdateEpisodeField={onUpdateEpisodeField}
+      />
     </section>
   );
 }

@@ -1,7 +1,15 @@
 import type { DialogueLine, EpisodeScript, SceneScript } from "../../types/scriptGeneration";
 
+export type EditableEpisodeField = "title" | "summary" | "hook";
+
 type ShortDramaEpisodeEditorProps = {
   episodes: EpisodeScript[];
+  canEditFields?: boolean;
+  onUpdateEpisodeField?: (
+    episodeIndex: number,
+    field: EditableEpisodeField,
+    value: string,
+  ) => void;
 };
 
 function renderDialogue(dialogue: DialogueLine, index: number) {
@@ -36,21 +44,71 @@ function renderScene(scene: SceneScript) {
   );
 }
 
-function renderEpisode(episode: EpisodeScript) {
+function renderEpisode(
+  episode: EpisodeScript,
+  index: number,
+  canEditFields: boolean,
+  onUpdateEpisodeField?: (
+    episodeIndex: number,
+    field: EditableEpisodeField,
+    value: string,
+  ) => void,
+) {
+  const canEditEpisode = canEditFields && !!onUpdateEpisodeField;
+
   return (
     <article className="short-script-episode" key={episode.episode_number}>
       <div className="short-script-episode-header">
         <span>第 {episode.episode_number} 集</span>
-        <h3>{episode.title}</h3>
+        {canEditEpisode ? (
+          <label className="short-script-edit-field">
+            <span>分集标题</span>
+            <input
+              data-testid={`episode-title-editor-${index}`}
+              onChange={(event) => onUpdateEpisodeField(index, "title", event.target.value)}
+              value={episode.title}
+            />
+          </label>
+        ) : (
+          <h3>{episode.title}</h3>
+        )}
       </div>
-      <p>{episode.summary}</p>
-      {episode.hook && <strong className="short-script-hook">钩子：{episode.hook}</strong>}
+      {canEditEpisode ? (
+        <label className="short-script-edit-field">
+          <span>分集概要</span>
+          <textarea
+            data-testid={`episode-summary-editor-${index}`}
+            onChange={(event) => onUpdateEpisodeField(index, "summary", event.target.value)}
+            rows={3}
+            value={episode.summary}
+          />
+        </label>
+      ) : (
+        <p>{episode.summary}</p>
+      )}
+      {canEditEpisode ? (
+        <label className="short-script-edit-field">
+          <span>分集钩子</span>
+          <textarea
+            data-testid={`episode-hook-editor-${index}`}
+            onChange={(event) => onUpdateEpisodeField(index, "hook", event.target.value)}
+            rows={3}
+            value={episode.hook}
+          />
+        </label>
+      ) : (
+        episode.hook && <strong className="short-script-hook">钩子：{episode.hook}</strong>
+      )}
       <div className="short-script-scene-list">{episode.scenes.map(renderScene)}</div>
     </article>
   );
 }
 
-export function ShortDramaEpisodeEditor({ episodes }: ShortDramaEpisodeEditorProps) {
+export function ShortDramaEpisodeEditor({
+  episodes,
+  canEditFields = false,
+  onUpdateEpisodeField,
+}: ShortDramaEpisodeEditorProps) {
   if (episodes.length === 0) {
     return null;
   }
@@ -58,7 +116,11 @@ export function ShortDramaEpisodeEditor({ episodes }: ShortDramaEpisodeEditorPro
   return (
     <section className="short-script-section">
       <h3>分集内容</h3>
-      <div className="short-script-episode-list">{episodes.map(renderEpisode)}</div>
+      <div className="short-script-episode-list">
+        {episodes.map((episode, index) =>
+          renderEpisode(episode, index, canEditFields, onUpdateEpisodeField),
+        )}
+      </div>
     </section>
   );
 }

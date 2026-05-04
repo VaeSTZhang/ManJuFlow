@@ -144,6 +144,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     restoreGeneratedScript,
     updateEditableScriptField,
     updateEditableCharacterField,
+    updateEditableEpisodeField,
   } = useShortDramaEditing();
   const [shortDramaSourceLabel, setShortDramaSourceLabel] = useState<string | undefined>();
   const [shortDramaGeneratedAt, setShortDramaGeneratedAt] = useState<string | undefined>();
@@ -612,6 +613,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         onSaveEditing={saveScriptEditing}
         onStartEditing={startScriptEditing}
         onUpdateCharacterField={updateEditableCharacterField}
+        onUpdateEpisodeField={updateEditableEpisodeField}
         onUpdateField={updateEditableScriptField}
         result={effectiveScript}
         sourceLabel={shortDramaSourceLabel}
