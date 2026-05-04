@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { exportDocument } from "../../api/documentExport";
 import { previewDocumentImport } from "../../api/documentImport";
 import { parseApiErrorMessage } from "../../api/errors";
 import { generateShortDramaScript } from "../../api/scriptGeneration";
@@ -19,6 +18,7 @@ import {
 } from "../../hooks/creation/useDocumentImportDrafts";
 import { useCreationDrafts } from "../../hooks/creation/useCreationDrafts";
 import { useShortDramaEditing } from "../../hooks/creation/useShortDramaEditing";
+import { useScriptDocumentExport } from "../../hooks/creation/useScriptDocumentExport";
 import type {
   AdaptationMode,
   CreationMode,
@@ -39,86 +39,6 @@ const defaultCreativeModel: SelectedCreativeModel = {
 
 function buildModelLabel(selectedModel: SelectedCreativeModel): string {
   return selectedModel.model ? `${selectedModel.label} / ${selectedModel.model}` : selectedModel.label;
-}
-
-function downloadTextFile(filename: string, content: string, mimeType: string) {
-  const blob = new Blob([content], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-function formatShortDramaScriptTxt(
-  result: ShortDramaScriptOutput,
-  sourceLabel: string,
-  modelLabel: string,
-  generatedAt: string,
-): string {
-  const characters = result.characters
-    .map((character) => `- ${character.name}（${character.role}）：${character.personality} 人物弧光：${character.arc}`)
-    .join("\n");
-
-  const episodes = result.episodes
-    .map((episode) => {
-      const scenes = episode.scenes
-        .map((scene) => {
-          const dialogues = scene.dialogues
-            .map((dialogue) => `    ${dialogue.character}：${dialogue.line}`)
-            .join("\n");
-
-          return [
-            `  第 ${scene.scene_number} 场｜${scene.location}｜${scene.time}`,
-            `  场景：${scene.description}`,
-            dialogues ? `  对白：\n${dialogues}` : "  对白：无",
-            `  画面：${scene.visual_notes}`,
-            `  情绪：${scene.emotion_curve}`,
-          ].join("\n");
-        })
-        .join("\n\n");
-
-      return [
-        `第 ${episode.episode_number} 集：${episode.title}`,
-        `概要：${episode.summary}`,
-        `钩子：${episode.hook}`,
-        scenes,
-      ].join("\n");
-    })
-    .join("\n\n");
-
-  const adaptation = result.adaptation_notes
-    ? [
-        "改编策略：",
-        result.adaptation_notes.adaptation_strategy ?? "无",
-        "保留元素：",
-        result.adaptation_notes.preserved_elements.map((item) => `- ${item}`).join("\n"),
-        "短剧钩子 / 爆点：",
-        result.adaptation_notes.short_drama_hooks.map((item) => `- ${item}`).join("\n"),
-      ].join("\n")
-    : "改编策略：无";
-
-  return [
-    `项目标题：${result.project_title}`,
-    `来源入口：${sourceLabel}`,
-    `使用模型：${modelLabel}`,
-    `生成时间：${generatedAt}`,
-    "",
-    `故事梗概：${result.logline}`,
-    `世界观 / 故事背景：${result.world_setting}`,
-    "",
-    "主要人物：",
-    characters || "无",
-    "",
-    adaptation,
-    "",
-    "分集内容：",
-    episodes || "无",
-  ].join("\n");
 }
 
 export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomeProps) {
@@ -156,6 +76,19 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     updateDocumentImportDraft,
     clearDocumentImportPreview,
   } = useDocumentImportDrafts();
+  const {
+    downloadShortDramaJson,
+    downloadShortDramaTxt,
+  } = useScriptDocumentExport({
+    effectiveScript,
+    edited: editableScript !== null,
+    sourceLabel: shortDramaSourceLabel,
+    modelLabel: buildModelLabel(selectedCreativeModel),
+    generatedAt: shortDramaGeneratedAt,
+    lastEditedAt,
+    onError: setScriptGenerationError,
+    onSuccess: () => setScriptGenerationError(""),
+  });
 
   const handlePrimarySelect = (mode: CreationMode) => {
     if (!isAuthenticated) {
@@ -338,80 +271,6 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     }
 
     await navigator.clipboard.writeText(JSON.stringify(effectiveScript, null, 2));
-  };
-
-  const buildExportMetadata = () => ({
-    edited: editableScript !== null,
-    source_mode: effectiveScript?.source_mode ?? null,
-    generated_at: shortDramaGeneratedAt ?? null,
-    last_edited_at: lastEditedAt ?? null,
-    exported_from: "creation_home",
-  });
-
-  const handleDownloadShortDramaJson = async () => {
-    if (!effectiveScript) {
-      return;
-    }
-
-    try {
-      const output = await exportDocument({
-        project_title: effectiveScript.project_title,
-        document_type: "short_drama_script",
-        source_stage: "script",
-        structured_payload: effectiveScript as unknown as Record<string, unknown>,
-        export_format: "json",
-        filename: "dramora-short-drama-script.json",
-        metadata: buildExportMetadata(),
-      });
-
-      downloadTextFile(
-        output.filename,
-        output.content_text ?? "",
-        "application/json;charset=utf-8",
-      );
-      setScriptGenerationError("");
-    } catch (error) {
-      setScriptGenerationError(
-        parseApiErrorMessage(error, "导出失败，请稍后重试或联系技术支持。"),
-      );
-    }
-  };
-
-  const handleDownloadShortDramaTxt = async () => {
-    if (!effectiveScript) {
-      return;
-    }
-
-    const contentText = formatShortDramaScriptTxt(
-      effectiveScript,
-      shortDramaSourceLabel ?? "系统默认",
-      buildModelLabel(selectedCreativeModel),
-      shortDramaGeneratedAt ?? "生成后显示",
-    );
-
-    try {
-      const output = await exportDocument({
-        project_title: effectiveScript.project_title,
-        document_type: "short_drama_script",
-        source_stage: "script",
-        content_text: contentText,
-        structured_payload: effectiveScript as unknown as Record<string, unknown>,
-        export_format: "txt",
-        filename: "dramora-short-drama-script.txt",
-        metadata: buildExportMetadata(),
-      });
-
-      downloadTextFile(
-        output.filename,
-        output.content_text ?? contentText,
-        "text/plain;charset=utf-8",
-      );
-      setScriptGenerationError("");
-    } catch (error) {
-      setScriptGenerationError(
-        parseApiErrorMessage(error, "导出失败，请稍后重试或联系技术支持。"),
-      );
-    }
   };
 
   const renderPrimaryCards = () => (
@@ -653,8 +512,8 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         modelLabel={buildModelLabel(selectedCreativeModel)}
         onCancelEditing={cancelScriptEditing}
         onCopyJson={handleCopyShortDramaJson}
-        onDownloadJson={handleDownloadShortDramaJson}
-        onDownloadTxt={handleDownloadShortDramaTxt}
+        onDownloadJson={downloadShortDramaJson}
+        onDownloadTxt={downloadShortDramaTxt}
         onRestoreGenerated={restoreGeneratedScript}
         onSaveEditing={saveScriptEditing}
         onStartEditing={startScriptEditing}
