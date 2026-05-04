@@ -5,6 +5,13 @@ from app.schemas.document import (
     DocumentExportOutput,
     DocumentSourceStage,
 )
+from app.schemas.document_import import (
+    DocumentImportAction,
+    DocumentImportError,
+    DocumentImportOutput,
+    DocumentImportPreview,
+    DocumentImportSource,
+)
 from app.schemas.idea import IdeaInput
 from app.schemas.image_prompt import (
     ImagePromptInput,
@@ -63,6 +70,11 @@ __all__ = [
     "DocumentExportFormat",
     "DocumentExportInput",
     "DocumentExportOutput",
+    "DocumentImportAction",
+    "DocumentImportError",
+    "DocumentImportOutput",
+    "DocumentImportPreview",
+    "DocumentImportSource",
     "DocumentSourceStage",
     "EpisodeScript",
     "ExistingScriptInput",
