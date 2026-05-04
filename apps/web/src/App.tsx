@@ -283,7 +283,7 @@ function App() {
 
   const handleLogin = () => {
     setIsAuthenticated(true);
-    pushToast("success", "登录成功", "已进入本地演示账号。");
+    pushToast("success", "登录成功", "已进入内部试用账号。");
   };
 
   const handleLogout = () => {
@@ -738,7 +738,7 @@ function App() {
       const data = await generateImages(input);
       setImageGenerationResult(data);
     } catch {
-      setImageGenerationError("生成本地模拟图片失败，请确认后端服务已启动：http://127.0.0.1:8000");
+      setImageGenerationError("生成图片失败，请确认后端服务已启动：http://127.0.0.1:8000");
       pushToast("error", "生成失败", "图片生成接口请求失败，请检查后端是否运行。");
     } finally {
       setImageGenerationLoading(false);
@@ -801,7 +801,7 @@ function App() {
   const generateImagesFromImagePromptResult = async () => {
     if (!imagePromptResult?.items.length) {
       setImageGenerationError("当前没有可用的绘图 Prompt 结果。");
-      pushToast("warning", "缺少绘图 Prompt", "当前没有可用的绘图 Prompt 结果，无法生成本地模拟图片。");
+      pushToast("warning", "缺少绘图 Prompt", "当前没有可用的绘图 Prompt 结果，无法生成图片。");
       return;
     }
 
@@ -918,7 +918,7 @@ function App() {
               {imageGenerationBundleResult.assets.assets.map((asset) => (
                 <article className="bundle-detail-card asset-card" key={asset.asset_id}>
                   <div className="mock-image-placeholder compact-placeholder">
-                    <strong>模拟图片资产</strong>
+                    <strong>图片资产</strong>
                     <span>{asset.mock_url || "-"}</span>
                     <small>
                       {asset.width ?? "?"} x {asset.height ?? "?"} · {asset.shot_id || "-"} ·{" "}
@@ -953,7 +953,7 @@ function App() {
                       <dd>{asset.task_id || "-"}</dd>
                     </div>
                     <div>
-                      <dt>模拟图片路径</dt>
+                      <dt>图片地址</dt>
                       <dd className="code-text">{asset.mock_url || "-"}</dd>
                     </div>
                     <div>
@@ -1066,7 +1066,7 @@ function App() {
       toast={<Toast messages={toastMessages} onDismiss={dismissToast} />}
       topbar={
         <div className="top-auth-bar">
-          <span>{isAuthenticated ? "本地演示账号" : "浏览模式"}</span>
+          <span>{isAuthenticated ? "内部试用账号" : "浏览模式"}</span>
           <button
             className="auth-button"
             onClick={isAuthenticated ? handleLogout : handleLogin}
@@ -1564,7 +1564,7 @@ function App() {
                 ? ` ${selectedImagePromptModel.label}`
                 : " 使用后端默认"}
             </strong>
-            <p>模型选择仅在后端绘图 Prompt 生成模式为 LLM 时生效。本地模拟模式下不会消耗 API 额度。</p>
+            <p>模型选择仅在后端绘图 Prompt 生成模式为 LLM 时生效。</p>
           </div>
 
           <button className="primary-button" disabled={imagePromptLoading} type="submit">
@@ -1712,7 +1712,7 @@ function App() {
                 value={imageGenerationForm.provider || "mock"}
                 onChange={(event) => updateImageGenerationField("provider", event.target.value)}
               >
-                <option value="mock">本地模拟</option>
+                <option value="mock">默认生成</option>
               </select>
             </label>
 
@@ -1791,7 +1791,7 @@ function App() {
             onClick={generateImagesFromImagePromptResult}
             type="button"
           >
-            使用绘图 Prompt 结果生成模拟图片
+            使用绘图 Prompt 结果生成图片
           </button>
 
           <button
@@ -1813,7 +1813,7 @@ function App() {
           </button>
 
           <button className="primary-button" disabled={imageGenerationLoading} type="submit">
-            {imageGenerationLoading ? "生成中..." : "生成模拟图片"}
+            {imageGenerationLoading ? "生成中..." : "生成图片"}
           </button>
 
           {imageGenerationError && <p className="error-message">{imageGenerationError}</p>}
@@ -1869,7 +1869,7 @@ function App() {
                     {imageGenerationBundleResult.assets.assets.map((asset) => (
                       <article className="bundle-detail-card asset-card" key={asset.asset_id}>
                         <div className="mock-image-placeholder compact-placeholder">
-                          <strong>模拟图片资产</strong>
+                          <strong>图片资产</strong>
                           <span>{asset.mock_url || "-"}</span>
                           <small>
                             {asset.width ?? "?"} x {asset.height ?? "?"} · {asset.shot_id || "-"} ·{" "}
@@ -1918,7 +1918,7 @@ function App() {
                             <dd>{String(asset.metadata?.source ?? "-")}</dd>
                           </div>
                           <div>
-                            <dt>模拟图片路径</dt>
+                            <dt>图片地址</dt>
                             <dd className="code-text">{asset.mock_url || "-"}</dd>
                           </div>
                           <div>
@@ -2008,7 +2008,7 @@ function App() {
           )}
 
           {!imageGenerationResult ? (
-            <div className="empty-state">本地模拟图片结果将在这里展示。</div>
+            <div className="empty-state">图片生成结果将在这里展示。</div>
           ) : (
             <article className="script-output image-generation-output">
               <section className="result-summary">
@@ -2032,13 +2032,13 @@ function App() {
               </section>
 
               <section className="image-generation-items">
-                <h4>本地模拟图片结果</h4>
+                <h4>图片生成结果</h4>
                 <div className="image-generation-list">
                   {imageGenerationResult.items.map((item) => (
                     <section className="image-generation-card" key={item.task_id}>
                       <div className="mock-image-placeholder">
-                        <strong>模拟图片</strong>
-                        <span>{item.mock_url || "无 mock_url"}</span>
+                        <strong>图片结果</strong>
+                        <span>{item.mock_url || "未生成图片地址"}</span>
                         <small>
                           {item.width ?? "?"} x {item.height ?? "?"} · {item.shot_id} · {item.prompt_id}
                         </small>
@@ -2059,7 +2059,7 @@ function App() {
                           <dd>{item.shot_id}</dd>
                         </div>
                         <div>
-                          <dt>模拟图片路径</dt>
+                          <dt>图片地址</dt>
                           <dd>{item.mock_url || "未设置"}</dd>
                         </div>
                         <div>
