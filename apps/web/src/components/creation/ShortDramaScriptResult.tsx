@@ -1,6 +1,5 @@
 import type {
   AdaptationNotes,
-  CharacterProfile,
   DialogueLine,
   EpisodeScript,
   SceneScript,
@@ -8,6 +7,7 @@ import type {
   ShortDramaScriptOutput,
 } from "../../types/scriptGeneration";
 import { ShortDramaBasicInfoEditor } from "./ShortDramaBasicInfoEditor";
+import { ShortDramaCharacterEditor } from "./ShortDramaCharacterEditor";
 
 type ShortDramaScriptResultProps = {
   result: ShortDramaScriptOutput | null;
@@ -62,18 +62,6 @@ function renderTextList(title: string, items: string[]) {
         ))}
       </ul>
     </section>
-  );
-}
-
-function renderCharacter(character: CharacterProfile) {
-  return (
-    <article className="short-script-character" key={`${character.name}-${character.role}`}>
-      <strong>{character.name}</strong>
-      <span>{character.role}</span>
-      <p>{character.age}</p>
-      <p>{character.personality}</p>
-      <small>{character.arc}</small>
-    </article>
   );
 }
 
@@ -266,12 +254,7 @@ export function ShortDramaScriptResult({
         result={result}
       />
 
-      {result.characters.length > 0 && (
-        <section className="short-script-section">
-          <h3>主要人物</h3>
-          <div className="short-script-character-grid">{result.characters.map(renderCharacter)}</div>
-        </section>
-      )}
+      <ShortDramaCharacterEditor characters={result.characters} />
 
       {renderAdaptationNotes(result.adaptation_notes)}
 
