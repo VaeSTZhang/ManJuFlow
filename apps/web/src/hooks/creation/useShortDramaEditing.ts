@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ShortDramaScriptOutput } from "../../types/scriptGeneration";
+import type { CharacterProfile, ShortDramaScriptOutput } from "../../types/scriptGeneration";
 
 function cloneShortDramaScript(script: ShortDramaScriptOutput): ShortDramaScriptOutput {
   return structuredClone(script);
@@ -69,6 +69,29 @@ export function useShortDramaEditing() {
     setHasUnsavedScriptEdits(true);
   };
 
+  const updateEditableCharacterField = (
+    characterIndex: number,
+    field: keyof CharacterProfile,
+    value: string,
+  ) => {
+    setEditableScript((currentEditableScript) => {
+      const baseScript = currentEditableScript ?? generatedScript;
+
+      if (!baseScript || !baseScript.characters[characterIndex]) {
+        return currentEditableScript;
+      }
+
+      const nextScript = cloneShortDramaScript(baseScript);
+      nextScript.characters[characterIndex] = {
+        ...nextScript.characters[characterIndex],
+        [field]: value,
+      };
+
+      return nextScript;
+    });
+    setHasUnsavedScriptEdits(true);
+  };
+
   return {
     generatedScript,
     editableScript,
@@ -82,5 +105,6 @@ export function useShortDramaEditing() {
     cancelScriptEditing,
     restoreGeneratedScript,
     updateEditableScriptField,
+    updateEditableCharacterField,
   };
 }
