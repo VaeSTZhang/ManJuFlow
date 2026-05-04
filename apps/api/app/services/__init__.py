@@ -21,6 +21,12 @@ from app.services.document_import_service import (
     estimate_paragraph_count,
     normalize_imported_text,
 )
+from app.services.document_export_service import (
+    build_json_export_content,
+    build_safe_export_filename,
+    build_txt_export_content,
+    export_document,
+)
 from app.services.image_prompt_service import (
     generate_image_prompt,
     generate_image_prompt_llm,
@@ -81,8 +87,11 @@ __all__ = [
     "build_asset_collection_from_image_generation",
     "build_asset_item_from_image_generation_item",
     "build_document_import_preview",
+    "build_json_export_content",
+    "build_safe_export_filename",
     "build_image_generation_bundle",
     "build_preview_text",
+    "build_txt_export_content",
     "build_render_task_item_from_image_generation_item",
     "build_render_tasks_from_image_generation",
     "ComfyUIImageGenerationProviderPlaceholder",
@@ -93,6 +102,7 @@ __all__ = [
     "DEFAULT_SCRIPT_GENERATION_REGISTRY",
     "detect_document_title",
     "estimate_paragraph_count",
+    "export_document",
     "extract_script_text_mock",
     "ImageGenerationProvider",
     "LLMClient",
