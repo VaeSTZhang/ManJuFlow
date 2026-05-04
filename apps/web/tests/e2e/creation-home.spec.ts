@@ -73,4 +73,98 @@ test.describe("Dramora creation home smoke", () => {
     await expect(page.getByTestId("document-import-panel")).toHaveCount(0);
     await expect(page.getByText("导入剧本文档内容")).toHaveCount(0);
   });
+
+  test("allows editing the generated script title and logline", async ({ page }) => {
+    await page.route("**/api/scripts/generate-from-source", async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        status: 200,
+        body: JSON.stringify({
+          project_title: "测试短剧：旧楼灯火",
+          source_mode: "idea",
+          logline: "一名年轻编剧回到旧楼，发现每盏灯都藏着一段未完成的短剧真相。",
+          world_setting: "当代都市，旧楼改造前夜。",
+          characters: [
+            {
+              name: "林乔",
+              role: "主角",
+              age: "28",
+              personality: "敏锐、克制、执着",
+              arc: "从逃避旧事到主动揭开真相。",
+            },
+            {
+              name: "周闻",
+              role: "对手",
+              age: "35",
+              personality: "圆滑、强势、谨慎",
+              arc: "从掌控局面到被迫面对过往。",
+            },
+          ],
+          adaptation_notes: null,
+          episode_count: 1,
+          episodes: [
+            {
+              episode_number: 1,
+              title: "旧楼来电",
+              summary: "林乔收到旧楼管理处电话，被迫回到三年前离开的地方。",
+              hook: "她在父亲旧桌里发现一份写着自己名字的剧本。",
+              scenes: [
+                {
+                  scene_number: 1,
+                  location: "旧楼走廊",
+                  time: "夜",
+                  description: "停电后的走廊里，只有尽头办公室亮着灯。",
+                  dialogues: [
+                    {
+                      character: "林乔",
+                      line: "这栋楼不是早就没人了吗？",
+                    },
+                    {
+                      character: "周闻",
+                      line: "有些事，不是没人就能消失。",
+                    },
+                  ],
+                  visual_notes: "冷色灯光，长走廊压迫感。",
+                  emotion_curve: "疑惑到紧张。",
+                },
+              ],
+            },
+          ],
+          metadata: {
+            generation_mode: "llm",
+            provider: "deepseek",
+            model: "deepseek-chat",
+            purpose: "script_generation",
+          },
+        }),
+      });
+    });
+
+    await page.goto("/");
+    await login(page);
+
+    await page.getByTestId("creation-entry-card-idea").click();
+    await page.getByLabel("项目标题").fill("测试短剧：旧楼灯火");
+    await page.getByLabel("类型 / 风格").fill("都市悬疑");
+    await page.getByLabel("目标集数").fill("1");
+    await page.getByLabel("灵感内容").fill("一名年轻编剧回到旧楼，发现每盏灯都藏着一段未完成的短剧真相。");
+    await page.getByLabel("额外要求").fill("对白自然，每集结尾有强钩子。");
+    await page.getByTestId("generate-short-drama-script").click();
+
+    await expect(page.getByTestId("short-drama-script-result")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "测试短剧：旧楼灯火" })).toBeVisible();
+
+    await page.getByTestId("start-script-editing").click();
+    await page.getByTestId("script-title-editor").fill("测试短剧：灯火归来");
+    await page.getByTestId("script-logline-editor").fill("年轻编剧回到旧楼，在层层反转中找回父亲留下的最后一场戏。");
+    await page.getByTestId("save-script-editing").click();
+
+    await expect(page.getByRole("heading", { name: "测试短剧：灯火归来" })).toBeVisible();
+    await expect(page.getByText("年轻编剧回到旧楼，在层层反转中找回父亲留下的最后一场戏。")).toBeVisible();
+    await expect(page.getByText("当前展示：编辑稿")).toBeVisible();
+
+    for (const phrase of blockedUiPhrases) {
+      await expect(page.getByText(phrase, { exact: false })).toHaveCount(0);
+    }
+  });
 });

@@ -182,7 +182,7 @@ export function ShortDramaScriptResult({
   const canEditFields = isEditing && !!onUpdateField && !isLocked;
 
   return (
-    <section className="short-script-result" aria-label="短剧剧本生成结果">
+    <section className="short-script-result" aria-label="短剧剧本生成结果" data-testid="short-drama-script-result">
       <div className="short-script-header">
         <div>
           <span>短剧剧本结果</span>
@@ -190,6 +190,7 @@ export function ShortDramaScriptResult({
             <label className="short-script-edit-field">
               <span>剧本标题</span>
               <input
+                data-testid="script-title-editor"
                 onChange={(event) => onUpdateField("project_title", event.target.value)}
                 value={result.project_title}
               />
@@ -213,7 +214,12 @@ export function ShortDramaScriptResult({
           </button>
           {isEditing ? (
             <>
-              <button disabled={actionsDisabled || !onSaveEditing} onClick={onSaveEditing} type="button">
+              <button
+                data-testid="save-script-editing"
+                disabled={actionsDisabled || !onSaveEditing}
+                onClick={onSaveEditing}
+                type="button"
+              >
                 保存本次修改
               </button>
               <button disabled={actionsDisabled || !onCancelEditing} onClick={onCancelEditing} type="button">
@@ -224,7 +230,12 @@ export function ShortDramaScriptResult({
               </button>
             </>
           ) : (
-            <button disabled={actionsDisabled || !startEditing} onClick={startEditing} type="button">
+            <button
+              data-testid="start-script-editing"
+              disabled={actionsDisabled || !startEditing}
+              onClick={startEditing}
+              type="button"
+            >
               开始编辑
             </button>
           )}
@@ -250,6 +261,7 @@ export function ShortDramaScriptResult({
           <label className="short-script-edit-field">
             <span>核心卖点 / 故事梗概</span>
             <textarea
+              data-testid="script-logline-editor"
               onChange={(event) => onUpdateField("logline", event.target.value)}
               rows={4}
               value={result.logline}

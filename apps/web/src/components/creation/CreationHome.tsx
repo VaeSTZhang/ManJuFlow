@@ -479,6 +479,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
           <div className="export-actions">
             <button
               className="primary-button"
+              data-testid="generate-short-drama-script"
               disabled={!isAuthenticated || isGeneratingScript}
               onClick={handleGenerateIdea}
               type="button"
