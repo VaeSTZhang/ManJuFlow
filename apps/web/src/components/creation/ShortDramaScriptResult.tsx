@@ -287,10 +287,22 @@ export function ShortDramaScriptResult({
         )}
       </section>
 
-      {result.world_setting && (
+      {(result.world_setting || canEditFields) && (
         <section className="short-script-section">
           <h3>世界观 / 故事背景</h3>
-          <p>{result.world_setting}</p>
+          {canEditFields ? (
+            <label className="short-script-edit-field">
+              <span>世界观 / 故事背景</span>
+              <textarea
+                data-testid="script-world-setting-editor"
+                onChange={(event) => onUpdateField("world_setting", event.target.value)}
+                rows={4}
+                value={result.world_setting}
+              />
+            </label>
+          ) : (
+            <p>{result.world_setting}</p>
+          )}
         </section>
       )}
 

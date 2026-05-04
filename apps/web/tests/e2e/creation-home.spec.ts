@@ -12,14 +12,16 @@ const blockedUiPhrases = [
 
 const originalScriptTitle = "测试短剧：旧楼灯火";
 const originalScriptLogline = "一名年轻编剧回到旧楼，发现每盏灯都藏着一段未完成的短剧真相。";
+const originalWorldSetting = "当代都市，旧楼改造前夜。";
 const editedScriptTitle = "测试短剧：灯火归来";
 const editedScriptLogline = "年轻编剧回到旧楼，在层层反转中找回父亲留下的最后一场戏。";
+const editedWorldSetting = "当代都市旧楼即将拆迁，所有角色都被一份未完成剧本重新牵连。";
 
 const generatedScriptFixture = {
   project_title: originalScriptTitle,
   source_mode: "idea",
   logline: originalScriptLogline,
-  world_setting: "当代都市，旧楼改造前夜。",
+  world_setting: originalWorldSetting,
   characters: [
     {
       name: "林乔",
@@ -105,10 +107,11 @@ async function generateIdeaScript(page: Page) {
   await expect(page.getByRole("heading", { name: originalScriptTitle })).toBeVisible();
 }
 
-async function editGeneratedScriptTitleAndLogline(page: Page) {
+async function editGeneratedScriptBasicFields(page: Page) {
   await page.getByTestId("start-script-editing").click();
   await page.getByTestId("script-title-editor").fill(editedScriptTitle);
   await page.getByTestId("script-logline-editor").fill(editedScriptLogline);
+  await page.getByTestId("script-world-setting-editor").fill(editedWorldSetting);
   await page.getByTestId("save-script-editing").click();
 }
 
@@ -172,13 +175,14 @@ test.describe("Dramora creation home smoke", () => {
     await expect(page.getByText("导入剧本文档内容")).toHaveCount(0);
   });
 
-  test("allows editing the generated script title and logline", async ({ page }) => {
+  test("allows editing basic generated script fields", async ({ page }) => {
     await mockScriptGeneration(page);
     await generateIdeaScript(page);
-    await editGeneratedScriptTitleAndLogline(page);
+    await editGeneratedScriptBasicFields(page);
 
     await expect(page.getByRole("heading", { name: editedScriptTitle })).toBeVisible();
     await expect(page.getByText(editedScriptLogline)).toBeVisible();
+    await expect(page.getByText(editedWorldSetting)).toBeVisible();
     await expect(page.getByText("当前展示：编辑稿")).toBeVisible();
 
     for (const phrase of blockedUiPhrases) {
@@ -190,16 +194,22 @@ test.describe("Dramora creation home smoke", () => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await mockScriptGeneration(page);
     await generateIdeaScript(page);
-    await editGeneratedScriptTitleAndLogline(page);
+    await editGeneratedScriptBasicFields(page);
 
     await page.getByTestId("copy-script-json").click();
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
-    const copiedScript = JSON.parse(clipboardText) as { project_title: string; logline: string };
+    const copiedScript = JSON.parse(clipboardText) as {
+      project_title: string;
+      logline: string;
+      world_setting: string;
+    };
 
     expect(copiedScript.project_title).toBe(editedScriptTitle);
     expect(copiedScript.logline).toBe(editedScriptLogline);
+    expect(copiedScript.world_setting).toBe(editedWorldSetting);
     expect(copiedScript.project_title).not.toBe(originalScriptTitle);
     expect(copiedScript.logline).not.toBe(originalScriptLogline);
+    expect(copiedScript.world_setting).not.toBe(originalWorldSetting);
 
     const downloadPromise = page.waitForEvent("download");
     await page.getByTestId("download-script-txt").click();
@@ -211,5 +221,6 @@ test.describe("Dramora creation home smoke", () => {
 
     expect(downloadedText).toContain(editedScriptTitle);
     expect(downloadedText).toContain(editedScriptLogline);
+    expect(downloadedText).toContain(editedWorldSetting);
   });
 });
