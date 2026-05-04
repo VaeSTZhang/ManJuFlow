@@ -27,6 +27,10 @@ from app.services.document_export_service import (
     build_txt_export_content,
     export_document,
 )
+from app.services.document_docx_export_service import (
+    build_docx_export_bytes,
+    sanitize_docx_filename,
+)
 from app.services.image_prompt_service import (
     generate_image_prompt,
     generate_image_prompt_llm,
@@ -87,6 +91,7 @@ __all__ = [
     "build_asset_collection_from_image_generation",
     "build_asset_item_from_image_generation_item",
     "build_document_import_preview",
+    "build_docx_export_bytes",
     "build_json_export_content",
     "build_safe_export_filename",
     "build_image_generation_bundle",
@@ -137,6 +142,7 @@ __all__ = [
     "load_image_prompt_template",
     "normalize_imported_text",
     "parse_image_prompt_llm_response",
+    "sanitize_docx_filename",
     "ScriptGenerationEntryConfig",
     "validate_extra_requirements",
     "validate_extracted_text",
