@@ -283,6 +283,11 @@ select {
   line-height: 1.6;
 }
 
+.creation-draft-actions .form-error {
+  color: #b42318;
+  font-weight: 800;
+}
+
 .document-action-card {
   display: grid;
   gap: 12px;
