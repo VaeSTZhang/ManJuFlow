@@ -11,6 +11,7 @@ import {
   buildIdeaGenerationInput,
   buildNovelGenerationInput,
 } from "./scriptGenerationRequestBuilder";
+import { DocumentImportPanel } from "./DocumentImportPanel";
 import { ShortDramaScriptResult } from "./ShortDramaScriptResult";
 import type { DocumentImportOutput } from "../../types/documentImport";
 import type { ShortDramaGenerationInput, ShortDramaScriptOutput } from "../../types/scriptGeneration";
@@ -644,7 +645,6 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     const isFilm = mode === "film";
     const draft = drafts[mode];
     const importDraft = documentImportDrafts[mode];
-    const activeImportPreview = importDraft.preview;
 
     return (
       <section className="creation-draft-panel" aria-label={isFilm ? "电影剧本改编草稿" : "小说改编草稿"}>
@@ -686,123 +686,31 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
             {documentActionNotice && <p className="copy-status">{documentActionNotice}</p>}
           </section>
 
-          <section className="document-import-panel" aria-label="文档导入预览" data-testid="document-import-panel">
-            <div>
-              <h3>导入剧本文档内容</h3>
-              <p>
-                先粘贴文档解析出的文本生成预览，确认后再填入待改编文本。上传 Word 文件将在后续版本接入。
-              </p>
-            </div>
-
-            <div className="document-import-grid">
-              <label className="field creation-draft-field">
-                <span>文件名</span>
-                <input
-                  disabled={!isAuthenticated || importDraft.isLoading}
-                  onChange={(event) => {
-                    updateDocumentImportDraft(mode, {
-                      filename: event.target.value,
-                      error: "",
-                    });
-                  }}
-                  placeholder={isFilm ? "example-film-script.docx" : "example-novel.docx"}
-                  value={importDraft.filename}
-                />
-              </label>
-              <label className="field creation-draft-field">
-                <span>文档文本</span>
-                <textarea
-                  disabled={!isAuthenticated || importDraft.isLoading}
-                  onChange={(event) => {
-                    updateDocumentImportDraft(mode, {
-                      text: event.target.value,
-                      error: "",
-                    });
-                  }}
-                  placeholder={
-                    isFilm
-                      ? "粘贴电影剧本、长剧本或分场文本，生成预览后再确认填入。"
-                      : "粘贴小说、网文、故事片段或人物小传，生成预览后再确认填入。"
-                  }
-                  rows={5}
-                  value={importDraft.text}
-                />
-              </label>
-            </div>
-
-            <div className="document-import-actions">
-              <button
-                className="secondary-button"
-                disabled={!isAuthenticated || importDraft.isLoading}
-                onClick={() => handleGenerateDocumentImportPreview(mode)}
-                type="button"
-              >
-                {importDraft.isLoading ? "生成预览中..." : "生成导入预览"}
-              </button>
-            </div>
-
-            {importDraft.error && <p className="form-error">{importDraft.error}</p>}
-
-            {activeImportPreview && (
-              <article className="document-import-preview">
-                <div className="document-import-preview-header">
-                  <div>
-                    <span>文档导入预览</span>
-                    <strong>{activeImportPreview.preview.detected_title || "未识别标题"}</strong>
-                  </div>
-                  <small>{activeImportPreview.preview.source.filename}</small>
-                </div>
-
-                <dl className="document-import-preview-meta">
-                  <div>
-                    <dt>字数</dt>
-                    <dd>{activeImportPreview.preview.character_count}</dd>
-                  </div>
-                  <div>
-                    <dt>段落数</dt>
-                    <dd>{activeImportPreview.preview.paragraph_count ?? 0}</dd>
-                  </div>
-                </dl>
-
-                {activeImportPreview.preview.warnings.length > 0 && (
-                  <div className="document-import-warning">
-                    {activeImportPreview.preview.warnings.map((warning) => (
-                      <p key={warning}>{warning}</p>
-                    ))}
-                  </div>
-                )}
-
-                <p className="document-import-preview-text">{activeImportPreview.preview.preview_text}</p>
-
-                <div className="document-import-actions">
-                  <button
-                    className="primary-button"
-                    disabled={!isAuthenticated}
-                    onClick={() => applyDocumentImportPreview(mode, "fill")}
-                    type="button"
-                  >
-                    填入待改编文本
-                  </button>
-                  <button
-                    className="secondary-button"
-                    disabled={!isAuthenticated}
-                    onClick={() => applyDocumentImportPreview(mode, "append")}
-                    type="button"
-                  >
-                    追加到当前文本后
-                  </button>
-                  <button
-                    className="secondary-button"
-                    disabled={!isAuthenticated}
-                    onClick={() => applyDocumentImportPreview(mode, "cancel")}
-                    type="button"
-                  >
-                    取消导入
-                  </button>
-                </div>
-              </article>
-            )}
-          </section>
+          <DocumentImportPanel
+            error={importDraft.error}
+            filename={importDraft.filename}
+            isAuthenticated={isAuthenticated}
+            isFilm={isFilm}
+            isLoading={importDraft.isLoading}
+            onApplyAppend={() => applyDocumentImportPreview(mode, "append")}
+            onApplyFill={() => applyDocumentImportPreview(mode, "fill")}
+            onCancel={() => applyDocumentImportPreview(mode, "cancel")}
+            onFilenameChange={(value) => {
+              updateDocumentImportDraft(mode, {
+                filename: value,
+                error: "",
+              });
+            }}
+            onGeneratePreview={() => handleGenerateDocumentImportPreview(mode)}
+            onTextChange={(value) => {
+              updateDocumentImportDraft(mode, {
+                text: value,
+                error: "",
+              });
+            }}
+            preview={importDraft.preview}
+            text={importDraft.text}
+          />
 
           <div className="creation-draft-grid">
             <label className="field creation-draft-field">
