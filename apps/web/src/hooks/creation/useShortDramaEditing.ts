@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { CharacterProfile, ShortDramaScriptOutput } from "../../types/scriptGeneration";
 
+type EditableEpisodeField = "title" | "summary" | "hook";
+
 function cloneShortDramaScript(script: ShortDramaScriptOutput): ShortDramaScriptOutput {
   return structuredClone(script);
 }
@@ -92,6 +94,29 @@ export function useShortDramaEditing() {
     setHasUnsavedScriptEdits(true);
   };
 
+  const updateEditableEpisodeField = (
+    episodeIndex: number,
+    field: EditableEpisodeField,
+    value: string,
+  ) => {
+    setEditableScript((currentEditableScript) => {
+      const baseScript = currentEditableScript ?? generatedScript;
+
+      if (!baseScript || !baseScript.episodes[episodeIndex]) {
+        return currentEditableScript;
+      }
+
+      const nextScript = cloneShortDramaScript(baseScript);
+      nextScript.episodes[episodeIndex] = {
+        ...nextScript.episodes[episodeIndex],
+        [field]: value,
+      };
+
+      return nextScript;
+    });
+    setHasUnsavedScriptEdits(true);
+  };
+
   return {
     generatedScript,
     editableScript,
@@ -106,5 +131,6 @@ export function useShortDramaEditing() {
     restoreGeneratedScript,
     updateEditableScriptField,
     updateEditableCharacterField,
+    updateEditableEpisodeField,
   };
 }
