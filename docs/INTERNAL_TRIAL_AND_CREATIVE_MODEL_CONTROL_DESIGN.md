@@ -63,6 +63,7 @@ DeepSeek 是当前内部默认推荐模型，但 DeepSeek 不能写死。
 - 默认推荐 DeepSeek；
 - 保留“使用后端默认”选项；
 - 保留 Mimo、Kimi、MiniMax 等已配置 provider 的扩展位；
+- 后端默认 provider / model 通过 `DEFAULT_LLM_PROVIDER` / `DEFAULT_SCRIPT_MODEL` 配置；
 - 不在业务 service 中硬编码具体 provider；
 - 请求级 `AIRequestOptions` 应记录本次使用的 provider / model / purpose。
 
