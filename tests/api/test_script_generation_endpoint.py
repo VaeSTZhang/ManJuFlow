@@ -129,6 +129,36 @@ def test_generate_from_source_llm_mode_film_script_returns_short_drama_output(mo
     assert data["metadata"]["generation_mode"] == "llm"
 
 
+def test_generate_from_source_llm_mode_novel_returns_short_drama_output(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "llm")
+    monkeypatch.setattr(
+        "app.services.script_generation.generator.generate_novel_adaptation_llm",
+        lambda input_data: ShortDramaScriptOutput(
+            project_title="旧书店日记",
+            source_mode="novel",
+            logline="年轻编剧追查母亲日记里的舞台事故。",
+            world_setting="旧书店与废弃剧场交织。",
+            characters=[],
+            adaptation_notes=None,
+            episode_count=1,
+            episodes=[],
+            metadata={"generation_mode": "llm"},
+        ),
+    )
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/generate-from-source",
+        json=make_source_request(source_mode="novel"),
+    )
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["source_mode"] == "novel"
+    assert data["metadata"]["generation_mode"] == "llm"
+
+
 def test_generate_from_source_film_script_returns_expected_episode_count(monkeypatch) -> None:
     settings = get_settings()
     monkeypatch.setattr(settings, "script_generation_mode", "mock")

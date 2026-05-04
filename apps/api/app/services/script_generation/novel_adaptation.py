@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript
@@ -6,7 +7,9 @@ from app.schemas.script_generation import (
     ShortDramaGenerationInput,
     ShortDramaScriptOutput,
 )
+from app.services.llm_client import LLMClient
 from app.services.script_generation.metadata import build_script_generation_metadata
+from app.services.text_cleaner import clean_chinese_spacing
 
 
 NOVEL_PROMPT_TEMPLATE_NAME = "novel_to_short_drama_v1.md"
@@ -142,3 +145,57 @@ def generate_novel_adaptation_mock(
         episodes=episodes,
         metadata=metadata,
     )
+
+
+def generate_novel_adaptation_llm(
+    input_data: ShortDramaGenerationInput,
+) -> ShortDramaScriptOutput:
+    if input_data.source_mode != "novel":
+        raise ValueError("generate_novel_adaptation_llm only supports source_mode='novel'.")
+
+    source_text = (input_data.source_text or "").strip()
+    if not source_text:
+        raise ValueError("source_mode='novel' requires source_text.")
+
+    prompt_template = load_novel_prompt_template()
+    input_payload = input_data.model_dump()
+    input_payload["source_text"] = source_text
+    input_json = json.dumps(input_payload, ensure_ascii=False)
+    messages = [
+        {
+            "role": "system",
+            "content": prompt_template,
+        },
+        {
+            "role": "user",
+            "content": f"请根据以下输入生成结构化小说改编短剧 JSON：\n{input_json}",
+        },
+    ]
+
+    provider = input_data.ai_options.provider if input_data.ai_options else None
+    model = input_data.ai_options.model if input_data.ai_options else None
+    content = LLMClient(provider=provider, model=model).chat(messages)
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as exc:
+        raise ValueError("LLM response was not valid JSON.") from exc
+
+    cleaned_data = clean_chinese_spacing(data)
+
+    try:
+        output = ShortDramaScriptOutput.model_validate(cleaned_data)
+    except ValueError as exc:
+        raise ValueError("LLM response did not match ShortDramaScriptOutput schema.") from exc
+
+    metadata = {
+        **output.metadata,
+        **build_script_generation_metadata(input_data, generation_mode="llm"),
+        "prompt_template_name": NOVEL_PROMPT_TEMPLATE_NAME,
+        "context_policy": "current_project_only",
+    }
+    source_title = input_data.metadata.get("source_title")
+    if source_title:
+        metadata["source_title"] = source_title
+
+    return output.model_copy(update={"metadata": metadata})

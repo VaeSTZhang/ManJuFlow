@@ -10,6 +10,7 @@ from app.services.script_generation.generator import (
     generate_short_drama_script_mock,
 )
 from app.services.script_generation.novel_adaptation import (
+    generate_novel_adaptation_llm,
     generate_novel_adaptation_mock,
     load_novel_prompt_template,
 )
@@ -28,6 +29,7 @@ __all__ = [
     "generate_film_script_adaptation_llm",
     "generate_film_script_adaptation_mock",
     "generate_idea_short_drama_script_llm",
+    "generate_novel_adaptation_llm",
     "generate_novel_adaptation_mock",
     "generate_short_drama_script",
     "generate_short_drama_script_mock",

@@ -190,16 +190,39 @@ def test_generate_short_drama_script_llm_mode_film_script_dispatches_to_film_llm
     assert captured == {"source_mode": "film_script"}
 
 
-def test_generate_short_drama_script_llm_mode_novel_is_not_implemented(monkeypatch):
+def test_generate_short_drama_script_llm_mode_novel_dispatches_to_novel_llm(monkeypatch):
     settings = get_settings()
     monkeypatch.setattr(settings, "script_generation_mode", "llm")
+    captured = {}
+
+    def fake_generate_novel_adaptation_llm(input_data):
+        captured["source_mode"] = input_data.source_mode
+        return ShortDramaScriptOutput(
+            project_title="旧书店日记",
+            source_mode="novel",
+            logline="年轻编剧追查母亲日记里的舞台事故。",
+            world_setting="旧书店与废弃剧场交织。",
+            characters=[],
+            adaptation_notes=None,
+            episode_count=1,
+            episodes=[],
+            metadata={"generation_mode": "llm"},
+        )
+
+    monkeypatch.setattr(
+        "app.services.script_generation.generator.generate_novel_adaptation_llm",
+        fake_generate_novel_adaptation_llm,
+    )
     input_data = ShortDramaGenerationInput(
         source_mode="novel",
         source_text="虚构小说片段。",
     )
 
-    with pytest.raises(NotImplementedError, match="source_mode='novel'"):
-        generate_short_drama_script(input_data)
+    output = generate_short_drama_script(input_data)
+
+    assert output.source_mode == "novel"
+    assert output.metadata["generation_mode"] == "llm"
+    assert captured == {"source_mode": "novel"}
 
 
 def test_generate_short_drama_script_rejects_invalid_generation_mode(monkeypatch):
