@@ -1,4 +1,10 @@
 from app.schemas.asset import AssetCollection, AssetItem
+from app.schemas.document import (
+    DocumentExportFormat,
+    DocumentExportInput,
+    DocumentExportOutput,
+    DocumentSourceStage,
+)
 from app.schemas.idea import IdeaInput
 from app.schemas.image_prompt import (
     ImagePromptInput,
@@ -43,6 +49,10 @@ __all__ = [
     "AssetItem",
     "CharacterProfile",
     "DialogueLine",
+    "DocumentExportFormat",
+    "DocumentExportInput",
+    "DocumentExportOutput",
+    "DocumentSourceStage",
     "EpisodeScript",
     "ExistingScriptInput",
     "IdeaInput",
