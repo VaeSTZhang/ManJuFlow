@@ -1,4 +1,5 @@
 import type { SelectedCreativeModel } from "../ai/CreativeModelPanel";
+import type { AdaptationMode, CreationDrafts } from "./creationDraftTypes";
 import type { AIRequestPurpose, ShortDramaGenerationInput } from "../../types/scriptGeneration";
 
 export type IdeaGenerationDraftInput = {
@@ -16,6 +17,19 @@ export type AdaptationGenerationDraftInput = {
   focus: string;
   episodeCount: number;
   extraRequirements: string;
+};
+
+type ShortDramaGenerationRequestMode = "idea" | AdaptationMode;
+
+type BuildShortDramaGenerationRequestParams = {
+  mode: ShortDramaGenerationRequestMode;
+  drafts: CreationDrafts;
+  selectedModel: SelectedCreativeModel;
+};
+
+type ShortDramaGenerationRequest = {
+  requestInput: ShortDramaGenerationInput;
+  sourceLabel: string;
 };
 
 function trimToOptional(value: string): string | null {
@@ -109,5 +123,30 @@ export function buildNovelGenerationInput(
       source_entry: "novel",
       source_title: trimToOptional(draft.sourceTitle),
     },
+  };
+}
+
+export function buildShortDramaGenerationRequest({
+  mode,
+  drafts,
+  selectedModel,
+}: BuildShortDramaGenerationRequestParams): ShortDramaGenerationRequest {
+  if (mode === "idea") {
+    return {
+      requestInput: buildIdeaGenerationInput(drafts.idea, selectedModel),
+      sourceLabel: "灵感生成",
+    };
+  }
+
+  if (mode === "film") {
+    return {
+      requestInput: buildFilmScriptGenerationInput(drafts.film, selectedModel),
+      sourceLabel: "电影剧本改编",
+    };
+  }
+
+  return {
+    requestInput: buildNovelGenerationInput(drafts.novel, selectedModel),
+    sourceLabel: "小说 / 网文改编",
   };
 }

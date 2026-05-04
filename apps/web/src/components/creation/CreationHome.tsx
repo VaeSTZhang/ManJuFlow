@@ -7,9 +7,7 @@ import {
   type SelectedCreativeModel,
 } from "../ai/CreativeModelPanel";
 import {
-  buildFilmScriptGenerationInput,
-  buildIdeaGenerationInput,
-  buildNovelGenerationInput,
+  buildShortDramaGenerationRequest,
 } from "./scriptGenerationRequestBuilder";
 import { AdaptationDraftForm } from "./AdaptationDraftForm";
 import { DocumentImportPanel } from "./DocumentImportPanel";
@@ -224,9 +222,11 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       return;
     }
 
-    const draft = drafts.idea;
-    const sourceLabel = "灵感生成";
-    const requestInput = buildIdeaGenerationInput(draft, selectedCreativeModel);
+    const { requestInput, sourceLabel } = buildShortDramaGenerationRequest({
+      mode: "idea",
+      drafts,
+      selectedModel: selectedCreativeModel,
+    });
 
     await runScriptGeneration(requestInput, sourceLabel);
   };
@@ -237,12 +237,11 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       return;
     }
 
-    const draft = drafts[mode];
-    const isFilm = mode === "film";
-    const sourceLabel = isFilm ? "电影剧本改编" : "小说 / 网文改编";
-    const requestInput = isFilm
-      ? buildFilmScriptGenerationInput(draft, selectedCreativeModel)
-      : buildNovelGenerationInput(draft, selectedCreativeModel);
+    const { requestInput, sourceLabel } = buildShortDramaGenerationRequest({
+      mode,
+      drafts,
+      selectedModel: selectedCreativeModel,
+    });
 
     await runScriptGeneration(requestInput, sourceLabel);
   };
