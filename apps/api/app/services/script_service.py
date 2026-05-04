@@ -86,7 +86,11 @@ def generate_script_mock(input_data: IdeaInput) -> ScriptOutput:
     )
 
 
-def generate_script_with_llm(input_data: IdeaInput) -> ScriptOutput:
+def generate_script_with_llm(
+    input_data: IdeaInput,
+    provider: str | None = None,
+    model: str | None = None,
+) -> ScriptOutput:
     prompt_template = load_prompt_template()
     input_json = json.dumps(input_data.model_dump(), ensure_ascii=False)
     messages = [
@@ -100,7 +104,7 @@ def generate_script_with_llm(input_data: IdeaInput) -> ScriptOutput:
         },
     ]
 
-    content = LLMClient().chat(messages)
+    content = LLMClient(provider=provider, model=model).chat(messages)
 
     try:
         data = json.loads(content)
