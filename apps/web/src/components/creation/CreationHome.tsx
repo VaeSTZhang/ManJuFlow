@@ -464,7 +464,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       <div className="creation-entry-section-header">
         <span>剧本创作</span>
         <h2>选择剧本创作方式</h2>
-        <p>先选择本次创作来源，再进入对应草稿区。当前页面不会自动调用生成接口。</p>
+        <p>先选择本次创作来源，再进入对应草稿区。确认内容后再开始生成。</p>
       </div>
 
       <div className="creation-entry-grid creation-entry-grid-two">

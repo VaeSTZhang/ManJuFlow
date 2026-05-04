@@ -8,7 +8,7 @@ type CreationEntryCardProps = {
 
 const statusLabels: Record<CreationEntryStatus, string> = {
   available: "可用",
-  mock: "可体验",
+  mock: "可用",
   planned: "规划中",
 };
 

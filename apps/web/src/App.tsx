@@ -138,7 +138,7 @@ const defaultImageGenerationForm: ImageGenerationInput = {
   project_title: "测试短剧：雨夜重逢",
   prompt_items: defaultImageGenerationPromptItems,
   provider: "mock",
-  workflow_name: "mock_image_generation_v1",
+  workflow_name: "system_image_generation_v1",
   aspect_ratio: "9:16",
   style_preset: "cinematic realistic",
   output_count: 1,
@@ -301,7 +301,7 @@ function App() {
         const response = await fetch("http://127.0.0.1:8000/api/system/status");
 
         if (!response.ok) {
-          throw new Error("状态接口请求失败");
+          throw new Error("状态请求失败");
         }
 
         const data = (await response.json()) as SystemStatus;
@@ -653,7 +653,7 @@ function App() {
       project_title: projectTitle,
       prompt_items: promptItems,
       provider: formData.provider?.trim() || "mock",
-      workflow_name: formData.workflow_name?.trim() || "mock_image_generation_v1",
+      workflow_name: formData.workflow_name?.trim() || "system_image_generation_v1",
       aspect_ratio: formData.aspect_ratio || "9:16",
       style_preset: formData.style_preset?.trim() || "cinematic realistic",
       output_count: outputCount,
@@ -1712,14 +1712,14 @@ function App() {
                 value={imageGenerationForm.provider || "mock"}
                 onChange={(event) => updateImageGenerationField("provider", event.target.value)}
               >
-                <option value="mock">默认生成</option>
+                <option value="mock">系统生成</option>
               </select>
             </label>
 
             <label className="field">
               <span>工作流</span>
               <input
-                value={imageGenerationForm.workflow_name || "mock_image_generation_v1"}
+                value={imageGenerationForm.workflow_name || "system_image_generation_v1"}
                 onChange={(event) => updateImageGenerationField("workflow_name", event.target.value)}
               />
             </label>
@@ -2038,7 +2038,7 @@ function App() {
                     <section className="image-generation-card" key={item.task_id}>
                       <div className="mock-image-placeholder">
                         <strong>图片结果</strong>
-                        <span>{item.mock_url || "未生成图片地址"}</span>
+                        <span>{item.mock_url || "图片结果待生成"}</span>
                         <small>
                           {item.width ?? "?"} x {item.height ?? "?"} · {item.shot_id} · {item.prompt_id}
                         </small>
