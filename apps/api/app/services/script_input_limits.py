@@ -1,3 +1,5 @@
+MAX_IDEA_TEXT_CHARS = 5_000
+MAX_EXTRA_REQUIREMENTS_CHARS = 2_000
 MAX_SCRIPT_TEXT_CHARS = 100_000
 MAX_EXTRACTED_TEXT_CHARS = 100_000
 MAX_SCRIPT_UPLOAD_FILE_SIZE_BYTES = 10 * 1024 * 1024
@@ -10,20 +12,63 @@ def count_text_chars(text: str) -> int:
     return len(text)
 
 
-def validate_script_text_length(text: str, max_chars: int = MAX_SCRIPT_TEXT_CHARS) -> None:
-    text_length = count_text_chars(text)
+def validate_text_length(value: str | None, max_chars: int, field_label: str, error_code: str) -> str | None:
+    if value is None:
+        return None
+
+    text_length = count_text_chars(value)
     if text_length > max_chars:
+        exceeded_chars = text_length - max_chars
         raise ValueError(
-            f"SCRIPT_TEXT_TOO_LONG: script_text length {text_length} exceeds max_chars {max_chars}."
+            f"{error_code}: {field_label}已超出 {max_chars:,} 字，"
+            f"当前 {text_length:,} 字，请删减 {exceeded_chars:,} 字后再提交。"
         )
+
+    return value
+
+
+def validate_idea_text(text: str) -> str:
+    return validate_text_length(
+        text,
+        MAX_IDEA_TEXT_CHARS,
+        "灵感内容",
+        "IDEA_TEXT_TOO_LONG",
+    ) or ""
+
+
+def validate_extra_requirements(text: str | None) -> str | None:
+    return validate_text_length(
+        text,
+        MAX_EXTRA_REQUIREMENTS_CHARS,
+        "额外要求",
+        "EXTRA_REQUIREMENTS_TOO_LONG",
+    )
+
+
+def validate_script_text_length(text: str, max_chars: int = MAX_SCRIPT_TEXT_CHARS) -> None:
+    validate_text_length(text, max_chars, "已有剧本文本", "SCRIPT_TEXT_TOO_LONG")
+
+
+def validate_script_text(text: str | None) -> str | None:
+    return validate_text_length(
+        text,
+        MAX_SCRIPT_TEXT_CHARS,
+        "已有剧本文本",
+        "SCRIPT_TEXT_TOO_LONG",
+    )
 
 
 def validate_extracted_text_length(text: str, max_chars: int = MAX_EXTRACTED_TEXT_CHARS) -> None:
-    text_length = count_text_chars(text)
-    if text_length > max_chars:
-        raise ValueError(
-            f"EXTRACTED_TEXT_TOO_LONG: extracted_text length {text_length} exceeds max_chars {max_chars}."
-        )
+    validate_text_length(text, max_chars, "提取文本", "EXTRACTED_TEXT_TOO_LONG")
+
+
+def validate_extracted_text(text: str | None) -> str | None:
+    return validate_text_length(
+        text,
+        MAX_EXTRACTED_TEXT_CHARS,
+        "提取文本",
+        "EXTRACTED_TEXT_TOO_LONG",
+    )
 
 
 def validate_upload_file_size(

@@ -3,6 +3,7 @@ from app.schemas.script_segmentation import (
     ScriptSegment,
     ScriptSegmentationOutput,
 )
+from app.services.script_input_limits import validate_extra_requirements, validate_script_text
 
 
 CONTEXT_ISOLATION_NOTE = "Mock segmentation only uses the current input context and does not read other projects."
@@ -97,4 +98,7 @@ def generate_script_segmentation_mock(input_data: ExistingScriptInput) -> Script
 
 
 def generate_script_segmentation(input_data: ExistingScriptInput) -> ScriptSegmentationOutput:
+    validate_script_text(input_data.script_text)
+    validate_extra_requirements(input_data.extra_requirements)
+
     return generate_script_segmentation_mock(input_data)

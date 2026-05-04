@@ -151,3 +151,31 @@ def test_existing_generate_script_endpoint_still_available() -> None:
 
     assert response.status_code == 200
     assert response.json()["project_title"]
+
+
+def test_segment_script_endpoint_rejects_script_text_over_limit() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/segment",
+        json=make_segment_request(script_text="a" * 100001),
+    )
+    data = response.json()
+
+    assert response.status_code == 400
+    assert "SCRIPT_TEXT_TOO_LONG" in data["detail"]
+    assert "100,000" in data["detail"]
+    assert "100,001" in data["detail"]
+
+
+def test_segment_script_endpoint_rejects_extra_requirements_over_limit() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/segment",
+        json=make_segment_request(extra_requirements="a" * 2001),
+    )
+    data = response.json()
+
+    assert response.status_code == 400
+    assert "EXTRA_REQUIREMENTS_TOO_LONG" in data["detail"]

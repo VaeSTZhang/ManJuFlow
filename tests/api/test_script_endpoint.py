@@ -61,3 +61,28 @@ def test_generate_script_endpoint_preserves_script_output_fields() -> None:
     assert data["world_setting"]
     assert data["characters"]
     assert len(data["episodes"]) == 2
+
+
+def test_generate_script_endpoint_rejects_idea_text_over_limit() -> None:
+    client = TestClient(app)
+
+    response = client.post("/api/scripts/generate", json=make_generate_request(idea_text="a" * 5001))
+    data = response.json()
+
+    assert response.status_code == 400
+    assert "IDEA_TEXT_TOO_LONG" in data["detail"]
+    assert "5,000" in data["detail"]
+    assert "5,001" in data["detail"]
+
+
+def test_generate_script_endpoint_rejects_extra_requirements_over_limit() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/generate",
+        json=make_generate_request(style_requirements="a" * 2001),
+    )
+    data = response.json()
+
+    assert response.status_code == 400
+    assert "EXTRA_REQUIREMENTS_TOO_LONG" in data["detail"]

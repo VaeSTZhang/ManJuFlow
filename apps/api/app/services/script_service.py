@@ -11,6 +11,7 @@ from app.schemas.script import (
     ScriptOutput,
 )
 from app.services.llm_client import LLMClient
+from app.services.script_input_limits import validate_extra_requirements, validate_idea_text
 from app.services.text_cleaner import clean_chinese_spacing
 
 
@@ -115,6 +116,9 @@ def generate_script_with_llm(input_data: IdeaInput) -> ScriptOutput:
 
 
 def generate_script(input_data: IdeaInput) -> ScriptOutput:
+    validate_idea_text(input_data.idea_text)
+    validate_extra_requirements(input_data.style_requirements)
+
     mode = get_settings().script_generation_mode.lower()
 
     if mode == "mock":

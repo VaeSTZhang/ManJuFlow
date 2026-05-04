@@ -100,3 +100,16 @@ def test_upload_script_endpoint_empty_project_title_returns_422() -> None:
     response = client.post("/api/uploads/script", json=make_upload_request(project_title="   "))
 
     assert response.status_code == 422
+
+
+def test_upload_script_endpoint_rejects_extra_requirements_over_limit() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/uploads/script",
+        json=make_upload_request(extra_requirements="a" * 2001),
+    )
+    data = response.json()
+
+    assert response.status_code == 400
+    assert "EXTRA_REQUIREMENTS_TOO_LONG" in data["detail"]

@@ -2,6 +2,11 @@ import hashlib
 import re
 
 from app.schemas.upload import ScriptUploadOutput, UploadSourceInput, UploadSourceMetadata
+from app.services.script_input_limits import (
+    validate_extracted_text,
+    validate_extra_requirements,
+    validate_upload_file_size,
+)
 
 
 DOCX_UPLOAD_WARNING = "Only .docx is planned for the first production-ready upload flow."
@@ -35,8 +40,12 @@ def create_script_upload_mock(
     content_type: str = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     file_size: int = 1024,
 ) -> ScriptUploadOutput:
+    validate_extra_requirements(input_data.extra_requirements)
+    validate_upload_file_size(file_size)
+
     source_id = generate_mock_source_id(input_data.project_title, original_filename)
     extracted_text = extract_script_text_mock(original_filename, input_data.source_type)
+    validate_extracted_text(extracted_text)
     warnings = []
 
     if not original_filename.lower().endswith(".docx"):
