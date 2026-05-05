@@ -24,6 +24,16 @@ export type AIRequestOptions = {
   purpose: AIRequestPurpose;
 };
 
+export type ContextOptions = {
+  user_id?: string | null;
+  workspace_id?: string | null;
+  project_id?: string | null;
+  session_id?: string | null;
+  request_id?: string | null;
+  source_stage?: string | null;
+  context_policy?: string;
+};
+
 export type ShortDramaGenerationInput = {
   project_title?: string | null;
   source_mode: ScriptSourceMode;
@@ -45,6 +55,7 @@ export type ShortDramaGenerationInput = {
   session_id?: string | null;
   user_id?: string | null;
   ai_options?: AIRequestOptions | null;
+  context_options?: ContextOptions | null;
   metadata?: Record<string, unknown>;
 };
 

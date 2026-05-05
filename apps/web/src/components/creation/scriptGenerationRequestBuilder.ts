@@ -60,6 +60,18 @@ function buildAIRequestOptions(
   };
 }
 
+export function buildCreationContextOptions(): ShortDramaGenerationInput["context_options"] {
+  return {
+    user_id: "internal_user_mock_001",
+    workspace_id: "workspace_dramora_internal",
+    project_id: "project_creation_default",
+    session_id: "session_creation_default",
+    request_id: `request_${Date.now()}`,
+    source_stage: "generated_script",
+    context_policy: "current_project_only",
+  };
+}
+
 export function buildIdeaGenerationInput(
   draft: IdeaGenerationDraftInput,
   selectedModel: SelectedCreativeModel,
@@ -76,6 +88,7 @@ export function buildIdeaGenerationInput(
     extra_requirements: trimToOptional(draft.extraRequirements),
     language: "zh",
     ai_options: buildAIRequestOptions(selectedModel, "script_generation"),
+    context_options: buildCreationContextOptions(),
     metadata: {
       source_entry: "idea",
     },
@@ -97,6 +110,7 @@ export function buildFilmScriptGenerationInput(
     extra_requirements: trimToOptional(draft.extraRequirements),
     language: "zh",
     ai_options: buildAIRequestOptions(selectedModel, "film_adaptation"),
+    context_options: buildCreationContextOptions(),
     metadata: {
       source_entry: "film_script",
       source_title: trimToOptional(draft.sourceTitle),
@@ -119,6 +133,7 @@ export function buildNovelGenerationInput(
     extra_requirements: trimToOptional(draft.extraRequirements),
     language: "zh",
     ai_options: buildAIRequestOptions(selectedModel, "novel_adaptation"),
+    context_options: buildCreationContextOptions(),
     metadata: {
       source_entry: "novel",
       source_title: trimToOptional(draft.sourceTitle),

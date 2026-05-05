@@ -120,6 +120,23 @@ type DocumentExportPayload = {
   metadata?: Record<string, unknown>;
 };
 
+type ScriptGenerationPayload = {
+  source_mode?: string;
+  ai_options?: {
+    provider?: string;
+    model?: string;
+  };
+  context_options?: {
+    user_id?: string;
+    workspace_id?: string;
+    project_id?: string;
+    session_id?: string;
+    request_id?: string;
+    source_stage?: string;
+    context_policy?: string;
+  };
+};
+
 async function login(page: Page) {
   await page.getByRole("button", { name: "登录" }).click();
   await expect(page.getByRole("button", { name: "退出登录" })).toBeVisible();
@@ -207,6 +224,30 @@ async function fillIdeaDraftAndGenerate(page: Page, projectTitle: string) {
   await page.getByTestId("generate-short-drama-script").click();
 }
 
+async function fillAdaptationDraftAndGenerate(
+  page: Page,
+  mode: "film" | "novel",
+  projectTitle: string,
+) {
+  await page.getByTestId("creation-entry-card-adaptation").click();
+  await page.getByTestId(mode === "film" ? "creation-entry-card-film" : "creation-entry-card-novel").click();
+  await page.getByLabel("项目标题").fill(projectTitle);
+  await page
+    .getByLabel(mode === "film" ? "原片 / 原剧本标题" : "原小说 / 文本标题")
+    .fill(mode === "film" ? "旧影院来信" : "雨巷旧梦");
+  await page.getByLabel("目标集数").fill("3");
+  await page
+    .getByLabel(mode === "film" ? "原剧本 / 长文本内容" : "小说 / 网文 / 故事文本")
+    .fill(
+      mode === "film"
+        ? "一座即将停业的旧影院里，放映员收到一封写给未来的信。"
+        : "雨巷尽头的修伞铺里，年轻人发现一张从未寄出的旧船票。",
+    );
+  await page.getByLabel("改编方向 / 重点要求").fill("改成三集短剧，保留主冲突，每集结尾有反转。");
+  await page.getByLabel("额外要求").fill("对白自然，节奏紧凑。");
+  await page.getByRole("button", { name: "生成改编短剧本" }).click();
+}
+
 async function editGeneratedScriptBasicFields(page: Page) {
   await page.getByTestId("start-script-editing").click();
   await page.getByTestId("script-title-editor").fill(editedScriptTitle);
@@ -270,11 +311,11 @@ test.describe("Dramora creation home smoke", () => {
   });
 
   test("submits selected creative model provider and model in generation request", async ({ page }) => {
-    const capturedPayloads = new Map<string, { ai_options?: { provider?: string; model?: string } }>();
+    const capturedPayloads = new Map<string, ScriptGenerationPayload>();
     let activeModelId = "";
 
     await page.route("**/api/scripts/generate-from-source", async (route) => {
-      capturedPayloads.set(activeModelId, route.request().postDataJSON());
+      capturedPayloads.set(activeModelId, route.request().postDataJSON() as ScriptGenerationPayload);
       await route.fulfill({
         contentType: "application/json",
         status: 200,
@@ -298,7 +339,60 @@ test.describe("Dramora creation home smoke", () => {
         const payload = capturedPayloads.get(modelCase.id);
         expect(payload?.ai_options?.provider).toBe(modelCase.provider);
         expect(payload?.ai_options?.model).toBe(modelCase.model);
+        expect(payload?.context_options?.context_policy).toBe("current_project_only");
+        expect(payload?.context_options?.source_stage).toBe("generated_script");
       });
+    }
+  });
+
+  test("submits context options for all script creation entries", async ({ page }) => {
+    const capturedPayloads = new Map<string, ScriptGenerationPayload>();
+
+    await page.route("**/api/scripts/generate-from-source", async (route) => {
+      const payload = route.request().postDataJSON() as ScriptGenerationPayload;
+      if (payload.source_mode) {
+        capturedPayloads.set(payload.source_mode, payload);
+      }
+
+      await route.fulfill({
+        contentType: "application/json",
+        status: 200,
+        body: JSON.stringify({
+          ...generatedScriptFixture,
+          source_mode: payload.source_mode ?? generatedScriptFixture.source_mode,
+        }),
+      });
+    });
+
+    await page.goto("/");
+    await login(page);
+
+    await fillIdeaDraftAndGenerate(page, "上下文验收：灵感入口");
+    await expect(page.getByTestId("short-drama-script-result")).toBeVisible();
+
+    await page.goto("/");
+    await login(page);
+    await fillAdaptationDraftAndGenerate(page, "film", "上下文验收：电影入口");
+    await expect(page.getByTestId("short-drama-script-result")).toBeVisible();
+
+    await page.goto("/");
+    await login(page);
+    await fillAdaptationDraftAndGenerate(page, "novel", "上下文验收：小说入口");
+    await expect(page.getByTestId("short-drama-script-result")).toBeVisible();
+
+    expect(capturedPayloads.get("idea")?.context_options?.context_policy).toBe(
+      "current_project_only",
+    );
+    expect(capturedPayloads.get("film_script")?.context_options?.project_id).toBe(
+      "project_creation_default",
+    );
+    expect(capturedPayloads.get("novel")?.context_options?.session_id).toBe(
+      "session_creation_default",
+    );
+
+    for (const payload of capturedPayloads.values()) {
+      expect(payload.context_options?.workspace_id).toBe("workspace_dramora_internal");
+      expect(payload.context_options?.request_id).toMatch(/^request_\d+$/);
     }
   });
 
