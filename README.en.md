@@ -6,7 +6,7 @@
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-646cff)
 ![TypeScript](https://img.shields.io/badge/Frontend-TypeScript-3178c6)
 ![Schema](https://img.shields.io/badge/Schema-Pydantic-e92063)
-![Mode](https://img.shields.io/badge/Mode-Mock--first-0f766e)
+![Status](https://img.shields.io/badge/Status-Internal%20Development-2563eb)
 
 ## Product Positioning
 
@@ -42,6 +42,20 @@ Best for:
 - novel / web fiction adaptation;
 - source text organization before further creative work.
 
+## Current Status
+
+Dramora currently focuses on an internal script generation and adaptation workbench:
+
+- three-entry script creation flow: `idea`, `film_script`, and `novel`;
+- real DeepSeek LLM smoke acceptance completed for all three entries;
+- the `film_script` `target_episode_count` issue has been guarded by prompt tuning and backend contract validation;
+- generated results use a unified `ShortDramaScriptOutput`;
+- the frontend supports review, basic editing, and TXT / JSON / DOCX export;
+- `context_options` now tracks the first layer of user / workspace / project / session ownership;
+- Usage Ledger schema and non-persistent service foundations have been added.
+
+Deployment has not started yet. Dramora is not presented as production-ready, commercially deployed, or backed by a completed multi-user permission system.
+
 ## Current Frontend Information Architecture
 
 ```text
@@ -55,7 +69,7 @@ Login
       -> Long-text organization and short-drama adaptation
 ```
 
-Storyboarding, prompt generation, image generation, assets, and tasks remain in the engineering foundation, but they are not emphasized in the current boss-demo and market-trial main interface.
+Storyboarding, prompt generation, image generation, assets, and tasks remain in the engineering foundation as the next major workflow, but they are currently deferred from the main boss-demo and market-trial interface.
 
 ## Engineering Foundation
 
@@ -65,12 +79,15 @@ Storyboarding, prompt generation, image generation, assets, and tasks remain in 
 - AppShell / Sidebar / Toast workbench foundation;
 - Idea-to-script baseline workflow;
 - Text organization / script adaptation workspace;
-- Mock Word script upload;
+- Word import preview and user confirmation flow;
 - input limits and backend validation;
 - frontend-friendly API error display;
-- Document Export Schema;
-- three-entry short-drama generation schema / registry / mock service / endpoint foundation;
-- mock-first local demonstration strategy.
+- Document Import / Export schemas, services, and endpoints;
+- DOCX export service and file download endpoint;
+- three-entry short-drama generation schemas, prompts, services, and endpoint;
+- ContextOptions ownership foundation;
+- Usage Ledger schema and non-persistent service foundation;
+- Playwright e2e smoke coverage.
 
 ## Technical Architecture
 
@@ -130,6 +147,7 @@ npm run build
 ```
 
 Do not commit `.env`, API keys, customer scripts, real server addresses, or sensitive cooperation materials.
+The public repository also excludes generated builds, local virtual environments, uploaded files, test reports, local storage, and production configuration.
 
 ## Project Structure
 

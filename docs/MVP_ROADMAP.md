@@ -33,43 +33,59 @@ Dramora 当前第五阶段主线已调整为：
   - 三入口项目结构重整方案；
   - 市场试用方案和老板演示脚本已按三入口方向更新。
 
+## 当前阶段状态｜Phase 5A
+
+Phase 5A 当前已形成三入口剧本生成与改编工作台的第一版主干：
+
+- 灵感生成短剧剧本；
+- 电影剧本改编短剧本；
+- 小说 / 网文改编短剧本；
+- DeepSeek 三入口真实 LLM 小样本验收已完成；
+- `film_script` 的 `target_episode_count` 问题已通过 prompt update 和后端 contract guardrail 修复；
+- `ShortDramaScriptOutput` 统一结果展示与在线基础编辑已完成；
+- TXT / JSON / DOCX 导出闭环已完成；
+- `ContextOptions` 第一层已接入生成、文档导入和文档导出；
+- Usage Ledger 第一版 schema / service / 生成链路 metadata 已完成；
+- `.gitignore` 已强化，避免 `.env`、`.venv`、`node_modules`、`dist`、测试报告、上传文件和本地存储进入公开仓库；
+- 当前自动化回归状态：后端 `tests/api` 497 passed，前端 `npm run build` passed，前端 `npm run test:e2e` 12 passed。
+
+当前仍是内部开发与部署前准备阶段，不代表已生产上线，也不代表正式多人权限系统已完成。
+
 ## P0｜当前优先级
 
-- Three-entry script workbench redesign；
-- Idea to short drama script；
-- Film script to short drama adaptation；
-- Novel to short drama adaptation；
-- Entry selection UI after login；
-- Editable script result；
-- DOCX download；
-- Input limits；
-- Usage ledger and quality review planning。
+- Three-entry script workbench stabilization；
+- Real LLM quality acceptance follow-up；
+- ContextOptions and Usage Ledger foundation hardening；
+- Document import/export safety and regression checks；
+- Frontend CreationHome / e2e file structure governance；
+- Deployment preparation runbook, without starting production deployment yet。
 
 中文说明：
 
-- 三入口短剧剧本工作台重整；
-- 灵感生成短剧剧本；
-- 电影剧本改编短剧剧本；
-- 小说改编短剧剧本；
-- 登录后的入口选择页；
-- 可在线编辑的短剧剧本结果；
-- DOCX 下载；
-- 输入字数限制；
-- 用量记录与质量评审规划。
+- 三入口短剧剧本工作台稳定化；
+- 真实模型质量验收复查；
+- ContextOptions 与 Usage Ledger 第一层治理；
+- Document import/export 安全和回归检查；
+- 前端 CreationHome / e2e 文件结构治理；
+- 部署前 Runbook，不立即推进生产部署。
 
 ## P1｜下一阶段能力
 
-- Document round-trip；
-- Usage ledger；
+- Real Word `.docx` import parsing；
+- Internal account / mock auth to real auth migration plan；
+- Usage Ledger persistence design；
 - Quality review；
-- Script segmentation / storyboard / prompt as next big feature。
+- Script segmentation / storyboard / prompt as next big feature；
+- Deployment safety runbook。
 
 中文说明：
 
-- 文档往返：在线编辑、下载 Word、离线修改、再上传；
-- 用量记录：记录内部试用中的模型调用和成本线索；
+- 真实 Word `.docx` 导入解析；
+- 内部账号：从 mock auth 渐进到真实 auth 的方案；
+- Usage Ledger 持久化设计：记录内部试用中的模型调用和成本线索；
 - 质量评审：评估生成剧本的可用性、短剧节奏和改编质量；
-- 短剧剧本切分 / 分镜 / Prompt 作为下一大功能。
+- 短剧剧本切分 / 分镜 / Prompt 作为下一大功能；
+- 部署前安全 Runbook。
 
 ## P2｜后续媒体生成方向
 
@@ -99,6 +115,7 @@ Dramora 当前第五阶段主线已调整为：
 - 右侧 AI 聊天界面 / AI Assistant；
 - AssistantPanel、`/api/assistant/chat`、`suggested_actions`；
 - Docker 生产部署。
+- 服务器 / 域名 / HTTPS 立即上线。
 
 说明：这里取消的是右侧聊天式 AI Assistant，不是取消 Dramora 的核心 LLM 创作能力。Dramora 仍继续通过 DeepSeek / Mimo / Kimi / MiniMax 等模型进行剧本生成、电影剧本改编、小说 / 网文改编、扩写、质量评审和后续分镜 / Prompt 生成。
 

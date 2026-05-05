@@ -6,7 +6,7 @@
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-646cff)
 ![TypeScript](https://img.shields.io/badge/Frontend-TypeScript-3178c6)
 ![Schema](https://img.shields.io/badge/Schema-Pydantic-e92063)
-![Mode](https://img.shields.io/badge/Mode-Mock--first-0f766e)
+![Status](https://img.shields.io/badge/Status-Internal%20Development-2563eb)
 
 ## 产品定位
 
@@ -40,6 +40,24 @@
 - 小说 / 网文改短剧；
 - 已有文本整理为可继续创作的结构化素材。
 
+## 当前真实进度
+
+当前 Dramora 已形成“三入口短剧剧本生成与改编工作台”的第一版闭环：
+
+- `idea`：灵感生成短剧剧本；
+- `film_script`：电影剧本改编短剧本；
+- `novel`：小说 / 网文改编短剧本；
+- DeepSeek 三入口真实 LLM 小样本验收已完成；
+- `film_script` 的 `target_episode_count` 不一致问题已通过 prompt update 和后端 contract guardrail 修复；
+- 生成结果统一为 `ShortDramaScriptOutput`；
+- 前端支持在线审看和基础字段编辑；
+- TXT / JSON / DOCX 导出已接入后端 Document Export 契约；
+- `context_options` 已用于 user / workspace / project / session 第一层归属追踪；
+- Usage Ledger 第一版 schema / service / 生成链路 metadata 已完成；
+- `.gitignore` 已强化，避免 `.env`、`.venv`、`node_modules`、`dist`、测试报告、上传文件和本地存储进入公开仓库。
+
+当前仍处于内部开发与部署前准备阶段。项目尚未进入服务器部署、生产上线、正式多人权限系统或真实用量账单阶段。
+
 ## 当前前端信息架构
 
 ```text
@@ -53,7 +71,7 @@
       -> 长文本整理与短剧化改编
 ```
 
-分镜、Prompt、图片生成、Asset、Task 等能力作为后续工作流继续保留在工程中，但不作为当前老板演示和市场试用主界面的重点。
+分镜、Prompt、图片生成、Asset、Task 等能力作为后续第二大工作流继续保留在工程中，但当前暂缓，不作为当前老板演示和市场试用主界面的重点。
 
 ## 当前已具备的工程基础
 
@@ -63,12 +81,15 @@
 - AppShell / Sidebar / Toast 工作台基础；
 - 灵感生成剧本基础链路；
 - 文本整理 / 剧本改编 workspace；
-- Word 剧本文档模拟上传；
+- Word 导入预览与用户确认交互；
 - 字数限制与后端输入校验；
 - 前端接口错误友好提示；
-- Document Export Schema；
-- 三入口短剧剧本生成与改编 Schema / registry / mock service / endpoint 基础；
-- mock-first 与本地演示优先策略。
+- Document Import / Export Schema、service、endpoint；
+- DOCX 导出 service 与文件下载 endpoint；
+- 三入口短剧剧本生成与改编 Schema / prompt / service / endpoint；
+- ContextOptions 上下文归属基础；
+- Usage Ledger 第一版数据契约与非持久化记录；
+- Playwright e2e 基础验收。
 
 ## 技术架构
 
