@@ -140,6 +140,53 @@ def test_generate_from_source_llm_mode_film_script_returns_short_drama_output(mo
     assert data["metadata"]["generation_mode"] == "llm"
 
 
+def test_generate_from_source_returns_422_when_episode_contract_fails(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "llm")
+    monkeypatch.setattr(
+        "app.services.script_generation.generator.generate_film_script_adaptation_llm",
+        lambda input_data: ShortDramaScriptOutput(
+            project_title="旧片场复仇夜",
+            source_mode="film_script",
+            logline="女演员回到废弃片场追查父亲失踪真相。",
+            world_setting="废弃片场与旧电影工业交织。",
+            characters=[],
+            adaptation_notes=None,
+            episode_count=1,
+            episodes=[
+                EpisodeScript(
+                    episode_number=1,
+                    title="第1集：片场线索",
+                    summary="女演员发现第一条片场旧案线索。",
+                    hook="旧道具暴露新的真相。",
+                    scenes=[],
+                )
+            ],
+            metadata={"generation_mode": "llm"},
+        ),
+    )
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/generate-from-source",
+        json=make_source_request(
+            source_mode="film_script",
+            source_text="安全虚构电影剧本片段。",
+            target_episode_count=3,
+        ),
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["detail"]["error_code"] == "script_generation_contract_failed"
+    assert "模型输出未满足目标集数要求" in data["detail"]["message"]
+    assert "requested=3" in data["detail"]["reason"]
+    assert "episode_count=1" in data["detail"]["reason"]
+    assert "episodes=1" in data["detail"]["reason"]
+    assert "source_text" not in str(data["detail"])
+    assert "安全虚构电影剧本片段" not in str(data["detail"])
+
+
 def test_generate_from_source_llm_mode_novel_returns_short_drama_output(monkeypatch) -> None:
     settings = get_settings()
     monkeypatch.setattr(settings, "script_generation_mode", "llm")

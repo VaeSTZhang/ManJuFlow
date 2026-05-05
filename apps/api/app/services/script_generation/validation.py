@@ -1,6 +1,10 @@
 from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
 
 
+class ScriptGenerationContractError(ValueError):
+    pass
+
+
 def validate_target_episode_count_contract(
     input_data: ShortDramaGenerationInput,
     output: ShortDramaScriptOutput,
@@ -19,7 +23,7 @@ def validate_target_episode_count_contract(
         or actual_episodes_length != requested_count
         or actual_episode_numbers != expected_episode_numbers
     ):
-        raise ValueError(
+        raise ScriptGenerationContractError(
             "Generated script does not match requested target_episode_count: "
             f"requested={requested_count}, "
             f"episode_count={actual_episode_count}, "

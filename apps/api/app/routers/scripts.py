@@ -5,6 +5,7 @@ from app.schemas.script import ScriptOutput
 from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
 from app.schemas.script_segmentation import ExistingScriptInput, ScriptSegmentationOutput
 from app.services.script_generation import generate_short_drama_script
+from app.services.script_generation.validation import ScriptGenerationContractError
 from app.services.script_service import generate_script
 from app.services.script_segmentation_service import generate_script_segmentation
 
@@ -26,6 +27,15 @@ def generate_script_from_source(
 ) -> ShortDramaScriptOutput:
     try:
         return generate_short_drama_script(input_data)
+    except ScriptGenerationContractError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error_code": "script_generation_contract_failed",
+                "message": "模型输出未满足目标集数要求，请重试或调整改编要求。",
+                "reason": str(exc),
+            },
+        ) from exc
     except (ValueError, NotImplementedError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
