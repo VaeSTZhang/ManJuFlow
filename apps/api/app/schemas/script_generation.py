@@ -2,6 +2,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from app.schemas.context import ContextOptions
 from app.schemas.script import CharacterProfile, EpisodeScript
 
 
@@ -55,6 +56,10 @@ class ShortDramaGenerationInput(BaseModel):
     session_id: str | None = Field(None, min_length=1, description="会话 ID，可选。")
     user_id: str | None = Field(None, min_length=1, description="用户 ID，可选。")
     ai_options: AIRequestOptions | None = Field(None, description="请求级 AI 模型与生成选项。")
+    context_options: ContextOptions | None = Field(
+        None,
+        description="请求级上下文归属信息，用于记录 user/workspace/project/session 边界。",
+    )
     metadata: dict[str, Any] = Field(default_factory=dict, description="扩展元信息。")
 
 

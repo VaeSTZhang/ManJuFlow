@@ -9,6 +9,7 @@ API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
 from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript
+from app.schemas.context import ContextOptions
 from app.schemas.script_generation import (
     AdaptationNotes,
     AIRequestOptions,
@@ -166,6 +167,31 @@ def test_short_drama_generation_input_model_dump_contains_ai_options() -> None:
     assert dumped["ai_options"]["provider"] == "mimo"
     assert dumped["ai_options"]["model"] == "mimo-v2.5-pro"
     assert dumped["ai_options"]["purpose"] == "film_adaptation"
+
+
+def test_short_drama_generation_input_accepts_context_options() -> None:
+    input_data = ShortDramaGenerationInput(
+        source_mode="film_script",
+        source_text="虚构电影剧本片段。",
+        context_options=ContextOptions(
+            user_id="user-001",
+            workspace_id="workspace-001",
+            project_id="project-001",
+            session_id="session-001",
+            request_id="request-001",
+            source_stage="draft",
+        ),
+    )
+
+    assert input_data.context_options is not None
+    assert input_data.context_options.project_id == "project-001"
+    assert input_data.context_options.context_policy == "current_project_only"
+
+
+def test_short_drama_generation_input_can_omit_context_options() -> None:
+    input_data = ShortDramaGenerationInput(idea_text="一个编剧在旧电影院发现父亲遗稿。")
+
+    assert input_data.context_options is None
 
 
 def test_adaptation_notes_list_defaults_are_independent() -> None:

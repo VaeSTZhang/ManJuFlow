@@ -8,6 +8,7 @@ API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
 from app.config import get_settings
+from app.schemas.context import ContextOptions
 from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript, ScriptOutput
 from app.schemas.script_generation import AIRequestOptions, ShortDramaGenerationInput, ShortDramaScriptOutput
 from app.services.script_generation.generator import (
@@ -274,6 +275,34 @@ def test_generate_short_drama_script_mock_idea_records_ai_options_metadata():
     assert output.metadata["provider"] == "deepseek"
     assert output.metadata["model"] == "deepseek-chat"
     assert output.metadata["purpose"] == "script_generation"
+    assert output.metadata["context_policy"] == "current_project_only"
+
+
+def test_generate_short_drama_script_mock_records_context_options_metadata():
+    input_data = ShortDramaGenerationInput(
+        source_mode="idea",
+        idea_text="雨夜里，女主收到一封来自十年前的信。",
+        target_episode_count=3,
+        context_options=ContextOptions(
+            user_id="user-001",
+            workspace_id="workspace-001",
+            project_id="project-001",
+            session_id="session-001",
+            request_id="request-001",
+            source_stage="generated_script",
+        ),
+    )
+
+    output = generate_short_drama_script_mock(input_data)
+
+    assert output.metadata["context_policy"] == "current_project_only"
+    assert output.metadata["context"]["user_id"] == "user-001"
+    assert output.metadata["context"]["workspace_id"] == "workspace-001"
+    assert output.metadata["context"]["project_id"] == "project-001"
+    assert output.metadata["context"]["session_id"] == "session-001"
+    assert output.metadata["context"]["request_id"] == "request-001"
+    assert output.metadata["context"]["source_stage"] == "generated_script"
+    assert "source_text" not in output.metadata
 
 
 def test_generate_short_drama_script_mock_for_film_script_dispatches_to_film_mock():

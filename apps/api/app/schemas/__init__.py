@@ -1,4 +1,5 @@
 from app.schemas.asset import AssetCollection, AssetItem
+from app.schemas.context import ContextOptions
 from app.schemas.document import (
     DocumentExportFormat,
     DocumentExportInput,
@@ -67,6 +68,7 @@ __all__ = [
     "AIRequestOptions",
     "AIRequestPurpose",
     "CharacterProfile",
+    "ContextOptions",
     "DialogueLine",
     "DocumentExportFormat",
     "DocumentExportInput",

@@ -295,6 +295,37 @@ def test_generate_from_source_accepts_ai_options(monkeypatch) -> None:
     assert data["metadata"]["ai_options"]["provider"] == "deepseek"
 
 
+def test_generate_from_source_returns_context_options_metadata(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/generate-from-source",
+        json=make_source_request(
+            context_options={
+                "user_id": "user-001",
+                "workspace_id": "workspace-001",
+                "project_id": "project-001",
+                "session_id": "session-001",
+                "request_id": "request-001",
+                "source_stage": "generated_script",
+            },
+        ),
+    )
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["metadata"]["context_policy"] == "current_project_only"
+    assert data["metadata"]["context"]["user_id"] == "user-001"
+    assert data["metadata"]["context"]["workspace_id"] == "workspace-001"
+    assert data["metadata"]["context"]["project_id"] == "project-001"
+    assert data["metadata"]["context"]["session_id"] == "session-001"
+    assert data["metadata"]["context"]["request_id"] == "request-001"
+    assert data["metadata"]["context"]["source_stage"] == "generated_script"
+    assert "source_text" not in data["metadata"]
+
+
 def test_generate_from_source_rejects_assistant_rewrite_as_400(monkeypatch) -> None:
     settings = get_settings()
     monkeypatch.setattr(settings, "script_generation_mode", "mock")
