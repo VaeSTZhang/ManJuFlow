@@ -1,3 +1,5 @@
+import type { ContextOptions } from "./scriptGeneration";
+
 export type DocumentExportFormat = "txt" | "json" | "docx";
 
 export type DocumentSourceStage =
@@ -8,7 +10,7 @@ export type DocumentSourceStage =
   | "assistant"
   | "other";
 
-export type DocumentExportMetadataValue = string | number | boolean | null;
+export type DocumentExportMetadataValue = string | number | boolean | null | Record<string, unknown>;
 
 export type DocumentExportInput = {
   project_title: string;
@@ -21,6 +23,7 @@ export type DocumentExportInput = {
   workspace_id?: string | null;
   project_id?: string | null;
   session_id?: string | null;
+  context_options?: ContextOptions | null;
   metadata?: Record<string, DocumentExportMetadataValue>;
 };
 

@@ -117,7 +117,18 @@ type DocumentExportPayload = {
   structured_payload?: Record<string, any> | null;
   export_format: "txt" | "json" | "docx";
   filename?: string | null;
+  context_options?: RequestContextOptions;
   metadata?: Record<string, unknown>;
+};
+
+type RequestContextOptions = {
+  user_id?: string;
+  workspace_id?: string;
+  project_id?: string;
+  session_id?: string;
+  request_id?: string;
+  source_stage?: string;
+  context_policy?: string;
 };
 
 type ScriptGenerationPayload = {
@@ -126,15 +137,15 @@ type ScriptGenerationPayload = {
     provider?: string;
     model?: string;
   };
-  context_options?: {
-    user_id?: string;
-    workspace_id?: string;
-    project_id?: string;
-    session_id?: string;
-    request_id?: string;
-    source_stage?: string;
-    context_policy?: string;
-  };
+  context_options?: RequestContextOptions;
+};
+
+type DocumentImportPayload = {
+  filename: string;
+  extracted_text: string;
+  source_type?: string;
+  project_title?: string | null;
+  context_options?: RequestContextOptions;
 };
 
 async function login(page: Page) {
@@ -194,6 +205,43 @@ async function mockDocumentExportFile(page: Page, capturedPayloads: DocumentExpo
         "Content-Disposition": 'attachment; filename="dramora-short-drama-script.docx"',
       },
       body: Buffer.from("safe fake docx bytes for e2e"),
+    });
+  });
+}
+
+async function mockDocumentImportPreview(page: Page, capturedPayloads: DocumentImportPayload[] = []) {
+  await page.route("**/api/documents/import-preview", async (route) => {
+    const payload = route.request().postDataJSON() as DocumentImportPayload;
+    capturedPayloads.push(payload);
+
+    await route.fulfill({
+      contentType: "application/json",
+      status: 200,
+      body: JSON.stringify({
+        project_title: payload.project_title ?? null,
+        status: "preview_ready",
+        preview: {
+          source: {
+            filename: payload.filename,
+            content_type: null,
+            file_size_bytes: null,
+            source_type: payload.source_type ?? "docx",
+            checksum: null,
+          },
+          extracted_text: payload.extracted_text,
+          preview_text: payload.extracted_text,
+          character_count: payload.extracted_text.length,
+          paragraph_count: 1,
+          detected_title: "旧影院来信",
+          warnings: [],
+          metadata: {
+            safe_preview_truncated: false,
+            source_type: payload.source_type ?? "docx",
+          },
+        },
+        context_options: payload.context_options ?? null,
+        next_required_action: "user_confirm_import_action",
+      }),
     });
   });
 }
@@ -397,6 +445,8 @@ test.describe("Dramora creation home smoke", () => {
   });
 
   test("shows document import preview controls for the film adaptation entry", async ({ page }) => {
+    const importPayloads: DocumentImportPayload[] = [];
+    await mockDocumentImportPreview(page, importPayloads);
     await page.goto("/");
     await login(page);
 
@@ -408,6 +458,17 @@ test.describe("Dramora creation home smoke", () => {
     await expect(page.getByText("导入剧本文档内容")).toBeVisible();
     await expect(page.getByRole("button", { name: "生成导入预览" })).toBeVisible();
     await expect(page.getByText(/mock|本地后端|后端 mock/i)).toHaveCount(0);
+
+    await page.getByLabel("文件名").fill("old-cinema-letter.docx");
+    await page.getByLabel("文档文本").fill("旧影院来信\n放映员收到一封写给未来的信。");
+    await page.getByRole("button", { name: "生成导入预览" }).click();
+
+    await expect(page.getByText("文档导入预览")).toBeVisible();
+    expect(importPayloads[0].context_options?.context_policy).toBe("current_project_only");
+    expect(importPayloads[0].context_options?.source_stage).toBe("imported_document");
+    expect(importPayloads[0].context_options?.project_id).toBe("project_creation_default");
+    expect(importPayloads[0].context_options?.session_id).toBe("session_creation_default");
+    expect(importPayloads[0].context_options?.request_id).toMatch(/^request_\d+$/);
   });
 
   test("does not show document import controls for the idea entry", async ({ page }) => {
@@ -459,6 +520,18 @@ test.describe("Dramora creation home smoke", () => {
     expect(copiedScript.logline).not.toBe(originalScriptLogline);
     expect(copiedScript.world_setting).not.toBe(originalWorldSetting);
 
+    const jsonDownloadPromise = page.waitForEvent("download");
+    await page.getByTestId("download-script-json").click();
+    await jsonDownloadPromise;
+    const jsonExportPayload = exportPayloads.find((payload) => payload.export_format === "json");
+
+    expect(jsonExportPayload?.structured_payload?.project_title).toBe(editedScriptTitle);
+    expect(jsonExportPayload?.context_options?.source_stage).toBe("export");
+    expect(jsonExportPayload?.context_options?.context_policy).toBe("current_project_only");
+    expect(jsonExportPayload?.context_options?.project_id).toBe("project_creation_default");
+    expect(jsonExportPayload?.context_options?.session_id).toBe("session_creation_default");
+    expect(jsonExportPayload?.context_options?.request_id).toMatch(/^request_\d+$/);
+
     const downloadPromise = page.waitForEvent("download");
     await page.getByTestId("download-script-txt").click();
     const download = await downloadPromise;
@@ -474,6 +547,11 @@ test.describe("Dramora creation home smoke", () => {
     expect(txtExportPayload?.structured_payload?.world_setting).toBe(editedWorldSetting);
     expect(txtExportPayload?.metadata?.edited).toBe(true);
     expect(txtExportPayload?.metadata?.exported_from).toBe("creation_home");
+    expect(txtExportPayload?.context_options?.source_stage).toBe("export");
+    expect(txtExportPayload?.context_options?.context_policy).toBe("current_project_only");
+    expect(txtExportPayload?.context_options?.project_id).toBe("project_creation_default");
+    expect(txtExportPayload?.context_options?.session_id).toBe("session_creation_default");
+    expect(txtExportPayload?.context_options?.request_id).toMatch(/^request_\d+$/);
     expect(downloadedText).toContain(editedScriptTitle);
     expect(downloadedText).toContain(editedScriptLogline);
     expect(downloadedText).toContain(editedWorldSetting);
@@ -593,6 +671,11 @@ test.describe("Dramora creation home smoke", () => {
     expect(docxPayload.structured_payload?.world_setting).toBe(editedWorldSetting);
     expect(docxPayload.metadata?.edited).toBe(true);
     expect(docxPayload.metadata?.exported_from).toBe("creation_home");
+    expect(docxPayload.context_options?.source_stage).toBe("export");
+    expect(docxPayload.context_options?.context_policy).toBe("current_project_only");
+    expect(docxPayload.context_options?.project_id).toBe("project_creation_default");
+    expect(docxPayload.context_options?.session_id).toBe("session_creation_default");
+    expect(docxPayload.context_options?.request_id).toMatch(/^request_\d+$/);
     expect(download.suggestedFilename()).toBe("dramora-short-drama-script.docx");
   });
 });

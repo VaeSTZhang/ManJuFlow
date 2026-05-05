@@ -2,6 +2,7 @@ import { useState } from "react";
 import { exportDocument, exportDocumentFile } from "../../api/documentExport";
 import { parseApiErrorMessage } from "../../api/errors";
 import type { ShortDramaScriptOutput } from "../../types/scriptGeneration";
+import { buildCreationContextOptions } from "../../utils/contextOptions";
 
 type UseScriptDocumentExportParams = {
   effectiveScript: ShortDramaScriptOutput | null;
@@ -131,6 +132,7 @@ export function useScriptDocumentExport({
         structured_payload: effectiveScript as unknown as Record<string, unknown>,
         export_format: "json",
         filename: "dramora-short-drama-script.json",
+        context_options: buildCreationContextOptions("export"),
         metadata: buildExportMetadata(),
       });
 
@@ -169,6 +171,7 @@ export function useScriptDocumentExport({
         structured_payload: effectiveScript as unknown as Record<string, unknown>,
         export_format: "txt",
         filename: "dramora-short-drama-script.txt",
+        context_options: buildCreationContextOptions("export"),
         metadata: buildExportMetadata(),
       });
 
@@ -199,6 +202,7 @@ export function useScriptDocumentExport({
         structured_payload: effectiveScript as unknown as Record<string, unknown>,
         export_format: "docx",
         filename: "dramora-short-drama-script.docx",
+        context_options: buildCreationContextOptions("export"),
         metadata: buildExportMetadata(),
       });
 

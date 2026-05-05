@@ -1,6 +1,7 @@
 import type { SelectedCreativeModel } from "../ai/CreativeModelPanel";
 import type { AdaptationMode, CreationDrafts } from "./creationDraftTypes";
 import type { AIRequestPurpose, ShortDramaGenerationInput } from "../../types/scriptGeneration";
+import { buildCreationContextOptions } from "../../utils/contextOptions";
 
 export type IdeaGenerationDraftInput = {
   projectTitle: string;
@@ -57,18 +58,6 @@ function buildAIRequestOptions(
     model: useSystemDefault ? undefined : selectedModel.model,
     language: "zh",
     purpose,
-  };
-}
-
-export function buildCreationContextOptions(): ShortDramaGenerationInput["context_options"] {
-  return {
-    user_id: "internal_user_mock_001",
-    workspace_id: "workspace_dramora_internal",
-    project_id: "project_creation_default",
-    session_id: "session_creation_default",
-    request_id: `request_${Date.now()}`,
-    source_stage: "generated_script",
-    context_policy: "current_project_only",
   };
 }
 

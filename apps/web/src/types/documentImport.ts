@@ -1,3 +1,5 @@
+import type { ContextOptions } from "./scriptGeneration";
+
 export type DocumentImportMetadataValue = string | number | boolean | null;
 
 export type DocumentImportSource = {
@@ -33,6 +35,7 @@ export type DocumentImportOutput = {
   project_title?: string | null;
   status: DocumentImportStatus;
   preview: DocumentImportPreview;
+  context_options?: ContextOptions | null;
   next_required_action: string;
 };
 
@@ -51,4 +54,5 @@ export type DocumentImportPreviewRequest = {
   source_type?: string;
   project_title?: string | null;
   checksum?: string | null;
+  context_options?: ContextOptions | null;
 };

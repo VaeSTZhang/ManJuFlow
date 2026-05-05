@@ -19,6 +19,7 @@ import {
 import { useCreationDrafts } from "../../hooks/creation/useCreationDrafts";
 import { useShortDramaEditing } from "../../hooks/creation/useShortDramaEditing";
 import { useScriptDocumentExport } from "../../hooks/creation/useScriptDocumentExport";
+import { buildCreationContextOptions } from "../../utils/contextOptions";
 import type {
   AdaptationMode,
   CreationMode,
@@ -228,6 +229,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
         extracted_text: extractedText,
         source_type: mode === "novel" ? "novel" : "docx",
         project_title: draft.projectTitle.trim() || draft.sourceTitle.trim() || null,
+        context_options: buildCreationContextOptions("imported_document"),
       });
       updateDocumentImportDraft(mode, { preview });
     } catch (error) {
