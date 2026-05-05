@@ -86,6 +86,10 @@ from app.services.upload_service import (
     extract_script_text_mock,
     generate_mock_source_id,
 )
+from app.services.usage_ledger_service import (
+    create_usage_ledger_entry,
+    summarize_usage_ledger,
+)
 
 __all__ = [
     "build_asset_collection_from_image_generation",
@@ -101,6 +105,7 @@ __all__ = [
     "build_render_tasks_from_image_generation",
     "ComfyUIImageGenerationProviderPlaceholder",
     "create_script_upload_mock",
+    "create_usage_ledger_entry",
     "count_text_chars",
     "DEFAULT_SCRIPT_CHUNK_OVERLAP_CHARS",
     "DEFAULT_SCRIPT_CHUNK_SIZE_CHARS",
@@ -144,6 +149,7 @@ __all__ = [
     "parse_image_prompt_llm_response",
     "sanitize_docx_filename",
     "ScriptGenerationEntryConfig",
+    "summarize_usage_ledger",
     "validate_extra_requirements",
     "validate_extracted_text",
     "validate_extracted_text_length",
