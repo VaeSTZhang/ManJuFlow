@@ -88,6 +88,27 @@ def test_export_endpoint_json_keeps_chinese_readable() -> None:
     assert "\\u" not in data["content_text"]
 
 
+def test_export_endpoint_accepts_context_options_and_returns_metadata_context() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/documents/export",
+        json=make_export_request(
+            context_options={
+                "project_id": "project_lights_return",
+                "session_id": "session_export_review",
+                "context_policy": "current_project_only",
+            },
+        ),
+    )
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["metadata"]["context_policy"] == "current_project_only"
+    assert data["metadata"]["context"]["project_id"] == "project_lights_return"
+    assert data["metadata"]["context"]["session_id"] == "session_export_review"
+
+
 def test_export_endpoint_keeps_only_safe_filename() -> None:
     client = TestClient(app)
 

@@ -115,12 +115,20 @@ def _build_export_metadata(input_data: DocumentExportInput, content_source: str)
         for key, value in input_data.metadata.items()
         if key not in PATH_LIKE_METADATA_KEYS
     }
+    context_policy = "current_project_only"
+
+    if input_data.context_options is not None:
+        context = input_data.context_options.model_dump(exclude_none=True)
+        context_policy = context.get("context_policy", context_policy)
+        metadata["context"] = context
+
     metadata.update(
         {
             "export_format": input_data.export_format,
             "source_stage": input_data.source_stage,
             "document_type": input_data.document_type,
             "content_source": content_source,
+            "context_policy": context_policy,
         }
     )
     return metadata

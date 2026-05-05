@@ -92,6 +92,41 @@ def test_document_import_output_contains_preview_and_model_dump() -> None:
     assert dumped["preview"]["extracted_text"] == "第一章，女主回到旧书店，发现一封没有寄出的信。"
 
 
+def test_document_import_output_accepts_context_options() -> None:
+    preview = make_import_preview()
+    output = DocumentImportOutput(
+        project_title="测试短剧：旧书店来信",
+        preview=preview,
+        context_options={
+            "project_id": "project_old_bookstore",
+            "session_id": "session_import_preview",
+        },
+    )
+    dumped = output.model_dump()
+
+    assert output.context_options is not None
+    assert output.context_options.context_policy == "current_project_only"
+    assert dumped["context_options"]["project_id"] == "project_old_bookstore"
+    assert dumped["context_options"]["session_id"] == "session_import_preview"
+
+
+def test_document_import_context_options_do_not_leak_local_paths() -> None:
+    preview = make_import_preview()
+    output = DocumentImportOutput(
+        project_title="测试短剧：旧书店来信",
+        preview=preview,
+        context_options={
+            "project_id": "project_old_bookstore",
+            "session_id": "session_import_preview",
+        },
+    )
+    dumped_text = str(output.model_dump())
+
+    assert "/Users/example" not in dumped_text
+    assert "server_path" not in dumped_text
+    assert "local_path" not in dumped_text
+
+
 def test_document_import_action_supports_fill() -> None:
     action = DocumentImportAction(
         action="fill",

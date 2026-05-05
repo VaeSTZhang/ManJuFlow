@@ -1,5 +1,6 @@
 from pathlib import PurePosixPath
 
+from app.schemas.context import ContextOptions
 from app.schemas.document_import import (
     DocumentImportOutput,
     DocumentImportPreview,
@@ -59,6 +60,7 @@ def build_document_import_preview(
     source_type: str = "docx",
     project_title: str | None = None,
     checksum: str | None = None,
+    context_options: ContextOptions | None = None,
 ) -> DocumentImportOutput:
     safe_filename = _safe_filename(filename)
     normalized_text = normalize_imported_text(extracted_text)
@@ -100,4 +102,5 @@ def build_document_import_preview(
     return DocumentImportOutput(
         project_title=project_title,
         preview=preview,
+        context_options=context_options,
     )

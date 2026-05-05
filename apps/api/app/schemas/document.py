@@ -2,6 +2,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from app.schemas.context import ContextOptions
+
 
 DocumentExportFormat = Literal["txt", "json", "docx"]
 DocumentSourceStage = Literal[
@@ -25,6 +27,10 @@ class DocumentExportInput(BaseModel):
     workspace_id: str | None = Field(None, min_length=1, description="工作区 ID，可选。")
     project_id: str | None = Field(None, min_length=1, description="项目 ID，可选。")
     session_id: str | None = Field(None, min_length=1, description="会话 ID，可选。")
+    context_options: ContextOptions | None = Field(
+        None,
+        description="导出请求归属的 user/workspace/project/session 上下文，可选。",
+    )
     metadata: dict[str, Any] = Field(default_factory=dict, description="导出请求扩展元信息。")
 
 

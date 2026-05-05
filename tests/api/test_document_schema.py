@@ -66,6 +66,48 @@ def test_document_export_input_metadata_default_is_independent_dict() -> None:
     assert second_input.metadata == {}
 
 
+def test_document_export_input_accepts_context_options() -> None:
+    input_data = DocumentExportInput(
+        project_title="测试短剧：雨夜重逢",
+        content_text="第一场，雨夜医院门口。",
+        context_options={
+            "user_id": "internal_user_001",
+            "workspace_id": "workspace_dramora_internal",
+            "project_id": "project_rain_night",
+            "session_id": "session_script_editing",
+            "source_stage": "edited_script",
+        },
+    )
+    dumped = input_data.model_dump()
+
+    assert input_data.context_options is not None
+    assert input_data.context_options.context_policy == "current_project_only"
+    assert dumped["context_options"]["project_id"] == "project_rain_night"
+    assert dumped["context_options"]["context_policy"] == "current_project_only"
+
+
+def test_document_export_input_without_context_options_remains_compatible() -> None:
+    input_data = DocumentExportInput(
+        project_title="测试短剧：雨夜重逢",
+        content_text="第一场，雨夜医院门口。",
+    )
+
+    assert input_data.context_options is None
+
+
+def test_document_export_input_context_metadata_does_not_include_full_script_text() -> None:
+    input_data = DocumentExportInput(
+        project_title="测试短剧：雨夜重逢",
+        content_text="第一场，雨夜医院门口。",
+        context_options={"project_id": "project_rain_night"},
+        metadata={"edited": True},
+    )
+    dumped = input_data.model_dump()
+
+    assert dumped["context_options"]["project_id"] == "project_rain_night"
+    assert "第一场，雨夜医院门口。" not in str(dumped["context_options"])
+
+
 def test_document_export_output_can_create() -> None:
     output = DocumentExportOutput(
         project_title="测试短剧：雨夜重逢",

@@ -2,6 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.schemas.context import ContextOptions
+
 
 DocumentImportActionType = Literal["fill", "append", "cancel"]
 DocumentImportStatus = Literal["preview_ready", "failed", "rejected"]
@@ -36,6 +38,10 @@ class DocumentImportPreviewRequest(BaseModel):
     source_type: str = Field("docx", min_length=1, description="导入源类型，第一版默认 docx。")
     project_title: str | None = Field(None, description="项目标题，可选。")
     checksum: str | None = Field(None, min_length=1, description="文件摘要，可选。")
+    context_options: ContextOptions | None = Field(
+        None,
+        description="导入预览归属的 user/workspace/project/session 上下文，可选。",
+    )
 
     @field_validator("filename")
     @classmethod
@@ -78,6 +84,10 @@ class DocumentImportOutput(BaseModel):
     project_title: str | None = Field(None, description="项目标题，可选。")
     status: DocumentImportStatus = Field("preview_ready", description="导入状态。")
     preview: DocumentImportPreview = Field(..., description="导入预览。")
+    context_options: ContextOptions | None = Field(
+        None,
+        description="导入预览归属的 user/workspace/project/session 上下文，可选。",
+    )
     next_required_action: str = Field(
         "user_confirm_import_action",
         min_length=1,

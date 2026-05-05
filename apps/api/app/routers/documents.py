@@ -22,6 +22,7 @@ def preview_document_import(input_data: DocumentImportPreviewRequest) -> Documen
             source_type=input_data.source_type,
             project_title=input_data.project_title,
             checksum=input_data.checksum,
+            context_options=input_data.context_options,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

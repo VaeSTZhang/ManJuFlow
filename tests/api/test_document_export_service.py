@@ -122,6 +122,48 @@ def test_export_document_metadata_contains_safe_tracking_fields() -> None:
     assert output.metadata["source_stage"] == "script"
     assert output.metadata["document_type"] == "short_drama_script"
     assert output.metadata["content_source"] == "content_text"
+    assert output.metadata["context_policy"] == "current_project_only"
+
+
+def test_export_document_metadata_contains_context_options_when_present() -> None:
+    output = export_document(
+        DocumentExportInput(
+            project_title="测试短剧：灯火归来",
+            document_type="short_drama_script",
+            source_stage="script",
+            content_text="第一集：林灯回到旧楼。",
+            export_format="txt",
+            context_options={
+                "user_id": "internal_user_001",
+                "workspace_id": "workspace_dramora_internal",
+                "project_id": "project_lights_return",
+                "session_id": "session_export_review",
+                "request_id": "request_export_001",
+                "source_stage": "edited_script",
+            },
+        )
+    )
+
+    assert output.metadata["context_policy"] == "current_project_only"
+    assert output.metadata["context"]["project_id"] == "project_lights_return"
+    assert output.metadata["context"]["session_id"] == "session_export_review"
+    assert output.metadata["context"]["request_id"] == "request_export_001"
+
+
+def test_export_document_context_metadata_does_not_include_full_script_content() -> None:
+    output = export_document(
+        DocumentExportInput(
+            project_title="测试短剧：灯火归来",
+            content_text="第一集：林灯回到旧楼。",
+            export_format="txt",
+            context_options={
+                "project_id": "project_lights_return",
+                "session_id": "session_export_review",
+            },
+        )
+    )
+
+    assert "第一集：林灯回到旧楼。" not in json.dumps(output.metadata, ensure_ascii=False)
 
 
 def test_export_document_docx_returns_clear_not_implemented_error() -> None:

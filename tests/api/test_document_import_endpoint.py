@@ -60,6 +60,26 @@ def test_import_preview_endpoint_marks_truncated_preview_for_long_text() -> None
     assert len(data["preview"]["preview_text"]) < len(data["preview"]["extracted_text"])
 
 
+def test_import_preview_endpoint_accepts_context_options() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/documents/import-preview",
+        json=make_import_preview_request(
+            context_options={
+                "project_id": "project_old_bookstore",
+                "session_id": "session_import_preview",
+            },
+        ),
+    )
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["context_options"]["project_id"] == "project_old_bookstore"
+    assert data["context_options"]["session_id"] == "session_import_preview"
+    assert data["context_options"]["context_policy"] == "current_project_only"
+
+
 def test_import_preview_endpoint_keeps_only_safe_filename() -> None:
     client = TestClient(app)
 
