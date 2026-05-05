@@ -105,7 +105,6 @@ def generate_film_script_adaptation_mock(
     metadata.update(
         {
             "prompt_template_name": FILM_SCRIPT_PROMPT_TEMPLATE_NAME,
-            "context_policy": "current_project_only",
         }
     )
 
@@ -192,7 +191,6 @@ def generate_film_script_adaptation_llm(
         **output.metadata,
         **build_script_generation_metadata(input_data, generation_mode="llm"),
         "prompt_template_name": FILM_SCRIPT_PROMPT_TEMPLATE_NAME,
-        "context_policy": "current_project_only",
     }
     source_title = input_data.metadata.get("source_title")
     if source_title:

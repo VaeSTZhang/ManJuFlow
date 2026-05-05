@@ -10,7 +10,15 @@ def build_script_generation_metadata(
     metadata: dict[str, Any] = {
         "generation_mode": generation_mode,
         "source_mode": input_data.source_mode,
+        "context_policy": (
+            input_data.context_options.context_policy
+            if input_data.context_options is not None
+            else "current_project_only"
+        ),
     }
+
+    if input_data.context_options is not None:
+        metadata["context"] = input_data.context_options.model_dump(exclude_none=True)
 
     if input_data.ai_options is None:
         return metadata
