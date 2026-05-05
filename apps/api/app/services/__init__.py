@@ -15,11 +15,13 @@ from app.services.image_generation_service import (
 )
 from app.services.image_generation_bundle_service import build_image_generation_bundle
 from app.services.document_import_service import (
+    build_docx_import_preview,
     build_document_import_preview,
     build_preview_text,
     detect_document_title,
     estimate_paragraph_count,
     normalize_imported_text,
+    parse_docx_bytes_to_text,
 )
 from app.services.document_export_service import (
     build_json_export_content,
@@ -94,6 +96,7 @@ from app.services.usage_ledger_service import (
 __all__ = [
     "build_asset_collection_from_image_generation",
     "build_asset_item_from_image_generation_item",
+    "build_docx_import_preview",
     "build_document_import_preview",
     "build_docx_export_bytes",
     "build_json_export_content",
@@ -146,6 +149,7 @@ __all__ = [
     "load_novel_prompt_template",
     "load_image_prompt_template",
     "normalize_imported_text",
+    "parse_docx_bytes_to_text",
     "parse_image_prompt_llm_response",
     "sanitize_docx_filename",
     "ScriptGenerationEntryConfig",

@@ -1,4 +1,7 @@
+from io import BytesIO
 from pathlib import PurePosixPath
+
+from docx import Document
 
 from app.schemas.context import ContextOptions
 from app.schemas.document_import import (
@@ -14,6 +17,8 @@ DOCUMENT_IMPORT_EMPTY_TEXT_WARNING = "未提取到可用文本，请检查文档
 DOCUMENT_IMPORT_PREVIEW_TRUNCATED_WARNING = "文档内容较长，当前仅显示前部预览。"
 DOCUMENT_IMPORT_FILENAME_NORMALIZED_WARNING = "文件名已做安全清洗，仅保留文件名。"
 DOCUMENT_IMPORT_TITLE_MAX_CHARS = 80
+DOCX_PARSE_EMPTY_FILE_ERROR = "DOCX 文件内容为空，无法解析。"
+DOCX_PARSE_INVALID_FILE_ERROR = "无法解析 DOCX 文档，请确认文件格式正确。"
 
 
 def _safe_filename(filename: str) -> str:
@@ -49,6 +54,23 @@ def detect_document_title(text: str, fallback_filename: str | None = None) -> st
     safe_filename = _safe_filename(fallback_filename)
     title = safe_filename.rsplit(".", 1)[0].strip()
     return title[:DOCUMENT_IMPORT_TITLE_MAX_CHARS] or None
+
+
+def parse_docx_bytes_to_text(file_bytes: bytes) -> str:
+    if not file_bytes:
+        raise ValueError(DOCX_PARSE_EMPTY_FILE_ERROR)
+
+    try:
+        document = Document(BytesIO(file_bytes))
+    except Exception as exc:
+        raise ValueError(DOCX_PARSE_INVALID_FILE_ERROR) from exc
+
+    paragraphs = [
+        paragraph.text.strip()
+        for paragraph in document.paragraphs
+        if paragraph.text.strip()
+    ]
+    return "\n".join(paragraphs).strip()
 
 
 def build_document_import_preview(
@@ -102,5 +124,26 @@ def build_document_import_preview(
     return DocumentImportOutput(
         project_title=project_title,
         preview=preview,
+        context_options=context_options,
+    )
+
+
+def build_docx_import_preview(
+    *,
+    file_bytes: bytes,
+    filename: str,
+    content_type: str | None = None,
+    file_size_bytes: int | None = None,
+    project_title: str | None = None,
+    context_options: ContextOptions | None = None,
+) -> DocumentImportOutput:
+    extracted_text = parse_docx_bytes_to_text(file_bytes)
+    return build_document_import_preview(
+        filename=filename,
+        extracted_text=extracted_text,
+        content_type=content_type,
+        file_size_bytes=file_size_bytes if file_size_bytes is not None else len(file_bytes),
+        source_type="docx",
+        project_title=project_title,
         context_options=context_options,
     )
