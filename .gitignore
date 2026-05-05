@@ -1,39 +1,47 @@
 # Python
 .venv/
+venv/
 __pycache__/
 *.pyc
 .pytest_cache/
 
-# Env
+# Environment / secrets
 .env
-.env.local
-
-# macOS
-.DS_Store
-
-# IDE
-.idea/
-.vscode/
+.env.*
+!.env.example
 
 # Node / Frontend
 node_modules/
+apps/web/node_modules/
 dist/
+apps/web/dist/
 build/
+
+# Playwright / test artifacts
+playwright-report/
+test-results/
 apps/web/test-results/
 apps/web/playwright-report/
 apps/web/blob-report/
 
-# Outputs
+# Uploads / generated local files
+uploads/
+apps/api/uploads/
 storage/
+apps/api/app/storage/
+generated/
 outputs/
+exports/
 *.log
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
 
 # Temporary
 tmp/
 temp/
-
-# TypeScript
-*.tsbuildinfo
 
 # TypeScript
 *.tsbuildinfo
