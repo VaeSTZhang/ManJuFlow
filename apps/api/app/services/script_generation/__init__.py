@@ -21,10 +21,12 @@ from app.services.script_generation.registry import (
     get_supported_source_modes,
     list_script_generation_entries,
 )
+from app.services.script_generation.usage_ledger import attach_usage_ledger_metadata
 
 __all__ = [
     "DEFAULT_SCRIPT_GENERATION_REGISTRY",
     "ScriptGenerationEntryConfig",
+    "attach_usage_ledger_metadata",
     "convert_script_output_to_short_drama_output",
     "generate_film_script_adaptation_llm",
     "generate_film_script_adaptation_mock",

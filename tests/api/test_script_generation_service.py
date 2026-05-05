@@ -305,6 +305,61 @@ def test_generate_short_drama_script_mock_records_context_options_metadata():
     assert "source_text" not in output.metadata
 
 
+def test_generate_short_drama_script_mock_idea_attaches_usage_ledger_metadata():
+    input_data = ShortDramaGenerationInput(
+        source_mode="idea",
+        idea_text="雨夜里，女主收到一封来自十年前的信。",
+        target_episode_count=3,
+        genre="悬疑短剧",
+        style="强钩子、快节奏",
+        ai_options=AIRequestOptions(
+            provider="deepseek",
+            model="deepseek-chat",
+            purpose="script_generation",
+        ),
+        context_options=ContextOptions(
+            user_id="user-usage-001",
+            workspace_id="workspace-usage-001",
+            project_id="project-usage-001",
+            session_id="session-usage-001",
+            request_id="request-usage-001",
+            source_stage="generated_script",
+        ),
+    )
+
+    output = generate_short_drama_script_mock(input_data)
+    usage_ledger = output.metadata["usage_ledger"]
+
+    assert usage_ledger["operation"] == "script_generation"
+    assert usage_ledger["status"] == "success"
+    assert usage_ledger["context"]["project_id"] == "project-usage-001"
+    assert usage_ledger["context"]["session_id"] == "session-usage-001"
+    assert usage_ledger["provider"] == "deepseek"
+    assert usage_ledger["model"] == "deepseek-chat"
+    assert usage_ledger["purpose"] == "script_generation"
+    assert usage_ledger["source_mode"] == "idea"
+    assert usage_ledger["source_stage"] == "generated_script"
+    assert usage_ledger["request_id"] == "request-usage-001"
+
+
+def test_generate_short_drama_script_usage_ledger_does_not_include_source_or_output_body():
+    input_data = ShortDramaGenerationInput(
+        source_mode="idea",
+        idea_text="雨夜里，女主收到一封来自十年前的信。",
+        target_episode_count=3,
+        context_options=ContextOptions(request_id="request-safe-usage"),
+    )
+
+    output = generate_short_drama_script_mock(input_data)
+    usage_ledger_text = str(output.metadata["usage_ledger"])
+
+    assert "source_text" not in usage_ledger_text
+    assert "idea_text" not in usage_ledger_text
+    assert "characters" not in usage_ledger_text
+    assert "episodes" not in usage_ledger_text
+    assert "雨夜里，女主收到一封来自十年前的信。" not in usage_ledger_text
+
+
 def test_generate_short_drama_script_mock_for_film_script_dispatches_to_film_mock():
     input_data = ShortDramaGenerationInput(
         source_mode="film_script",
@@ -319,6 +374,7 @@ def test_generate_short_drama_script_mock_for_film_script_dispatches_to_film_moc
     assert output.source_mode == "film_script"
     assert output.episode_count == 4
     assert len(output.episodes) == 4
+    assert output.metadata["usage_ledger"]["operation"] == "film_adaptation"
 
 
 def test_generate_short_drama_script_mock_for_novel_dispatches_to_novel_mock():
@@ -335,6 +391,7 @@ def test_generate_short_drama_script_mock_for_novel_dispatches_to_novel_mock():
     assert output.source_mode == "novel"
     assert output.episode_count == 4
     assert len(output.episodes) == 4
+    assert output.metadata["usage_ledger"]["operation"] == "novel_adaptation"
 
 
 def test_generate_short_drama_script_mock_rejects_assistant_rewrite_source_mode():
