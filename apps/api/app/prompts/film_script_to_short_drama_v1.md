@@ -43,11 +43,11 @@
 - `episodes` 数组长度必须等于 N；
 - `episode_number` 必须从 1 到 N 连续编号；
 - 不得自行压缩为 1 集；
-- 不得把多集故事合并成单集；
-- 不得在 `adaptation_strategy`、`changed_elements`、`risk_notes` 或 `metadata` 中声明“压缩为单集”“合并为一集”“compressed to one episode”或类似策略；
-- 只有当用户明确要求单集，或 `target_episode_count=1` 时，才允许输出单集短剧。
+- 不得把 N 集要求合并成 1 集；
+- 不得在 `adaptation_strategy`、`changed_elements`、`risk_notes` 或 `metadata` 中声明把 N 集要求改成 1 集的策略；
+- 只有当用户明确要求 1 集，或 `target_episode_count=1` 时，才允许输出 1 集结构。
 
-电影三幕结构不等于单集短剧。你必须把电影剧本 / 长剧本的三幕结构拆分成 N 集短剧节奏：
+电影三幕结构不等于 1 集结构。你必须把电影剧本 / 长剧本的三幕结构拆分成 N 集短剧节奏：
 
 - 每集都要有独立 `title`、`summary`、`hook` 和 `scenes`；
 - 每集结尾都要有短剧钩子、反转、危险、选择或新的信息差；
@@ -229,7 +229,7 @@
 - 如果输入提供 `target_episode_count=N`，`episode_count` 必须等于 N；
 - 如果输入提供 `target_episode_count=N`，`episodes.length` 必须等于 N；
 - 如果输入提供 `target_episode_count=N`，所有 `episode_number` 必须从 1 到 N 连续编号；
-- 不允许输出“compressed to one episode”“压缩为单集”“合并为一集”等策略，除非 `target_episode_count=1` 或用户明确要求单集；
+- 不允许输出把 N 集要求改成 1 集的策略，除非 `target_episode_count=1` 或用户明确要求 1 集；
 - 每集至少包含 1 个 `scene`；
 - 每个 `scene` 至少包含 2 句 `dialogue`；
 - 所有字符串字段必须使用简体中文；

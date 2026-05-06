@@ -9,6 +9,7 @@ from app.schemas.script_generation import (
 )
 from app.services.llm_client import LLMClient
 from app.services.script_generation.metadata import build_script_generation_metadata
+from app.services.script_generation.validation import resolve_target_episode_count
 from app.services.text_cleaner import clean_chinese_spacing
 
 
@@ -96,7 +97,7 @@ def generate_film_script_adaptation_mock(
     load_film_script_prompt_template()
 
     project_title = input_data.project_title or "旧片场最后一镜"
-    episode_count = input_data.target_episode_count
+    episode_count = resolve_target_episode_count(input_data) or input_data.target_episode_count
     episodes = [
         _build_film_adaptation_episode(episode_number)
         for episode_number in range(1, episode_count + 1)

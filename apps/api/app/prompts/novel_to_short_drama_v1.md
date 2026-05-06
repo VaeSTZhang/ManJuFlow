@@ -32,6 +32,30 @@
 
 改编目标是让小说文本变成适合短剧生产的场景、对白、动作和分集结构。
 
+## 目标集数硬约束
+
+`target_episode_count` 是硬约束，不是建议值。
+
+如果输入中提供 `target_episode_count=N`：
+
+- 输出根字段 `episode_count` 必须等于 N；
+- `episodes` 数组长度必须等于 N；
+- `episode_number` 必须从 1 到 N 连续编号；
+- 必须生成每一集，不能少集或多集；
+- 不得把 N 集要求合并成 1 集；
+- 不得在 `adaptation_strategy`、`changed_elements`、`risk_notes` 或 `metadata` 中声明把 N 集要求改成 1 集的策略。
+
+小说片段、网文片段或人物小传也必须按 N 集拆分短剧结构：
+
+- 每集都要有独立 `title`、`summary`、`hook` 和 `scenes`；
+- 每集结尾都要有短剧钩子、反转、危险、选择或新的信息差；
+- 可以压缩长篇铺垫，但不能压缩目标集数；
+- 可以合并小说事件，但不能合并短剧集数；
+- 如果 N=3，建议使用：
+  - 第 1 集：人物目标 / 关系冲突 / 第一个悬念；
+  - 第 2 集：误会加深 / 关键线索 / 情绪反转；
+  - 第 3 集：真相揭开 / 情感释放 / 结尾钩子或余韵。
+
 ## 输入说明
 
 输入可能包含以下字段：
@@ -216,7 +240,10 @@
 - `source_mode` 必须是 `novel`；
 - `characters`、`episodes`、`scenes`、`dialogues` 必须是数组；
 - `episode_number`、`scene_number` 必须是数字；
-- `episode_count` 应与 `episodes` 数量一致，或尽量接近 `target_episode_count`；
+- 如果输入提供 `target_episode_count=N`，`episode_count` 必须等于 N；
+- 如果输入提供 `target_episode_count=N`，`episodes.length` 必须等于 N；
+- 如果输入提供 `target_episode_count=N`，所有 `episode_number` 必须从 1 到 N 连续编号；
+- 不允许输出把 N 集要求改成 1 集的策略，除非 `target_episode_count=1` 或用户明确要求 1 集；
 - 每集至少包含 1 个 `scene`；
 - 每个 `scene` 至少包含 2 句 `dialogue`；
 - 所有字符串字段必须使用简体中文；

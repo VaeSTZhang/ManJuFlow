@@ -231,6 +231,98 @@ def test_generate_from_source_returns_422_when_episode_contract_fails(
     assert "安全虚构电影剧本片段" not in stored.metadata_json
 
 
+def test_generate_from_source_film_script_returns_422_for_adaptation_notes_target_mismatch(
+    monkeypatch,
+) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "llm")
+    monkeypatch.setattr(
+        "app.services.script_generation.generator.generate_film_script_adaptation_llm",
+        lambda input_data: ShortDramaScriptOutput(
+            project_title="旧片场复仇夜",
+            source_mode="film_script",
+            logline="女演员回到废弃片场追查父亲失踪真相。",
+            world_setting="废弃片场与旧电影工业交织。",
+            characters=[],
+            adaptation_notes=None,
+            episode_count=1,
+            episodes=[
+                EpisodeScript(
+                    episode_number=1,
+                    title="第1集：片场线索",
+                    summary="女演员发现第一条片场旧案线索。",
+                    hook="旧道具暴露新的真相。",
+                    scenes=[],
+                )
+            ],
+            metadata={"generation_mode": "llm"},
+        ),
+    )
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/generate-from-source",
+        json=make_source_request(
+            source_mode="film_script",
+            source_text="安全虚构电影剧本片段。",
+            adaptation_notes={"target_episode_count": 3},
+        ),
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["detail"]["error_code"] == "script_generation_contract_failed"
+    assert "requested=3" in data["detail"]["reason"]
+    assert "安全虚构电影剧本片段" not in str(data["detail"])
+    assert "source_text" not in str(data["detail"])
+
+
+def test_generate_from_source_novel_returns_422_for_adaptation_notes_target_mismatch(
+    monkeypatch,
+) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "llm")
+    monkeypatch.setattr(
+        "app.services.script_generation.generator.generate_novel_adaptation_llm",
+        lambda input_data: ShortDramaScriptOutput(
+            project_title="旧书店日记",
+            source_mode="novel",
+            logline="年轻编剧追查母亲日记里的舞台事故。",
+            world_setting="旧书店与废弃剧场交织。",
+            characters=[],
+            adaptation_notes=None,
+            episode_count=1,
+            episodes=[
+                EpisodeScript(
+                    episode_number=1,
+                    title="第1集：旧书店",
+                    summary="年轻编剧回到旧书店。",
+                    hook="旧日记写着她的名字。",
+                    scenes=[],
+                )
+            ],
+            metadata={"generation_mode": "llm"},
+        ),
+    )
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/scripts/generate-from-source",
+        json=make_source_request(
+            source_mode="novel",
+            source_text="安全虚构小说片段。",
+            adaptation_notes={"target_episode_count": 3},
+        ),
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["detail"]["error_code"] == "script_generation_contract_failed"
+    assert "requested=3" in data["detail"]["reason"]
+    assert "安全虚构小说片段" not in str(data["detail"])
+    assert "source_text" not in str(data["detail"])
+
+
 def test_generate_from_source_llm_mode_novel_returns_short_drama_output(monkeypatch) -> None:
     settings = get_settings()
     monkeypatch.setattr(settings, "script_generation_mode", "llm")

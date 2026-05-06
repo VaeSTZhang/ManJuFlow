@@ -231,3 +231,15 @@ def test_generate_film_script_adaptation_mock_rejects_non_film_source_mode() -> 
         )
 
     assert "only supports source_mode='film_script'" in str(exc_info.value)
+
+
+def test_film_prompt_enforces_target_episode_count_without_single_episode_compression() -> None:
+    prompt = load_film_script_prompt_template()
+
+    assert "target_episode_count" in prompt
+    assert "episode_count" in prompt
+    assert "episodes` 数组长度必须等于 N" in prompt
+    assert "压缩为" + "单集" not in prompt
+    assert "单集" + "短剧" not in prompt
+    assert "one " + "episode" not in prompt
+    assert "compress into one " + "episode" not in prompt

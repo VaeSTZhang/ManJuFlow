@@ -9,7 +9,11 @@ sys.path.insert(0, str(API_ROOT))
 
 from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript
 from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
-from app.services.script_generation.validation import validate_target_episode_count_contract
+from app.services.script_generation.validation import (
+    ScriptGenerationContractError,
+    resolve_target_episode_count,
+    validate_target_episode_count_contract,
+)
 
 
 def make_episode(episode_number: int) -> EpisodeScript:
@@ -71,6 +75,52 @@ def make_input_with_target(target_episode_count: int = 3) -> ShortDramaGeneratio
     )
 
 
+def make_input_with_adaptation_target(
+    source_mode: str = "film_script",
+    target_episode_count: int = 3,
+) -> ShortDramaGenerationInput:
+    return ShortDramaGenerationInput(
+        source_mode=source_mode,
+        project_title="测试短剧：旧楼灯火",
+        source_text="安全虚构改编来源片段。",
+        adaptation_notes={"target_episode_count": target_episode_count},
+    )
+
+
+def test_resolve_target_episode_count_reads_explicit_top_level_target():
+    input_data = make_input_with_target(4)
+
+    assert resolve_target_episode_count(input_data) == 4
+
+
+def test_resolve_target_episode_count_reads_adaptation_notes_target():
+    input_data = make_input_with_adaptation_target("film_script", 3)
+
+    assert resolve_target_episode_count(input_data) == 3
+
+
+def test_resolve_target_episode_count_prefers_explicit_top_level_target():
+    input_data = ShortDramaGenerationInput(
+        source_mode="film_script",
+        source_text="安全虚构改编来源片段。",
+        target_episode_count=4,
+        adaptation_notes={"target_episode_count": 3},
+    )
+
+    assert resolve_target_episode_count(input_data) == 4
+
+
+def test_resolve_target_episode_count_rejects_invalid_adaptation_notes_target():
+    input_data = ShortDramaGenerationInput(
+        source_mode="film_script",
+        source_text="安全虚构改编来源片段。",
+        adaptation_notes={"target_episode_count": 0},
+    )
+
+    with pytest.raises(ScriptGenerationContractError, match="positive integer"):
+        resolve_target_episode_count(input_data)
+
+
 def test_validate_target_episode_count_contract_accepts_matching_output():
     input_data = make_input_with_target(3)
     output = make_output(episode_count=3, episode_numbers=[1, 2, 3])
@@ -85,6 +135,34 @@ def test_validate_target_episode_count_contract_rejects_episode_count_mismatch()
     output = make_output(episode_count=1, episode_numbers=[1, 2, 3])
 
     with pytest.raises(ValueError, match="requested=3, episode_count=1, episodes=3"):
+        validate_target_episode_count_contract(input_data, output)
+
+
+def test_validate_target_episode_count_contract_rejects_idea_one_episode_when_target_is_three():
+    input_data = ShortDramaGenerationInput(
+        source_mode="idea",
+        idea_text="安全虚构灵感。",
+        target_episode_count=3,
+    )
+    output = make_output(episode_count=1, episode_numbers=[1])
+
+    with pytest.raises(ValueError, match="requested=3, episode_count=1, episodes=1"):
+        validate_target_episode_count_contract(input_data, output)
+
+
+def test_validate_target_episode_count_contract_rejects_film_adaptation_notes_target_mismatch():
+    input_data = make_input_with_adaptation_target("film_script", 3)
+    output = make_output(episode_count=1, episode_numbers=[1])
+
+    with pytest.raises(ValueError, match="requested=3, episode_count=1, episodes=1"):
+        validate_target_episode_count_contract(input_data, output)
+
+
+def test_validate_target_episode_count_contract_rejects_novel_adaptation_notes_target_mismatch():
+    input_data = make_input_with_adaptation_target("novel", 3)
+    output = make_output(episode_count=1, episode_numbers=[1])
+
+    with pytest.raises(ValueError, match="requested=3, episode_count=1, episodes=1"):
         validate_target_episode_count_contract(input_data, output)
 
 

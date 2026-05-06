@@ -478,6 +478,21 @@ def test_generate_short_drama_script_mock_for_film_script_dispatches_to_film_moc
     assert output.metadata["usage_ledger"]["operation"] == "film_adaptation"
 
 
+def test_generate_short_drama_script_mock_for_film_script_uses_adaptation_notes_target():
+    input_data = ShortDramaGenerationInput(
+        source_mode="film_script",
+        project_title="旧片场改编测试",
+        source_text="虚构电影剧本片段。",
+        adaptation_notes={"target_episode_count": 3},
+    )
+
+    output = generate_short_drama_script_mock(input_data)
+
+    assert output.source_mode == "film_script"
+    assert output.episode_count == 3
+    assert len(output.episodes) == 3
+
+
 def test_generate_short_drama_script_mock_for_film_script_persists_usage_ledger(
     isolated_usage_ledger_repository: SQLiteUsageLedgerRepository,
 ) -> None:
@@ -540,6 +555,21 @@ def test_generate_short_drama_script_mock_for_novel_dispatches_to_novel_mock():
     assert output.episode_count == 4
     assert len(output.episodes) == 4
     assert output.metadata["usage_ledger"]["operation"] == "novel_adaptation"
+
+
+def test_generate_short_drama_script_mock_for_novel_uses_adaptation_notes_target():
+    input_data = ShortDramaGenerationInput(
+        source_mode="novel",
+        project_title="旧书店改编测试",
+        source_text="虚构小说片段。",
+        adaptation_notes={"target_episode_count": 3},
+    )
+
+    output = generate_short_drama_script_mock(input_data)
+
+    assert output.source_mode == "novel"
+    assert output.episode_count == 3
+    assert len(output.episodes) == 3
 
 
 def test_generate_short_drama_script_mock_for_novel_persists_usage_ledger(
@@ -671,6 +701,53 @@ def test_generate_short_drama_script_contract_failure_persists_failed_usage_ledg
     stored_text = str(stored)
     assert "source_text" not in stored_text
     assert "安全虚构电影剧本片段" not in stored_text
+
+
+def test_generate_short_drama_script_contract_failure_reads_adaptation_notes_target(
+    monkeypatch,
+) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "llm")
+
+    def fake_generate_novel_adaptation_llm(input_data):
+        return ShortDramaScriptOutput(
+            project_title="旧书店日记",
+            source_mode="novel",
+            logline="年轻编剧追查母亲日记里的舞台事故。",
+            world_setting="旧书店与废弃剧场交织。",
+            characters=[],
+            adaptation_notes=None,
+            episode_count=1,
+            episodes=[
+                EpisodeScript(
+                    episode_number=1,
+                    title="第1集：旧书店",
+                    summary="年轻编剧回到旧书店。",
+                    hook="旧日记写着她的名字。",
+                    scenes=[],
+                )
+            ],
+            metadata={"generation_mode": "llm"},
+        )
+
+    monkeypatch.setattr(
+        "app.services.script_generation.generator.generate_novel_adaptation_llm",
+        fake_generate_novel_adaptation_llm,
+    )
+    input_data = ShortDramaGenerationInput(
+        source_mode="novel",
+        source_text="安全虚构小说片段。",
+        adaptation_notes={"target_episode_count": 3},
+    )
+
+    with pytest.raises(ScriptGenerationContractError) as exc_info:
+        generate_short_drama_script(input_data)
+
+    message = str(exc_info.value)
+    assert "requested=3" in message
+    assert "episode_count=1" in message
+    assert "安全虚构小说片段" not in message
+    assert "source_text" not in message
 
 
 def test_generate_short_drama_script_mock_idea_requires_idea_text():
