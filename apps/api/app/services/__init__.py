@@ -1,4 +1,5 @@
 from app.services.llm_client import LLMClient
+from app.services.password_hashing import hash_password, verify_password
 from app.services.auth_password_policy import (
     PASSWORD_POLICY_MIN_LENGTH,
     check_internal_password_policy,
@@ -9,6 +10,11 @@ from app.services.auth_service import (
     authenticate_internal_user,
     get_safe_internal_user,
     list_safe_internal_users,
+)
+from app.services.auth_seed import (
+    SAFE_CREATOR_TEST_PASSWORD,
+    build_safe_creator_seed_user,
+    seed_safe_internal_users,
 )
 from app.services.asset_manager_service import (
     build_asset_collection_from_image_generation,
@@ -107,6 +113,7 @@ from app.services.usage_ledger_service import (
 __all__ = [
     "AuthError",
     "authenticate_internal_user",
+    "build_safe_creator_seed_user",
     "build_asset_collection_from_image_generation",
     "build_asset_item_from_image_generation_item",
     "build_docx_import_preview",
@@ -160,6 +167,7 @@ __all__ = [
     "get_script_generation_entry",
     "get_supported_source_modes",
     "is_supported_script_filename",
+    "hash_password",
     "list_script_generation_entries",
     "list_safe_internal_users",
     "load_film_script_prompt_template",
@@ -168,8 +176,10 @@ __all__ = [
     "normalize_imported_text",
     "parse_docx_bytes_to_text",
     "parse_image_prompt_llm_response",
+    "SAFE_CREATOR_TEST_PASSWORD",
     "sanitize_docx_filename",
     "ScriptGenerationEntryConfig",
+    "seed_safe_internal_users",
     "summarize_usage_ledger",
     "validate_extra_requirements",
     "validate_extracted_text",
@@ -181,4 +191,5 @@ __all__ = [
     "validate_script_text_length",
     "validate_text_length",
     "validate_upload_file_size",
+    "verify_password",
 ]
