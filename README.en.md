@@ -55,8 +55,10 @@ Dramora currently focuses on an internal script generation and adaptation workbe
 - `context_options` now tracks the first layer of user / workspace / project / session ownership;
 - first-layer internal auth is wired: frontend login now calls the backend auth API, still using safe in-memory test users, not production-grade authorization;
 - Usage Ledger schema and non-persistent service foundations have been added.
+- The first round of frontend App structure refactoring is complete: `App.tsx` was reduced from 2167 to 1465 lines by extracting Toast, Auth, Workspace Navigation, Legacy Idea, Storyboard, Image Prompt, and Image Generation hooks.
 
 Deployment has not started yet. Dramora is not presented as production-ready, commercially deployed, or backed by a completed multi-user permission system.
+The frontend is not claimed to be structurally perfect, but this refactor lowers the maintenance risk for the next phase.
 
 ## Current Frontend Information Architecture
 
@@ -89,6 +91,7 @@ Storyboarding, prompt generation, image generation, assets, and tasks remain in 
 - three-entry short-drama generation schemas, prompts, services, and endpoint;
 - ContextOptions ownership foundation;
 - Usage Ledger schema and non-persistent service foundation;
+- first-round frontend App structure refactor;
 - Playwright e2e smoke coverage.
 
 ## Technical Architecture

@@ -56,9 +56,12 @@
 - `context_options` 已用于 user / workspace / project / session 第一层归属追踪；
 - Usage Ledger 第一版 schema / service / 生成链路 metadata 已完成；
 - 内部 Auth 第一层已接入：前端登录已调用后端 auth API，当前仍为安全虚构账号和开发期 in-memory auth，不是正式生产权限系统；
+- 前端 App 第一轮结构治理已完成，`App.tsx` 已从 2167 行降到 1465 行；
+- 已抽出 Toast / Auth / Workspace Navigation / Legacy Idea / Storyboard / Image Prompt / Image Generation hooks；
 - `.gitignore` 已强化，避免 `.env`、`.venv`、`node_modules`、`dist`、测试报告、上传文件和本地存储进入公开仓库。
 
 当前仍处于内部开发与部署前准备阶段。项目尚未进入服务器部署、生产上线、正式多人权限系统或真实用量账单阶段。
+前端结构治理不代表前端已经彻底完美，但已经降低后续维护风险。
 
 ## 当前前端信息架构
 
@@ -91,6 +94,7 @@
 - 三入口短剧剧本生成与改编 Schema / prompt / service / endpoint；
 - ContextOptions 上下文归属基础；
 - Usage Ledger 第一版数据契约与非持久化记录；
+- 前端 App 第一轮结构治理；
 - Playwright e2e 基础验收。
 
 ## 技术架构
