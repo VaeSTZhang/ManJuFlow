@@ -2,12 +2,20 @@ from pathlib import Path
 import sys
 
 from fastapi.testclient import TestClient
+import pytest
 
 
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
+from app.config import get_settings
 from app.main import app
+
+
+@pytest.fixture(autouse=True)
+def force_mock_script_generation_mode(monkeypatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "mock")
 
 
 def make_segment_request(**overrides) -> dict:
@@ -134,6 +142,7 @@ def test_segment_script_endpoint_empty_script_text_returns_422() -> None:
 def test_existing_generate_script_endpoint_still_available() -> None:
     client = TestClient(app)
 
+    # Compatibility check must stay offline; the fixture forces mock generation.
     response = client.post(
         "/api/scripts/generate",
         json={
