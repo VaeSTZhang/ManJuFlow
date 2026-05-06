@@ -4,6 +4,12 @@ from app.services.auth_password_policy import (
     check_internal_password_policy,
     validate_internal_password_policy,
 )
+from app.services.auth_service import (
+    AuthError,
+    authenticate_internal_user,
+    get_safe_internal_user,
+    list_safe_internal_users,
+)
 from app.services.asset_manager_service import (
     build_asset_collection_from_image_generation,
     build_asset_item_from_image_generation_item,
@@ -99,6 +105,8 @@ from app.services.usage_ledger_service import (
 )
 
 __all__ = [
+    "AuthError",
+    "authenticate_internal_user",
     "build_asset_collection_from_image_generation",
     "build_asset_item_from_image_generation_item",
     "build_docx_import_preview",
@@ -148,10 +156,12 @@ __all__ = [
     "generate_storyboard_mock",
     "generate_mock_source_id",
     "get_image_generation_provider",
+    "get_safe_internal_user",
     "get_script_generation_entry",
     "get_supported_source_modes",
     "is_supported_script_filename",
     "list_script_generation_entries",
+    "list_safe_internal_users",
     "load_film_script_prompt_template",
     "load_novel_prompt_template",
     "load_image_prompt_template",
