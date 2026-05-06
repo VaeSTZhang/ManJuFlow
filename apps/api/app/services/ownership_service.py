@@ -141,6 +141,25 @@ def build_ownership_metadata(
     }
 
 
+def get_document_for_context(
+    document_id: str,
+    context_options: ContextOptions | None,
+) -> DocumentRecord:
+    context = _resolve_context(context_options)
+    document = get_ownership_repository().get_document(document_id)
+    if document is None:
+        raise OwnershipError("Document is not available for the requested context.")
+    if document.workspace_id != context["workspace_id"]:
+        raise OwnershipError("Document is not available for the requested context.")
+    if document.project_id != context["project_id"]:
+        raise OwnershipError("Document is not available for the requested context.")
+    if document.session_id != context["session_id"]:
+        raise OwnershipError("Document is not available for the requested context.")
+    if document.user_id != context["user_id"]:
+        raise OwnershipError("Document is not available for the requested context.")
+    return document
+
+
 def record_import_document_ownership(
     *,
     context_options: ContextOptions | None,
