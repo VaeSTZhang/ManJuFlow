@@ -54,7 +54,7 @@ Dramora currently focuses on an internal script generation and adaptation workbe
 - real `.docx` import preview is wired into the frontend, with user confirmation before filling or appending source text;
 - `context_options` now tracks the first layer of user / workspace / project / session ownership;
 - first-layer internal auth is wired: frontend login now calls the backend auth API, still using safe in-memory test users, not production-grade authorization;
-- Usage Ledger schema and non-persistent service foundations have been added.
+- Usage Ledger now has a SQLite repository and is wired into script generation, document import preview, and TXT / JSON / DOCX export; it stores redacted summaries only, not full text, uploaded files, raw model responses, or secrets.
 - The first round of frontend App structure refactoring is complete: `App.tsx` was reduced from 2167 to 1465 lines by extracting Toast, Auth, Workspace Navigation, Legacy Idea, Storyboard, Image Prompt, and Image Generation hooks.
 
 Deployment has not started yet. Dramora is not presented as production-ready, commercially deployed, or backed by a completed multi-user permission system.
@@ -90,7 +90,7 @@ Storyboarding, prompt generation, image generation, assets, and tasks remain in 
 - DOCX export service and file download endpoint;
 - three-entry short-drama generation schemas, prompts, services, and endpoint;
 - ContextOptions ownership foundation;
-- Usage Ledger schema and non-persistent service foundation;
+- Usage Ledger SQLite persistence with redacted summary records;
 - first-round frontend App structure refactor;
 - Playwright e2e smoke coverage.
 

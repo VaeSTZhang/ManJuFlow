@@ -27,7 +27,7 @@ Dramora｜剧作工坊 是一个面向短剧创作的剧本生成与文本改编
 - TXT / JSON / DOCX 导出闭环；
 - DeepSeek 三入口真实 LLM 小样本验收已完成；
 - `context_options` 已用于 user / workspace / project / session 归属追踪；
-- Usage Ledger 第一版数据结构和非持久化记录已建立；
+- Usage Ledger 已完成 SQLite repository，并已接入剧本生成、文档导入预览、TXT / JSON / DOCX 导出链路；当前仅记录脱敏摘要，不记录完整文本、上传文件、模型原始响应或密钥；
 - 后续可进入分镜、提示词和制作流程，但这些不是当前主页重点。
 
 当前仍处于内部开发与部署前准备阶段，尚未进入服务器部署、生产上线或正式多人权限系统阶段。

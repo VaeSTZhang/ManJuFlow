@@ -79,6 +79,8 @@
 
 真实配置只放项目根目录 `.env`。`.env` 不提交，`.env.example` 只放占位变量。
 
+环境变量完整清单见 [Environment Variables｜环境变量清单](ENVIRONMENT_VARIABLES.md)。第 358 步已完成 `.env.example` / 环境变量清单 / 敏感信息检查收口。
+
 环境变量规则：
 
 - 不再维护 `apps/api/.env`；

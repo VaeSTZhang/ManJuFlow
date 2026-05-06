@@ -148,7 +148,7 @@ python -m pytest tests/api/test_document_schema.py tests/api/test_document_expor
 如果本机 `python` 不可用，应使用项目虚拟环境：
 
 ```bash
-/Users/zhangtritsen/Desktop/Code/Dramora/.venv/bin/python -m pytest tests/api/test_document_schema.py tests/api/test_document_export_service.py tests/api/test_document_export_endpoint.py tests/api/test_document_docx_export_service.py tests/api/test_document_export_file_endpoint.py
+/path/to/Dramora/.venv/bin/python -m pytest tests/api/test_document_schema.py tests/api/test_document_export_service.py tests/api/test_document_export_endpoint.py tests/api/test_document_docx_export_service.py tests/api/test_document_export_file_endpoint.py
 ```
 
 前端回归：

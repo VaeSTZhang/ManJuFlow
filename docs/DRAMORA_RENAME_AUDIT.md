@@ -12,7 +12,7 @@
 
 - 对外品牌：Dramora｜剧作工坊
 - GitHub 仓库：VaeSTZhang/Dramora
-- 本地目录：/Users/zhangtritsen/Desktop/Code/Dramora
+- 本地目录：`/path/to/Dramora`
 - 早期工程代号：ManJuFlow
 
 当前 README 和本地开发入口已经说明 ManJuFlow 是早期工程代号，公开路径示例已改为 Dramora。

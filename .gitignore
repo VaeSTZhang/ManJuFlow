@@ -29,6 +29,7 @@ uploads/
 apps/api/uploads/
 storage/
 apps/api/app/storage/
+apps/api/.local/
 generated/
 outputs/
 exports/
