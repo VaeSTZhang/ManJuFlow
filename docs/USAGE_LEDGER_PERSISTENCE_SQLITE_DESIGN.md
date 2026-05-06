@@ -7,10 +7,12 @@
 - schema / service / 生成链路 metadata；
 - 可记录 `operation`、`provider`、`model`、`purpose`、`status`、`request_id`、`context`；
 - 生成链路已能把安全的 `usage_ledger` 摘要写入 `ShortDramaScriptOutput.metadata`；
+- SQLite repository 已完成；
+- 剧本生成、文档导入预览、TXT / JSON / DOCX 导出链路已写入 SQLite Usage Ledger；
 - 明确不记录完整剧本文本、完整上传文件、完整 provider 原始响应、API Key、密码、token、本机路径；
-- 当前仍是非持久化结构，后续需要落到 SQLite 或数据库中。
+- 第 351 步补充脱敏安全测试与文档状态同步。
 
-第 347 步目标是设计 SQLite 最小持久化方案，为第 348～351 步落地做准备。本步只写设计文档，不新增 repository、不创建数据库文件、不改现有调用链路。
+第 347 步目标是设计 SQLite 最小持久化方案，为第 348～351 步落地做准备。当前第 348～350 步已完成 repository 与核心写入链路，第 351 步用于阶段收口。
 
 本方案服务 Dramora 短中期公司内部 5～10 人长期稳定使用，不做复杂财务系统、不做精确云账单对账、不做多租户商业计费系统。
 
@@ -29,6 +31,8 @@
 - 真实客户内容审计；
 - provider 原始响应长期归档；
 - 用量记录管理后台；
+- Usage Ledger 查询页面；
+- 管理员审计后台；
 - 公开商用计费体系。
 
 Usage Ledger 第一版的目标是内部归属、成本线索和问题排查，不是财务结算系统。
@@ -145,7 +149,7 @@ Usage Ledger 不负责权限判断。权限边界应由 Auth / ContextOptions / 
 
 ## 7. 与剧本生成链路的关系
 
-第 349 步建议接入：
+第 349 步已接入：
 
 - `idea` / `film_script` / `novel` 三入口生成写入 usage ledger；
 - 记录 `provider` / `model` / `purpose` / `source_mode` / `generation_mode`；
@@ -155,11 +159,11 @@ Usage Ledger 不负责权限判断。权限边界应由 Auth / ContextOptions / 
 - 生成失败也要记录 `failed` 状态和安全错误码；
 - contract guardrail 失败可以记录 `rejected` 或 `failed`，但只存安全原因摘要。
 
-当前生成链路已能把非持久化 `usage_ledger` 写入 metadata。后续迁移时应尽量保留调用方接口稳定，把持久化能力放到 repository / service 内部。
+当前生成链路已能持久化安全摘要，并继续把脱敏 `usage_ledger` 摘要写入 metadata。后续查询 UI 或审计后台应复用 repository，不应重新记录完整文本。
 
 ## 8. 与文档导入 / 导出的关系
 
-第 350 步建议接入：
+第 350 步已接入：
 
 - document import preview 写 usage ledger；
 - document export TXT / JSON / DOCX 写 usage ledger；
@@ -170,7 +174,7 @@ Usage Ledger 不负责权限判断。权限边界应由 Auth / ContextOptions / 
 - 不记录本机路径；
 - 失败时记录安全错误码和脱敏错误摘要。
 
-Document Import / Export 已经支持 `context_options`，后续应直接复用这些上下文字段，不应在导入 / 导出 service 中重新发明 user / project 字段。
+Document Import / Export 已经支持 `context_options`，当前写入链路直接复用这些上下文字段，不在导入 / 导出 service 中重新发明 user / project 字段。
 
 ## 9. 成本估算策略
 
@@ -255,12 +259,19 @@ apps/api/app/repositories/usage_ledger_repository.py
 
 ## 13. 后续步骤映射
 
-建议后续小步：
+当前小步状态：
 
-- 第 348 步：usage_ledger SQLite schema / repository；
-- 第 349 步：剧本生成链路写入 usage ledger；
-- 第 350 步：文档导入 / 导出链路写入 usage ledger；
-- 第 351 步：用量记录脱敏测试 + 文档同步。
+- 第 348 步：usage_ledger SQLite schema / repository，已完成；
+- 第 349 步：剧本生成链路写入 usage ledger，已完成；
+- 第 350 步：文档导入 / 导出链路写入 usage ledger，已完成；
+- 第 351 步：用量记录脱敏测试 + 文档同步，当前阶段收口。
+
+后续增强：
+
+- Usage Ledger 查询页面；
+- 管理员审计视图；
+- 精确 token / 成本对账；
+- 与正式权限中间件结合的查询过滤。
 
 每一步都应保持小闭环：repository 测试、service 测试、相关 endpoint / e2e 回归、敏感文件检查。
 
@@ -273,6 +284,7 @@ apps/api/app/repositories/usage_ledger_repository.py
 - 剧本生成写入 usage ledger；
 - 文档导入 / 导出写入 usage ledger；
 - 失败请求也能安全记录；
+- 脱敏测试覆盖 script generation / document import / document export / failed ledger；
 - 不记录完整剧本文本；
 - 不记录完整上传文件；
 - 不记录 provider 原始响应；

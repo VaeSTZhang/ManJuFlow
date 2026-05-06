@@ -17,11 +17,14 @@ from app.schemas.usage_ledger import (
 DANGEROUS_USAGE_METADATA_KEYS = {
     "api_key",
     "access_token",
+    "docx_bytes",
     "extracted_text",
     "full_response",
     "password",
     "password_hash",
+    "preview_text",
     "provider_raw_response",
+    "session_token",
     "source_text",
     "token",
 }
@@ -56,8 +59,37 @@ def _sanitize_usage_metadata(
     return {
         key: value
         for key, value in metadata.items()
-        if key not in DANGEROUS_USAGE_METADATA_KEYS
+        if not _is_dangerous_metadata_key(key)
+        and not _is_dangerous_metadata_value(value)
     }
+
+
+def _is_dangerous_metadata_key(key: str) -> bool:
+    normalized = key.strip().lower().replace("-", "_").replace(" ", "_")
+    return normalized in DANGEROUS_USAGE_METADATA_KEYS
+
+
+def _is_dangerous_metadata_value(value: UsageLedgerMetadataValue) -> bool:
+    if not isinstance(value, str):
+        return False
+    normalized = value.lower()
+    return (
+        "/users/" in normalized
+        or normalized.startswith("/users/")
+        or "api key" in normalized
+        or "password" in normalized
+        or "access_token" in normalized
+        or "session_token" in normalized
+        or "provider_raw_response" in normalized
+    )
+
+
+def _sanitize_error_message(error_message: str | None) -> str | None:
+    if error_message is None:
+        return None
+    if _is_dangerous_metadata_value(error_message):
+        return "Sensitive error details redacted."
+    return error_message
 
 
 def get_default_usage_ledger_database_path() -> Path:
@@ -110,7 +142,7 @@ def create_usage_ledger_entry(input_data: UsageLedgerCreate) -> UsageLedgerEntry
         duration_ms=input_data.duration_ms,
         cost_estimate=input_data.cost_estimate,
         error_code=input_data.error_code,
-        error_message=input_data.error_message,
+        error_message=_sanitize_error_message(input_data.error_message),
         metadata=_sanitize_usage_metadata(input_data.metadata),
     )
     get_usage_ledger_repository().create_entry(_build_usage_ledger_record(usage_entry))
