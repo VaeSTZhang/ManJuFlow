@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { DocumentImportOutput } from "../../types/documentImport";
 
 type DocumentImportPanelProps = {
@@ -11,6 +12,7 @@ type DocumentImportPanelProps = {
   onFilenameChange: (value: string) => void;
   onTextChange: (value: string) => void;
   onGeneratePreview: () => void;
+  onGenerateDocxPreview: (file: File) => void;
   onApplyFill: () => void;
   onApplyAppend: () => void;
   onCancel: () => void;
@@ -27,15 +29,47 @@ export function DocumentImportPanel({
   onFilenameChange,
   onTextChange,
   onGeneratePreview,
+  onGenerateDocxPreview,
   onApplyFill,
   onApplyAppend,
   onCancel,
 }: DocumentImportPanelProps) {
+  const [selectedDocxFile, setSelectedDocxFile] = useState<File | null>(null);
+
   return (
     <section className="document-import-panel" aria-label="文档导入预览" data-testid="document-import-panel">
       <div>
         <h3>导入剧本文档内容</h3>
-        <p>先粘贴文档解析出的文本生成预览，确认后再填入待改编文本。上传 Word 文件将在后续版本接入。</p>
+        <p>上传或粘贴文档内容生成预览，确认后再填入待改编文本。系统不会自动决定改编方向。</p>
+      </div>
+
+      <div className="document-import-grid">
+        <label className="field creation-draft-field">
+          <span>上传 Word 文档</span>
+          <input
+            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            data-testid="docx-import-file-input"
+            disabled={!isAuthenticated || isLoading}
+            onChange={(event) => setSelectedDocxFile(event.target.files?.[0] ?? null)}
+            type="file"
+          />
+        </label>
+        <div className="document-import-upload-action">
+          <p>选择 .docx 文件生成导入预览。上传后请确认填入、追加或取消，系统不会自动决定改编方向。</p>
+          <button
+            className="secondary-button"
+            data-testid="generate-docx-import-preview"
+            disabled={!isAuthenticated || isLoading || !selectedDocxFile}
+            onClick={() => {
+              if (selectedDocxFile) {
+                onGenerateDocxPreview(selectedDocxFile);
+              }
+            }}
+            type="button"
+          >
+            {isLoading ? "生成预览中..." : "上传 Word 文档"}
+          </button>
+        </div>
       </div>
 
       <div className="document-import-grid">

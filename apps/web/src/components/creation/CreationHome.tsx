@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { previewDocumentImport } from "../../api/documentImport";
+import { previewDocumentImport, previewDocxDocumentImport } from "../../api/documentImport";
 import { parseApiErrorMessage } from "../../api/errors";
 import { generateShortDramaScript } from "../../api/scriptGeneration";
 import {
@@ -244,6 +244,40 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     }
   };
 
+  const handleGenerateDocxDocumentImportPreview = async (mode: AdaptationMode, file: File) => {
+    if (!isAuthenticated) {
+      onRequireLogin();
+      return;
+    }
+
+    const draft = drafts[mode];
+    updateDocumentImportDraft(mode, {
+      isLoading: true,
+      error: "",
+    });
+
+    try {
+      const preview = await previewDocxDocumentImport({
+        file,
+        project_title: draft.projectTitle.trim() || draft.sourceTitle.trim() || null,
+        context_options: buildCreationContextOptions("imported_document"),
+      });
+      updateDocumentImportDraft(mode, {
+        filename: preview.preview.source.filename,
+        preview,
+      });
+    } catch (error) {
+      updateDocumentImportDraft(mode, {
+        error: parseApiErrorMessage(
+          error,
+          "生成 Word 文档导入预览失败，请稍后重试。",
+        ),
+      });
+    } finally {
+      updateDocumentImportDraft(mode, { isLoading: false });
+    }
+  };
+
   const applyDocumentImportPreview = (mode: AdaptationMode, action: "fill" | "append" | "cancel") => {
     if (action === "cancel") {
       clearDocumentImportPreview(mode);
@@ -443,6 +477,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
                 });
               }}
               onGeneratePreview={() => handleGenerateDocumentImportPreview(mode)}
+              onGenerateDocxPreview={(file) => handleGenerateDocxDocumentImportPreview(mode, file)}
               onTextChange={(value) => {
                 updateDocumentImportDraft(mode, {
                   text: value,

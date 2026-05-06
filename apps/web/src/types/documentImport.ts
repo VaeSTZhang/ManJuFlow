@@ -56,3 +56,9 @@ export type DocumentImportPreviewRequest = {
   checksum?: string | null;
   context_options?: ContextOptions | null;
 };
+
+export type DocumentImportDocxPreviewRequest = {
+  file: File;
+  project_title?: string | null;
+  context_options?: ContextOptions | null;
+};

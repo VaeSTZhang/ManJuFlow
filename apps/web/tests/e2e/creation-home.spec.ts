@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 
 const blockedUiPhrases = [
@@ -148,6 +148,11 @@ type DocumentImportPayload = {
   context_options?: RequestContextOptions;
 };
 
+type DocumentImportMultipartPayload = {
+  contentType: string;
+  bodyText: string;
+};
+
 async function login(page: Page) {
   await page.getByRole("button", { name: "登录" }).click();
   await expect(page.getByRole("button", { name: "退出登录" })).toBeVisible();
@@ -240,6 +245,57 @@ async function mockDocumentImportPreview(page: Page, capturedPayloads: DocumentI
           },
         },
         context_options: payload.context_options ?? null,
+        next_required_action: "user_confirm_import_action",
+      }),
+    });
+  });
+}
+
+async function mockDocxDocumentImportPreview(
+  page: Page,
+  capturedPayloads: DocumentImportMultipartPayload[] = [],
+) {
+  await page.route("**/api/documents/import-docx-preview", async (route) => {
+    const request = route.request();
+    capturedPayloads.push({
+      contentType: request.headers()["content-type"] ?? "",
+      bodyText: request.postDataBuffer()?.toString("utf-8") ?? "",
+    });
+
+    await route.fulfill({
+      contentType: "application/json",
+      status: 200,
+      body: JSON.stringify({
+        project_title: "旧影院来信",
+        status: "preview_ready",
+        preview: {
+          source: {
+            filename: "safe-script-import.docx",
+            content_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            file_size_bytes: 128,
+            source_type: "docx",
+            checksum: null,
+          },
+          extracted_text: "旧影院来信\n放映员收到一封写给未来的信。",
+          preview_text: "旧影院来信\n放映员收到一封写给未来的信。",
+          character_count: 23,
+          paragraph_count: 2,
+          detected_title: "旧影院来信",
+          warnings: [],
+          metadata: {
+            safe_preview_truncated: false,
+            source_type: "docx",
+          },
+        },
+        context_options: {
+          user_id: "internal_user_mock_001",
+          workspace_id: "workspace_dramora_internal",
+          project_id: "project_creation_default",
+          session_id: "session_creation_default",
+          request_id: "request_docx_import_e2e",
+          source_stage: "imported_document",
+          context_policy: "current_project_only",
+        },
         next_required_action: "user_confirm_import_action",
       }),
     });
@@ -469,6 +525,48 @@ test.describe("Dramora creation home smoke", () => {
     expect(importPayloads[0].context_options?.project_id).toBe("project_creation_default");
     expect(importPayloads[0].context_options?.session_id).toBe("session_creation_default");
     expect(importPayloads[0].context_options?.request_id).toMatch(/^request_\d+$/);
+  });
+
+  test("uploads docx file for document import preview with context options", async ({ page }, testInfo) => {
+    const importPayloads: DocumentImportMultipartPayload[] = [];
+    const docxPath = testInfo.outputPath("safe-script-import.docx");
+    await writeFile(docxPath, Buffer.from("safe fake docx bytes for frontend route interception"));
+    await mockDocxDocumentImportPreview(page, importPayloads);
+
+    await page.goto("/");
+    await login(page);
+    await page.getByTestId("creation-entry-card-adaptation").click();
+    await page.getByTestId("creation-entry-card-film").click();
+
+    await expect(page.getByTestId("document-import-panel")).toBeVisible();
+    await expect(page.getByTestId("docx-import-file-input")).toBeVisible();
+    await expect(page.getByTestId("generate-docx-import-preview")).toBeVisible();
+
+    await page.getByTestId("docx-import-file-input").setInputFiles(docxPath);
+    await page.getByTestId("generate-docx-import-preview").click();
+
+    await expect(page.getByText("文档导入预览")).toBeVisible();
+    await expect(page.getByRole("button", { name: "填入待改编文本" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "追加到当前文本后" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "取消导入" })).toBeVisible();
+
+    const payload = importPayloads[0];
+    expect(payload.contentType).toContain("multipart/form-data");
+    expect(payload.bodyText).toContain('name="file"');
+    expect(payload.bodyText).toContain("safe-script-import.docx");
+    expect(payload.bodyText).toContain('name="user_id"');
+    expect(payload.bodyText).toContain("internal_user_mock_001");
+    expect(payload.bodyText).toContain('name="workspace_id"');
+    expect(payload.bodyText).toContain("workspace_dramora_internal");
+    expect(payload.bodyText).toContain('name="project_id"');
+    expect(payload.bodyText).toContain("project_creation_default");
+    expect(payload.bodyText).toContain('name="session_id"');
+    expect(payload.bodyText).toContain("session_creation_default");
+    expect(payload.bodyText).toContain('name="source_stage"');
+    expect(payload.bodyText).toContain("imported_document");
+    expect(payload.bodyText).toContain('name="context_policy"');
+    expect(payload.bodyText).toContain("current_project_only");
+    expect(payload.bodyText).toMatch(/request_\d+/);
   });
 
   test("does not show document import controls for the idea entry", async ({ page }) => {
