@@ -55,7 +55,7 @@
 - 真实 `.docx` 导入预览已接入前端，支持用户确认后填入或追加到待改编文本；
 - `context_options` 已用于 user / workspace / project / session 第一层归属追踪；
 - Usage Ledger 第一版 schema / service / 生成链路 metadata 已完成；
-- 内部 Auth 第一层已接入：前端登录已调用后端 auth API，当前仍为安全虚构账号和开发期 in-memory auth，不是正式生产权限系统；
+- 内部 Auth 第一层已接入：前端登录已调用后端 auth API，后端已完成 SQLite repository + password_hash + safe seed user + endpoint 安全回归；当前仍使用安全虚构账号，不是正式生产权限系统，正式内部试运行前需替换真实内部账号并补齐 token 生命周期与权限边界；
 - 前端 App 第一轮结构治理已完成，`App.tsx` 已从 2167 行降到 1465 行；
 - 已抽出 Toast / Auth / Workspace Navigation / Legacy Idea / Storyboard / Image Prompt / Image Generation hooks；
 - `.gitignore` 已强化，避免 `.env`、`.venv`、`node_modules`、`dist`、测试报告、上传文件和本地存储进入公开仓库。

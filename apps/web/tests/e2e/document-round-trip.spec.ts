@@ -148,6 +148,17 @@ async function login(page: Page) {
   await mockAuth(page);
   await page.getByRole("button", { name: "登录" }).click();
   await expect(page.getByRole("button", { name: "退出登录" })).toBeVisible();
+  await expect(page.getByText("安全测试创作者")).toBeVisible();
+  await expectNoAuthSensitiveText(page);
+}
+
+async function expectNoAuthSensitiveText(page: Page) {
+  await expect(page.getByText("SafePass123", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("password_hash", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("safe_test_token", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("access_token", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("后端 mock", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("本地演示", { exact: false })).toHaveCount(0);
 }
 
 async function mockScriptGeneration(page: Page) {
