@@ -1,10 +1,10 @@
 import { FormEvent, useEffect, useState } from "react";
 import { generateImageBundle, generateImages } from "./api/imageGenerations";
 import { generateImagePrompts } from "./api/imagePrompts";
-import { generateStoryboard } from "./api/storyboards";
 import { useAppAuth } from "./app/useAppAuth";
 import { useAppToasts } from "./app/useAppToasts";
 import { useLegacyIdeaScriptWorkspace } from "./app/useLegacyIdeaScriptWorkspace";
+import { useStoryboardWorkspace } from "./app/useStoryboardWorkspace";
 import { useWorkspaceNavigation } from "./app/useWorkspaceNavigation";
 import "./App.css";
 import { AppShell } from "./components/layout/AppShell";
@@ -23,7 +23,6 @@ import type {
 } from "./types/imageGeneration";
 import type { ImageGenerationBundleOutput } from "./types/imageGenerationBundle";
 import type { ImagePromptInput, ImagePromptOutput } from "./types/imagePrompt";
-import type { StoryboardInput, StoryboardOutput } from "./types/storyboard";
 import type { SidebarItem } from "./components/layout/Sidebar";
 
 type SystemStatus = {
@@ -39,12 +38,6 @@ type ImagePromptModelOption = {
   label: string;
   provider?: string;
   model?: string;
-};
-
-const defaultStoryboardForm: StoryboardInput = {
-  project_title: "测试短剧：雨夜重逢",
-  script_text:
-    "第1集 第1场｜医院门口｜雨夜。暴雨中，林晚撑着黑伞站在医院门口，顾沉从车里下来，两人隔雨对视。顾沉：你终于肯回来了？林晚：我回来，不是为了见你。",
 };
 
 const defaultImagePromptForm: ImagePromptInput = {
@@ -119,13 +112,6 @@ const sidebarItems: SidebarItem[] = [
 function App() {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [isSystemConnected, setIsSystemConnected] = useState(false);
-  const [storyboardForm, setStoryboardForm] = useState<StoryboardInput>(defaultStoryboardForm);
-  const [storyboardResult, setStoryboardResult] = useState<StoryboardOutput | null>(null);
-  const [isStoryboardLoading, setIsStoryboardLoading] = useState(false);
-  const [storyboardError, setStoryboardError] = useState("");
-  const [storyboardCopyStatus, setStoryboardCopyStatus] = useState("");
-  const [storyboardExportStatus, setStoryboardExportStatus] = useState("");
-  const [storyboardTransferStatus, setStoryboardTransferStatus] = useState("");
   const [imagePromptForm, setImagePromptForm] = useState<ImagePromptInput>(defaultImagePromptForm);
   const [imagePromptResult, setImagePromptResult] = useState<ImagePromptOutput | null>(null);
   const [imagePromptLoading, setImagePromptLoading] = useState(false);
@@ -164,6 +150,39 @@ function App() {
     onRequireLogin: requireLogin,
   });
   const {
+    storyboardForm,
+    storyboardResult,
+    isStoryboardLoading,
+    storyboardError,
+    storyboardCopyStatus,
+    storyboardExportStatus,
+    storyboardTransferStatus,
+    updateStoryboardField,
+    setStoryboardFromScript,
+    clearStoryboardTransferStatus,
+    handleStoryboardSubmit,
+    copyStoryboardJson,
+    exportStoryboardJson,
+    transferStoryboardToImagePrompt,
+  } = useStoryboardWorkspace({
+    pushToast,
+    onOpenStoryboardWorkspace: () => setActiveWorkspaceId("storyboard"),
+    onStoryboardReadyForPrompt: ({ projectTitle, storyboardSummary, storyboardText }) => {
+      setImagePromptForm((current) => ({
+        ...current,
+        project_title: projectTitle,
+        storyboard_summary: storyboardSummary,
+        storyboard_text: storyboardText,
+      }));
+      setImagePromptTransferStatus("已将分镜结果带入绘图 Prompt 输入区。");
+      setImagePromptError("");
+      setImagePromptCopyStatus("");
+      setImagePromptExportStatus("");
+      setActiveWorkspaceId("image-prompt");
+      pushToast("success", "已切换到绘图 Prompt", "分镜结果已带入绘图 Prompt 工作区。");
+    },
+  });
+  const {
     form,
     result,
     isLoading,
@@ -181,19 +200,14 @@ function App() {
     isBrowsingMode,
     pushToast,
     requireLogin,
-    onClearStoryboardTransferStatus: () => setStoryboardTransferStatus(""),
+    onClearStoryboardTransferStatus: clearStoryboardTransferStatus,
     onTransferScriptToStoryboard: ({ projectTitle, scriptText }) => {
-      setStoryboardForm((current) => ({
-        ...current,
-        project_title: projectTitle,
-        script_text: scriptText,
-      }));
-      setStoryboardTransferStatus("已带入分镜生成区域");
-      setStoryboardError("");
-      setStoryboardCopyStatus("");
-      setStoryboardExportStatus("");
-      setActiveWorkspaceId("storyboard");
-      pushToast("success", "已切换到分镜生成", "结构化剧本已带入剧本转分镜工作区。");
+      setStoryboardFromScript({
+        projectTitle,
+        scriptText,
+        transferStatus: "已带入分镜生成区域",
+        toastDescription: "结构化剧本已带入剧本转分镜工作区。",
+      });
     },
   });
 
@@ -222,11 +236,6 @@ function App() {
 
     loadSystemStatus();
   }, []);
-
-  const updateStoryboardField = <K extends keyof StoryboardInput>(field: K, value: StoryboardInput[K]) => {
-    setStoryboardForm((current) => ({ ...current, [field]: value }));
-    setStoryboardTransferStatus("");
-  };
 
   const updateImagePromptField = <K extends keyof ImagePromptInput>(field: K, value: ImagePromptInput[K]) => {
     setImagePromptForm((current) => ({ ...current, [field]: value }));
@@ -258,88 +267,12 @@ function App() {
   };
 
   const applyScriptSegmentationToStoryboard = (payload: ScriptSegmentationStoryboardPayload) => {
-    setStoryboardForm((current) => ({
-      ...current,
-      project_title: payload.project_title,
-      script_text: payload.script_text,
-    }));
-    setStoryboardTransferStatus("已将已有剧本切分结果带入分镜生成，请确认后点击生成分镜。");
-    setStoryboardError("");
-    setStoryboardCopyStatus("");
-    setStoryboardExportStatus("");
-    setActiveWorkspaceId("storyboard");
-    pushToast("success", "已切换到分镜生成", "已有剧本切分结果已带入分镜生成，请确认后点击生成分镜。");
-  };
-
-  const transferStoryboardToImagePrompt = () => {
-    if (!storyboardResult) {
-      return;
-    }
-
-    setImagePromptForm((current) => ({
-      ...current,
-      project_title: storyboardResult.project_title,
-      storyboard_summary: storyboardResult.storyboard_summary,
-      storyboard_text: JSON.stringify(storyboardResult, null, 2),
-    }));
-    setImagePromptTransferStatus("已将分镜结果带入绘图 Prompt 输入区。");
-    setImagePromptError("");
-    setImagePromptCopyStatus("");
-    setImagePromptExportStatus("");
-    setActiveWorkspaceId("image-prompt");
-    pushToast("success", "已切换到绘图 Prompt", "分镜结果已带入绘图 Prompt 工作区。");
-  };
-
-  const handleStoryboardSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsStoryboardLoading(true);
-    setStoryboardError("");
-    setStoryboardCopyStatus("");
-    setStoryboardExportStatus("");
-    setStoryboardTransferStatus("");
-
-    try {
-      const data = await generateStoryboard(storyboardForm);
-      setStoryboardResult(data);
-    } catch {
-      setStoryboardError("生成分镜失败，请确认服务已启动。");
-      pushToast("error", "生成失败", "剧本转分镜请求失败，请检查服务是否运行。");
-    } finally {
-      setIsStoryboardLoading(false);
-    }
-  };
-
-  const copyStoryboardJson = async () => {
-    if (!storyboardResult) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(JSON.stringify(storyboardResult, null, 2));
-    setStoryboardCopyStatus("已复制分镜 JSON");
-    setStoryboardExportStatus("");
-    pushToast("success", "复制成功", "分镜 JSON 已复制到剪贴板。");
-  };
-
-  const exportStoryboardJson = () => {
-    if (!storyboardResult) {
-      return;
-    }
-
-    const json = JSON.stringify(storyboardResult, null, 2);
-    const blob = new Blob([json], { type: "application/json;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "dramora-storyboard-output.json";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-
-    setStoryboardExportStatus("已导出分镜 JSON");
-    setStoryboardCopyStatus("");
-    pushToast("success", "导出成功", "分镜 JSON 已导出。");
+    setStoryboardFromScript({
+      projectTitle: payload.project_title,
+      scriptText: payload.script_text,
+      transferStatus: "已将已有剧本切分结果带入分镜生成，请确认后点击生成分镜。",
+      toastDescription: "已有剧本切分结果已带入分镜生成，请确认后点击生成分镜。",
+    });
   };
 
   const handleImagePromptSubmit = async (event: FormEvent<HTMLFormElement>) => {
