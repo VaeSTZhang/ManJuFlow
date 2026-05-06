@@ -1,5 +1,6 @@
 from app.schemas.script_generation import ShortDramaGenerationInput, ShortDramaScriptOutput
 from app.schemas.usage_ledger import UsageLedgerCreate, UsageLedgerOperation, UsageLedgerStatus
+from app.services.script_generation.validation import resolve_target_episode_count
 from app.services.usage_ledger_service import create_usage_ledger_entry
 
 
@@ -62,7 +63,7 @@ def attach_usage_ledger_metadata(
                 "input_character_count": _input_character_count(input_data),
                 "output_character_count": _output_character_count(output),
                 "source_mode": input_data.source_mode,
-                "target_episode_count": input_data.target_episode_count,
+                "target_episode_count": _safe_resolved_target_episode_count(input_data),
             },
         )
     )
@@ -102,7 +103,7 @@ def record_script_generation_failure_usage(
             metadata={
                 "input_character_count": _input_character_count(input_data),
                 "source_mode": input_data.source_mode,
-                "target_episode_count": input_data.target_episode_count,
+                "target_episode_count": _safe_resolved_target_episode_count(input_data),
             },
         )
     )
@@ -110,6 +111,13 @@ def record_script_generation_failure_usage(
 
 def _input_character_count(input_data: ShortDramaGenerationInput) -> int:
     return len(input_data.idea_text or "") + len(input_data.source_text or "")
+
+
+def _safe_resolved_target_episode_count(input_data: ShortDramaGenerationInput) -> int | None:
+    try:
+        return resolve_target_episode_count(input_data)
+    except ValueError:
+        return None
 
 
 def _output_character_count(output: ShortDramaScriptOutput) -> int:

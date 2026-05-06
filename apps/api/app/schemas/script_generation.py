@@ -50,6 +50,10 @@ class ShortDramaGenerationInput(BaseModel):
     main_characters: str | None = Field(None, description="主要人物说明，可选。")
     key_relationships: str | None = Field(None, description="关键人物关系，可选。")
     extra_requirements: str | None = Field(None, description="额外要求，可选。")
+    adaptation_notes: dict[str, Any] | None = Field(
+        None,
+        description="改编补充要求，可选。第一版用于保留 target_episode_count 等轻量结构化输入。",
+    )
     language: str = Field("zh", min_length=1, description="输出语言，默认中文。")
     workspace_id: str | None = Field(None, min_length=1, description="工作区 ID，可选。")
     project_id: str | None = Field(None, min_length=1, description="项目 ID，可选。")
