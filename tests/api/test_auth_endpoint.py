@@ -20,6 +20,16 @@ from app.main import app  # noqa: E402
 client = TestClient(app)
 
 
+def assert_response_does_not_expose_auth_secrets(response_text: str) -> None:
+    assert "SafePass123" not in response_text
+    assert "WrongPass123" not in response_text
+    assert "password_hash" not in response_text
+    assert ".sqlite" not in response_text
+    assert ".db" not in response_text
+    assert "/Users/" not in response_text
+    assert "dramora_auth.sqlite3" not in response_text
+
+
 @pytest.fixture(autouse=True)
 def isolated_auth_repository(tmp_path: Path):
     repository = SQLiteAuthRepository(tmp_path / "auth_endpoint_test.sqlite")
@@ -42,6 +52,8 @@ def test_auth_login_returns_safe_creator_session() -> None:
     assert body["session"]["context_policy"] == "current_project_only"
     assert body["token_type"] == "bearer"
     assert body["access_token"] == "safe_mock_token_user_safe_creator_001"
+    assert_response_does_not_expose_auth_secrets(response.text)
+    assert '"password"' not in response.text
 
 
 def test_auth_login_response_does_not_expose_password_or_hash() -> None:
@@ -55,6 +67,7 @@ def test_auth_login_response_does_not_expose_password_or_hash() -> None:
     assert "SafePass123" not in response_text
     assert "password_hash" not in response_text
     assert '"password"' not in response_text
+    assert_response_does_not_expose_auth_secrets(response_text)
 
 
 def test_auth_login_wrong_username_returns_401() -> None:
@@ -65,8 +78,8 @@ def test_auth_login_wrong_username_returns_401() -> None:
 
     assert response.status_code == 401
     assert response.json()["detail"] == AUTH_INVALID_CREDENTIALS_MESSAGE
-    assert "SafePass123" not in response.text
-    assert "password_hash" not in response.text
+    assert_response_does_not_expose_auth_secrets(response.text)
+    assert '"password"' not in response.text
 
 
 def test_auth_login_wrong_password_returns_401() -> None:
@@ -77,8 +90,8 @@ def test_auth_login_wrong_password_returns_401() -> None:
 
     assert response.status_code == 401
     assert response.json()["detail"] == AUTH_INVALID_CREDENTIALS_MESSAGE
-    assert "WrongPass123" not in response.text
-    assert "password_hash" not in response.text
+    assert_response_does_not_expose_auth_secrets(response.text)
+    assert '"password"' not in response.text
 
 
 def test_auth_login_failure_detail_does_not_distinguish_failure_reason() -> None:
@@ -105,6 +118,9 @@ def test_auth_login_empty_password_returns_validation_or_auth_error() -> None:
     assert response.status_code in {401, 422}
     assert "SafePass123" not in response.text
     assert "password_hash" not in response.text
+    assert ".sqlite" not in response.text
+    assert ".db" not in response.text
+    assert "/Users/" not in response.text
 
 
 def test_auth_safe_users_returns_sanitized_internal_users() -> None:
@@ -115,8 +131,7 @@ def test_auth_safe_users_returns_sanitized_internal_users() -> None:
     assert isinstance(body, list)
     assert any(user["username"] == "safe_creator" for user in body)
     response_text = response.text
-    assert "SafePass123" not in response_text
-    assert "password_hash" not in response_text
+    assert_response_does_not_expose_auth_secrets(response_text)
     assert '"password"' not in response_text
 
 

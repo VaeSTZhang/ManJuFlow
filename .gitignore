@@ -32,6 +32,7 @@ apps/api/app/storage/
 generated/
 outputs/
 exports/
+.local/
 *.log
 *.db
 *.sqlite
