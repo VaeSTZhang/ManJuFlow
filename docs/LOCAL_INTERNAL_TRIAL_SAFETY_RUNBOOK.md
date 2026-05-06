@@ -141,6 +141,8 @@ Word 上传只用于导入原文和生成导入预览。上传后用户必须明
 
 ## 8. 日志与错误响应边界
 
+第 360 步已完成日志脱敏、错误响应和安全边界检查。安全测试覆盖 Auth、Script Generation、Document Import、Document Export 和 Ownership guardrails；当前仍未进入云端部署。
+
 日志和错误响应不得包含：
 
 - API Key；
