@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { exportDocument, exportDocumentFile } from "../../api/documentExport";
 import { parseApiErrorMessage } from "../../api/errors";
-import type { AuthLoginOutput } from "../../types/auth";
 import type { ShortDramaScriptOutput } from "../../types/scriptGeneration";
-import { buildCreationContextOptions } from "../../utils/contextOptions";
+import type { BuildContextOptions } from "../../utils/contextOptions";
 
 type UseScriptDocumentExportParams = {
   effectiveScript: ShortDramaScriptOutput | null;
@@ -12,7 +11,7 @@ type UseScriptDocumentExportParams = {
   modelLabel: string;
   generatedAt?: string;
   lastEditedAt?: string;
-  authContext?: AuthLoginOutput | null;
+  buildContextOptions: BuildContextOptions;
   onError: (message: string) => void;
   onSuccess?: () => void;
 };
@@ -107,7 +106,7 @@ export function useScriptDocumentExport({
   modelLabel,
   generatedAt,
   lastEditedAt,
-  authContext,
+  buildContextOptions,
   onError,
   onSuccess,
 }: UseScriptDocumentExportParams) {
@@ -135,7 +134,7 @@ export function useScriptDocumentExport({
         structured_payload: effectiveScript as unknown as Record<string, unknown>,
         export_format: "json",
         filename: "dramora-short-drama-script.json",
-        context_options: buildCreationContextOptions("export", authContext),
+        context_options: buildContextOptions("export"),
         metadata: buildExportMetadata(),
       });
 
@@ -174,7 +173,7 @@ export function useScriptDocumentExport({
         structured_payload: effectiveScript as unknown as Record<string, unknown>,
         export_format: "txt",
         filename: "dramora-short-drama-script.txt",
-        context_options: buildCreationContextOptions("export", authContext),
+        context_options: buildContextOptions("export"),
         metadata: buildExportMetadata(),
       });
 
@@ -205,7 +204,7 @@ export function useScriptDocumentExport({
         structured_payload: effectiveScript as unknown as Record<string, unknown>,
         export_format: "docx",
         filename: "dramora-short-drama-script.docx",
-        context_options: buildCreationContextOptions("export", authContext),
+        context_options: buildContextOptions("export"),
         metadata: buildExportMetadata(),
       });
 

@@ -23,12 +23,12 @@ import type {
   AdaptationMode,
   CreationMode,
 } from "./creationDraftTypes";
-import type { AuthLoginOutput } from "../../types/auth";
 import type { ShortDramaGenerationInput, ShortDramaScriptOutput } from "../../types/scriptGeneration";
+import type { BuildContextOptions } from "../../utils/contextOptions";
 
 type CreationHomeProps = {
   isAuthenticated: boolean;
-  authContext?: AuthLoginOutput | null;
+  buildContextOptions: BuildContextOptions;
   onRequireLogin: () => void;
 };
 
@@ -43,7 +43,11 @@ function buildModelLabel(selectedModel: SelectedCreativeModel): string {
   return selectedModel.model ? `${selectedModel.label} / ${selectedModel.model}` : selectedModel.label;
 }
 
-export function CreationHome({ isAuthenticated, authContext, onRequireLogin }: CreationHomeProps) {
+export function CreationHome({
+  isAuthenticated,
+  buildContextOptions,
+  onRequireLogin,
+}: CreationHomeProps) {
   const [selectedMode, setSelectedMode] = useState<CreationMode | null>(null);
   const [selectedAdaptationMode, setSelectedAdaptationMode] = useState<AdaptationMode | null>(null);
   const {
@@ -90,7 +94,7 @@ export function CreationHome({ isAuthenticated, authContext, onRequireLogin }: C
     updateDocumentImportDraft,
     clearDocumentImportPreview,
     updateAdaptationDraft,
-    authContext,
+    buildContextOptions,
   });
   const {
     downloadShortDramaDocx,
@@ -103,7 +107,7 @@ export function CreationHome({ isAuthenticated, authContext, onRequireLogin }: C
     modelLabel: buildModelLabel(selectedCreativeModel),
     generatedAt: shortDramaGeneratedAt,
     lastEditedAt,
-    authContext,
+    buildContextOptions,
     onError: setScriptGenerationError,
     onSuccess: () => setScriptGenerationError(""),
   });
@@ -193,7 +197,7 @@ export function CreationHome({ isAuthenticated, authContext, onRequireLogin }: C
       mode: "idea",
       drafts,
       selectedModel: selectedCreativeModel,
-      authContext,
+      buildContextOptions,
     });
 
     await runScriptGeneration(requestInput, sourceLabel);
@@ -209,7 +213,7 @@ export function CreationHome({ isAuthenticated, authContext, onRequireLogin }: C
       mode,
       drafts,
       selectedModel: selectedCreativeModel,
-      authContext,
+      buildContextOptions,
     });
 
     await runScriptGeneration(requestInput, sourceLabel);

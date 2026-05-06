@@ -4,6 +4,7 @@ import { useAppToasts } from "./app/useAppToasts";
 import { useImageGenerationWorkspace } from "./app/useImageGenerationWorkspace";
 import { useImagePromptWorkspace } from "./app/useImagePromptWorkspace";
 import { useLegacyIdeaScriptWorkspace } from "./app/useLegacyIdeaScriptWorkspace";
+import { useProjectSessionContext } from "./app/useProjectSessionContext";
 import { useStoryboardWorkspace } from "./app/useStoryboardWorkspace";
 import { useWorkspaceNavigation } from "./app/useWorkspaceNavigation";
 import "./App.css";
@@ -60,6 +61,7 @@ function App() {
     isAuthenticated,
     onRequireLogin: requireLogin,
   });
+  const { buildContextOptions } = useProjectSessionContext({ authContext });
 
   const {
     imageGenerationForm,
@@ -402,7 +404,7 @@ function App() {
       <div className="workspace-transition" key={activeWorkspaceId}>
       {activeWorkspaceId === "creation-home" && (
         <CreationHome
-          authContext={authContext}
+          buildContextOptions={buildContextOptions}
           isAuthenticated={isAuthenticated}
           onRequireLogin={requireLogin}
         />

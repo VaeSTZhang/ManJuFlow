@@ -5,8 +5,7 @@ import type {
   AdaptationMode,
   CreationDrafts,
 } from "../../components/creation/creationDraftTypes";
-import type { AuthLoginOutput } from "../../types/auth";
-import { buildCreationContextOptions } from "../../utils/contextOptions";
+import type { BuildContextOptions } from "../../utils/contextOptions";
 import type { DocumentImportDraftState } from "./useDocumentImportDrafts";
 
 type UpdateDocumentImportDraft = (
@@ -30,7 +29,7 @@ type UseDocumentImportPreviewParams = {
   updateDocumentImportDraft: UpdateDocumentImportDraft;
   clearDocumentImportPreview: ClearDocumentImportPreview;
   updateAdaptationDraft: UpdateAdaptationDraft;
-  authContext?: AuthLoginOutput | null;
+  buildContextOptions: BuildContextOptions;
 };
 
 function getImportProjectTitle(draft: AdaptationDraft): string | null {
@@ -45,7 +44,7 @@ export function useDocumentImportPreview({
   updateDocumentImportDraft,
   clearDocumentImportPreview,
   updateAdaptationDraft,
-  authContext,
+  buildContextOptions,
 }: UseDocumentImportPreviewParams) {
   const handleGenerateDocumentImportPreview = async (mode: AdaptationMode) => {
     if (!isAuthenticated) {
@@ -79,7 +78,7 @@ export function useDocumentImportPreview({
         extracted_text: extractedText,
         source_type: mode === "novel" ? "novel" : "docx",
         project_title: getImportProjectTitle(draft),
-        context_options: buildCreationContextOptions("imported_document", authContext),
+        context_options: buildContextOptions("imported_document"),
       });
       updateDocumentImportDraft(mode, { preview });
     } catch (error) {
@@ -110,7 +109,7 @@ export function useDocumentImportPreview({
       const preview = await previewDocxDocumentImport({
         file,
         project_title: getImportProjectTitle(draft),
-        context_options: buildCreationContextOptions("imported_document", authContext),
+        context_options: buildContextOptions("imported_document"),
       });
       updateDocumentImportDraft(mode, {
         filename: preview.preview.source.filename,

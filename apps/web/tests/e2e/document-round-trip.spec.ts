@@ -16,6 +16,7 @@ const editedEpisodeHook = "她翻到最后一页，发现下一场戏的主角�
 const authUserId = "user_safe_creator_001";
 const authWorkspaceId = "workspace_dramora_internal";
 const authSessionId = "session_safe_creator_001";
+const authProjectId = "project_user_safe_creator_001_creation";
 
 const generatedScriptFixture = {
   project_title: originalScriptTitle,
@@ -293,7 +294,7 @@ async function mockDocxDocumentImportPreview(
         context_options: {
           user_id: authUserId,
           workspace_id: authWorkspaceId,
-          project_id: "project_creation_default",
+          project_id: authProjectId,
           session_id: authSessionId,
           request_id: "request_docx_import_e2e",
           source_stage: "imported_document",
@@ -369,7 +370,7 @@ test.describe("Dramora document round-trip smoke", () => {
     expect(importPayloads[0].context_options?.context_policy).toBe("current_project_only");
     expect(importPayloads[0].context_options?.source_stage).toBe("imported_document");
     expect(importPayloads[0].context_options?.user_id).toBe(authUserId);
-    expect(importPayloads[0].context_options?.project_id).toBe("project_creation_default");
+    expect(importPayloads[0].context_options?.project_id).toBe(authProjectId);
     expect(importPayloads[0].context_options?.session_id).toBe(authSessionId);
     expect(importPayloads[0].context_options?.request_id).toMatch(/^request_\d+$/);
   });
@@ -406,7 +407,7 @@ test.describe("Dramora document round-trip smoke", () => {
     expect(payload.bodyText).toContain('name="workspace_id"');
     expect(payload.bodyText).toContain(authWorkspaceId);
     expect(payload.bodyText).toContain('name="project_id"');
-    expect(payload.bodyText).toContain("project_creation_default");
+    expect(payload.bodyText).toContain(authProjectId);
     expect(payload.bodyText).toContain('name="session_id"');
     expect(payload.bodyText).toContain(authSessionId);
     expect(payload.bodyText).toContain('name="source_stage"');
@@ -448,7 +449,7 @@ test.describe("Dramora document round-trip smoke", () => {
     expect(jsonExportPayload?.context_options?.source_stage).toBe("export");
     expect(jsonExportPayload?.context_options?.context_policy).toBe("current_project_only");
     expect(jsonExportPayload?.context_options?.user_id).toBe(authUserId);
-    expect(jsonExportPayload?.context_options?.project_id).toBe("project_creation_default");
+    expect(jsonExportPayload?.context_options?.project_id).toBe(authProjectId);
     expect(jsonExportPayload?.context_options?.session_id).toBe(authSessionId);
     expect(jsonExportPayload?.context_options?.request_id).toMatch(/^request_\d+$/);
 
@@ -470,7 +471,7 @@ test.describe("Dramora document round-trip smoke", () => {
     expect(txtExportPayload?.context_options?.source_stage).toBe("export");
     expect(txtExportPayload?.context_options?.context_policy).toBe("current_project_only");
     expect(txtExportPayload?.context_options?.user_id).toBe(authUserId);
-    expect(txtExportPayload?.context_options?.project_id).toBe("project_creation_default");
+    expect(txtExportPayload?.context_options?.project_id).toBe(authProjectId);
     expect(txtExportPayload?.context_options?.session_id).toBe(authSessionId);
     expect(txtExportPayload?.context_options?.request_id).toMatch(/^request_\d+$/);
     expect(downloadedText).toContain(editedScriptTitle);
@@ -595,7 +596,7 @@ test.describe("Dramora document round-trip smoke", () => {
     expect(docxPayload.context_options?.source_stage).toBe("export");
     expect(docxPayload.context_options?.context_policy).toBe("current_project_only");
     expect(docxPayload.context_options?.user_id).toBe(authUserId);
-    expect(docxPayload.context_options?.project_id).toBe("project_creation_default");
+    expect(docxPayload.context_options?.project_id).toBe(authProjectId);
     expect(docxPayload.context_options?.session_id).toBe(authSessionId);
     expect(docxPayload.context_options?.request_id).toMatch(/^request_\d+$/);
     expect(download.suggestedFilename()).toBe("dramora-short-drama-script.docx");
