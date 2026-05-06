@@ -8,8 +8,10 @@ from app.services.auth_password_policy import (
 from app.services.auth_service import (
     AuthError,
     authenticate_internal_user,
+    configure_auth_repository_for_testing,
     get_safe_internal_user,
     list_safe_internal_users,
+    reset_auth_repository_for_testing,
 )
 from app.services.auth_seed import (
     SAFE_CREATOR_TEST_PASSWORD,
@@ -128,6 +130,7 @@ __all__ = [
     "build_render_tasks_from_image_generation",
     "check_internal_password_policy",
     "ComfyUIImageGenerationProviderPlaceholder",
+    "configure_auth_repository_for_testing",
     "create_script_upload_mock",
     "create_usage_ledger_entry",
     "count_text_chars",
@@ -176,6 +179,7 @@ __all__ = [
     "normalize_imported_text",
     "parse_docx_bytes_to_text",
     "parse_image_prompt_llm_response",
+    "reset_auth_repository_for_testing",
     "SAFE_CREATOR_TEST_PASSWORD",
     "sanitize_docx_filename",
     "ScriptGenerationEntryConfig",
