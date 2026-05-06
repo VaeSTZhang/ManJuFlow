@@ -1,4 +1,12 @@
 from app.schemas.asset import AssetCollection, AssetItem
+from app.schemas.auth import (
+    AuthLoginInput,
+    AuthLoginOutput,
+    AuthSession,
+    InternalUser,
+    UserRole,
+    UserStatus,
+)
 from app.schemas.context import ContextOptions
 from app.schemas.document import (
     DocumentExportFormat,
@@ -75,6 +83,9 @@ __all__ = [
     "AdaptationNotes",
     "AIRequestOptions",
     "AIRequestPurpose",
+    "AuthLoginInput",
+    "AuthLoginOutput",
+    "AuthSession",
     "CharacterProfile",
     "ContextOptions",
     "DialogueLine",
@@ -99,6 +110,7 @@ __all__ = [
     "ImagePromptInput",
     "ImagePromptItem",
     "ImagePromptOutput",
+    "InternalUser",
     "SceneScript",
     "SceneStoryboard",
     "ShotStoryboard",
@@ -116,6 +128,8 @@ __all__ = [
     "UploadError",
     "UploadSourceInput",
     "UploadSourceMetadata",
+    "UserRole",
+    "UserStatus",
     "UsageLedgerCostEstimate",
     "UsageLedgerCreate",
     "UsageLedgerEntry",
