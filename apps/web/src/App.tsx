@@ -5,6 +5,7 @@ import { generateImagePrompts } from "./api/imagePrompts";
 import { generateStoryboard } from "./api/storyboards";
 import { useAppAuth } from "./app/useAppAuth";
 import { useAppToasts } from "./app/useAppToasts";
+import { useWorkspaceNavigation } from "./app/useWorkspaceNavigation";
 import "./App.css";
 import { AppShell } from "./components/layout/AppShell";
 import { CharacterCountHint } from "./components/common/CharacterCountHint";
@@ -227,7 +228,6 @@ const sidebarItems: SidebarItem[] = [
 ];
 
 function App() {
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState("creation-home");
   const [form, setForm] = useState<IdeaInput>(defaultForm);
   const [result, setResult] = useState<ScriptOutput | null>(null);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
@@ -271,8 +271,16 @@ function App() {
     handleLogout,
     requireLogin,
   } = useAppAuth({ pushToast });
+  const {
+    activeWorkspaceId,
+    setActiveWorkspaceId,
+    handleWorkspaceChange,
+    isBrowsingMode,
+  } = useWorkspaceNavigation({
+    isAuthenticated,
+    onRequireLogin: requireLogin,
+  });
   const isIdeaTextTooLong = form.idea_text.length > IDEA_TEXT_MAX_CHARS;
-  const isBrowsingMode = !isAuthenticated;
 
   const selectedImagePromptModel =
     imagePromptModelOptions.find((option) => option.provider === imagePromptForm.llm_provider) ||
@@ -1043,7 +1051,7 @@ function App() {
         <Sidebar
           activeItemId={activeWorkspaceId}
           items={sidebarItems}
-          onSelect={setActiveWorkspaceId}
+          onSelect={handleWorkspaceChange}
         />
       }
       toast={<Toast messages={toastMessages} onDismiss={dismissToast} />}
