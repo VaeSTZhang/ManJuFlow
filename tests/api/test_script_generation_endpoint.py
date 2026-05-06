@@ -1,16 +1,30 @@
 from pathlib import Path
 import sys
 
+import pytest
 from fastapi.testclient import TestClient
 
 
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
+from app.repositories.usage_ledger_repository import SQLiteUsageLedgerRepository  # noqa: E402
 from app.main import app  # noqa: E402
 from app.config import get_settings  # noqa: E402
 from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript, ScriptOutput  # noqa: E402
 from app.schemas.script_generation import ShortDramaScriptOutput  # noqa: E402
+from app.services.usage_ledger_service import (  # noqa: E402
+    configure_usage_ledger_repository_for_testing,
+    reset_usage_ledger_repository_for_testing,
+)
+
+
+@pytest.fixture(autouse=True)
+def isolated_usage_ledger_repository(tmp_path: Path):
+    repository = SQLiteUsageLedgerRepository(tmp_path / "script_generation_endpoint_usage.sqlite")
+    configure_usage_ledger_repository_for_testing(repository)
+    yield repository
+    reset_usage_ledger_repository_for_testing()
 
 
 def make_source_request(**overrides) -> dict:
@@ -140,7 +154,10 @@ def test_generate_from_source_llm_mode_film_script_returns_short_drama_output(mo
     assert data["metadata"]["generation_mode"] == "llm"
 
 
-def test_generate_from_source_returns_422_when_episode_contract_fails(monkeypatch) -> None:
+def test_generate_from_source_returns_422_when_episode_contract_fails(
+    monkeypatch,
+    isolated_usage_ledger_repository: SQLiteUsageLedgerRepository,
+) -> None:
     settings = get_settings()
     monkeypatch.setattr(settings, "script_generation_mode", "llm")
     monkeypatch.setattr(
@@ -173,6 +190,11 @@ def test_generate_from_source_returns_422_when_episode_contract_fails(monkeypatc
             source_mode="film_script",
             source_text="安全虚构电影剧本片段。",
             target_episode_count=3,
+            context_options={
+                "request_id": "request_endpoint_contract_failed",
+                "project_id": "project_endpoint_contract",
+                "session_id": "session_endpoint_contract",
+            },
         ),
     )
     data = response.json()
@@ -185,6 +207,20 @@ def test_generate_from_source_returns_422_when_episode_contract_fails(monkeypatc
     assert "episodes=1" in data["detail"]["reason"]
     assert "source_text" not in str(data["detail"])
     assert "安全虚构电影剧本片段" not in str(data["detail"])
+
+    stored = isolated_usage_ledger_repository.get_entry_by_request_id(
+        "request_endpoint_contract_failed"
+    )
+    assert stored is not None
+    assert stored.status == "failed"
+    assert stored.operation == "film_adaptation"
+    assert stored.source_mode == "film_script"
+    assert stored.project_id == "project_endpoint_contract"
+    assert stored.session_id == "session_endpoint_contract"
+    assert stored.error_code == "script_generation_contract_failed"
+    assert stored.metadata_json is not None
+    assert "source_text" not in stored.metadata_json
+    assert "安全虚构电影剧本片段" not in stored.metadata_json
 
 
 def test_generate_from_source_llm_mode_novel_returns_short_drama_output(monkeypatch) -> None:

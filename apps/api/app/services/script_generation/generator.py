@@ -11,8 +11,14 @@ from app.services.script_generation.novel_adaptation import (
     generate_novel_adaptation_llm,
     generate_novel_adaptation_mock,
 )
-from app.services.script_generation.usage_ledger import attach_usage_ledger_metadata
-from app.services.script_generation.validation import validate_target_episode_count_contract
+from app.services.script_generation.usage_ledger import (
+    attach_usage_ledger_metadata,
+    record_script_generation_failure_usage,
+)
+from app.services.script_generation.validation import (
+    ScriptGenerationContractError,
+    validate_target_episode_count_contract,
+)
 from app.services.script_service import generate_script_mock, generate_script_with_llm
 
 
@@ -53,8 +59,7 @@ def convert_script_output_to_short_drama_output(
         episodes=script_output.episodes,
         metadata=metadata,
     )
-    validated_output = validate_target_episode_count_contract(input_data, output)
-    return attach_usage_ledger_metadata(validated_output, input_data)
+    return _validate_and_attach_usage(output, input_data)
 
 
 def generate_short_drama_script_mock(
@@ -66,13 +71,11 @@ def generate_short_drama_script_mock(
 
     if input_data.source_mode == "film_script":
         output = generate_film_script_adaptation_mock(input_data)
-        validated_output = validate_target_episode_count_contract(input_data, output)
-        return attach_usage_ledger_metadata(validated_output, input_data)
+        return _validate_and_attach_usage(output, input_data)
 
     if input_data.source_mode == "novel":
         output = generate_novel_adaptation_mock(input_data)
-        validated_output = validate_target_episode_count_contract(input_data, output)
-        return attach_usage_ledger_metadata(validated_output, input_data)
+        return _validate_and_attach_usage(output, input_data)
 
     if input_data.source_mode == "assistant_rewrite":
         raise NotImplementedError(
@@ -121,16 +124,30 @@ def generate_short_drama_script(
 
         if input_data.source_mode == "film_script":
             output = generate_film_script_adaptation_llm(input_data)
-            validated_output = validate_target_episode_count_contract(input_data, output)
-            return attach_usage_ledger_metadata(validated_output, input_data)
+            return _validate_and_attach_usage(output, input_data)
 
         if input_data.source_mode == "novel":
             output = generate_novel_adaptation_llm(input_data)
-            validated_output = validate_target_episode_count_contract(input_data, output)
-            return attach_usage_ledger_metadata(validated_output, input_data)
+            return _validate_and_attach_usage(output, input_data)
 
         raise NotImplementedError(
             f"SCRIPT_GENERATION_MODE=llm is not implemented for source_mode='{input_data.source_mode}' yet."
         )
 
     raise ValueError("SCRIPT_GENERATION_MODE only supports 'mock' or 'llm'.")
+
+
+def _validate_and_attach_usage(
+    output: ShortDramaScriptOutput,
+    input_data: ShortDramaGenerationInput,
+) -> ShortDramaScriptOutput:
+    try:
+        validated_output = validate_target_episode_count_contract(input_data, output)
+    except ScriptGenerationContractError as exc:
+        record_script_generation_failure_usage(
+            input_data,
+            error_code="script_generation_contract_failed",
+            error_message_safe=str(exc),
+        )
+        raise
+    return attach_usage_ledger_metadata(validated_output, input_data)

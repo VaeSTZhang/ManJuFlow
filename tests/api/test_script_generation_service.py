@@ -8,6 +8,7 @@ API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
 from app.config import get_settings
+from app.repositories.usage_ledger_repository import SQLiteUsageLedgerRepository
 from app.schemas.context import ContextOptions
 from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript, ScriptOutput
 from app.schemas.script_generation import AIRequestOptions, ShortDramaGenerationInput, ShortDramaScriptOutput
@@ -16,6 +17,19 @@ from app.services.script_generation.generator import (
     generate_short_drama_script,
     generate_short_drama_script_mock,
 )
+from app.services.script_generation.validation import ScriptGenerationContractError
+from app.services.usage_ledger_service import (
+    configure_usage_ledger_repository_for_testing,
+    reset_usage_ledger_repository_for_testing,
+)
+
+
+@pytest.fixture(autouse=True)
+def isolated_usage_ledger_repository(tmp_path: Path):
+    repository = SQLiteUsageLedgerRepository(tmp_path / "script_generation_usage_test.sqlite")
+    configure_usage_ledger_repository_for_testing(repository)
+    yield repository
+    reset_usage_ledger_repository_for_testing()
 
 
 def make_fake_script_output() -> ScriptOutput:
@@ -342,6 +356,52 @@ def test_generate_short_drama_script_mock_idea_attaches_usage_ledger_metadata():
     assert usage_ledger["request_id"] == "request-usage-001"
 
 
+def test_generate_short_drama_script_mock_idea_persists_usage_ledger(
+    isolated_usage_ledger_repository: SQLiteUsageLedgerRepository,
+) -> None:
+    input_data = ShortDramaGenerationInput(
+        source_mode="idea",
+        idea_text="雨夜里，女主收到一封来自十年前的信。",
+        target_episode_count=3,
+        ai_options=AIRequestOptions(
+            provider="deepseek",
+            model="deepseek-chat",
+            purpose="script_generation",
+        ),
+        context_options=ContextOptions(
+            user_id="user-usage-idea",
+            workspace_id="workspace-usage",
+            project_id="project-usage-idea",
+            session_id="session-usage-idea",
+            request_id="request-usage-idea",
+            source_stage="generated_script",
+        ),
+    )
+
+    generate_short_drama_script_mock(input_data)
+    stored = isolated_usage_ledger_repository.get_entry_by_request_id("request-usage-idea")
+
+    assert stored is not None
+    assert stored.operation == "script_generation"
+    assert stored.status == "success"
+    assert stored.source_mode == "idea"
+    assert stored.user_id == "user-usage-idea"
+    assert stored.workspace_id == "workspace-usage"
+    assert stored.project_id == "project-usage-idea"
+    assert stored.session_id == "session-usage-idea"
+    assert stored.provider == "deepseek"
+    assert stored.model == "deepseek-chat"
+    assert stored.purpose == "script_generation"
+    assert stored.input_character_count == len("雨夜里，女主收到一封来自十年前的信。")
+    assert stored.output_character_count is not None
+    assert stored.output_character_count > 0
+    assert stored.metadata_json is not None
+    assert "source_text" not in stored.metadata_json
+    assert "idea_text" not in stored.metadata_json
+    assert "沈知远" not in stored.metadata_json
+    assert "第1集：归来线索" not in stored.metadata_json
+
+
 def test_generate_short_drama_script_usage_ledger_does_not_include_source_or_output_body():
     input_data = ShortDramaGenerationInput(
         source_mode="idea",
@@ -355,8 +415,8 @@ def test_generate_short_drama_script_usage_ledger_does_not_include_source_or_out
 
     assert "source_text" not in usage_ledger_text
     assert "idea_text" not in usage_ledger_text
-    assert "characters" not in usage_ledger_text
-    assert "episodes" not in usage_ledger_text
+    assert "沈知远" not in usage_ledger_text
+    assert "第1集：归来线索" not in usage_ledger_text
     assert "雨夜里，女主收到一封来自十年前的信。" not in usage_ledger_text
 
 
@@ -377,6 +437,29 @@ def test_generate_short_drama_script_mock_for_film_script_dispatches_to_film_moc
     assert output.metadata["usage_ledger"]["operation"] == "film_adaptation"
 
 
+def test_generate_short_drama_script_mock_for_film_script_persists_usage_ledger(
+    isolated_usage_ledger_repository: SQLiteUsageLedgerRepository,
+) -> None:
+    input_data = ShortDramaGenerationInput(
+        source_mode="film_script",
+        project_title="旧片场改编测试",
+        source_text="虚构电影剧本片段。",
+        target_episode_count=4,
+        context_options=ContextOptions(request_id="request-usage-film"),
+    )
+
+    generate_short_drama_script_mock(input_data)
+    stored = isolated_usage_ledger_repository.get_entry_by_request_id("request-usage-film")
+
+    assert stored is not None
+    assert stored.operation == "film_adaptation"
+    assert stored.status == "success"
+    assert stored.source_mode == "film_script"
+    assert stored.input_character_count == len("虚构电影剧本片段。")
+    assert stored.metadata_json is not None
+    assert "虚构电影剧本片段" not in stored.metadata_json
+
+
 def test_generate_short_drama_script_mock_for_novel_dispatches_to_novel_mock():
     input_data = ShortDramaGenerationInput(
         source_mode="novel",
@@ -392,6 +475,29 @@ def test_generate_short_drama_script_mock_for_novel_dispatches_to_novel_mock():
     assert output.episode_count == 4
     assert len(output.episodes) == 4
     assert output.metadata["usage_ledger"]["operation"] == "novel_adaptation"
+
+
+def test_generate_short_drama_script_mock_for_novel_persists_usage_ledger(
+    isolated_usage_ledger_repository: SQLiteUsageLedgerRepository,
+) -> None:
+    input_data = ShortDramaGenerationInput(
+        source_mode="novel",
+        project_title="旧书店改编测试",
+        source_text="虚构小说片段。",
+        target_episode_count=4,
+        context_options=ContextOptions(request_id="request-usage-novel"),
+    )
+
+    generate_short_drama_script_mock(input_data)
+    stored = isolated_usage_ledger_repository.get_entry_by_request_id("request-usage-novel")
+
+    assert stored is not None
+    assert stored.operation == "novel_adaptation"
+    assert stored.status == "success"
+    assert stored.source_mode == "novel"
+    assert stored.input_character_count == len("虚构小说片段。")
+    assert stored.metadata_json is not None
+    assert "虚构小说片段" not in stored.metadata_json
 
 
 def test_generate_short_drama_script_mock_rejects_assistant_rewrite_source_mode():
@@ -412,6 +518,70 @@ def test_generate_short_drama_script_mock_rejects_uploaded_document_source_mode(
 
     with pytest.raises(NotImplementedError, match="Document Import"):
         generate_short_drama_script_mock(input_data)
+
+
+def test_generate_short_drama_script_contract_failure_persists_failed_usage_ledger(
+    monkeypatch,
+    isolated_usage_ledger_repository: SQLiteUsageLedgerRepository,
+) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "script_generation_mode", "llm")
+
+    def fake_generate_film_script_adaptation_llm(input_data):
+        return ShortDramaScriptOutput(
+            project_title="旧片场复仇夜",
+            source_mode="film_script",
+            logline="女演员回到废弃片场追查父亲失踪真相。",
+            world_setting="废弃片场与旧电影工业交织。",
+            characters=[],
+            adaptation_notes=None,
+            episode_count=1,
+            episodes=[
+                EpisodeScript(
+                    episode_number=1,
+                    title="第1集：片场线索",
+                    summary="女演员发现第一条片场旧案线索。",
+                    hook="旧道具暴露新的真相。",
+                    scenes=[],
+                )
+            ],
+            metadata={"generation_mode": "llm"},
+        )
+
+    monkeypatch.setattr(
+        "app.services.script_generation.generator.generate_film_script_adaptation_llm",
+        fake_generate_film_script_adaptation_llm,
+    )
+    input_data = ShortDramaGenerationInput(
+        source_mode="film_script",
+        source_text="安全虚构电影剧本片段。",
+        target_episode_count=3,
+        context_options=ContextOptions(
+            request_id="request-usage-contract-failed",
+            project_id="project-contract-test",
+            session_id="session-contract-test",
+        ),
+    )
+
+    with pytest.raises(ScriptGenerationContractError):
+        generate_short_drama_script(input_data)
+
+    stored = isolated_usage_ledger_repository.get_entry_by_request_id(
+        "request-usage-contract-failed"
+    )
+
+    assert stored is not None
+    assert stored.operation == "film_adaptation"
+    assert stored.status == "failed"
+    assert stored.source_mode == "film_script"
+    assert stored.project_id == "project-contract-test"
+    assert stored.session_id == "session-contract-test"
+    assert stored.error_code == "script_generation_contract_failed"
+    assert stored.error_message_safe is not None
+    assert "requested=3" in stored.error_message_safe
+    stored_text = str(stored)
+    assert "source_text" not in stored_text
+    assert "安全虚构电影剧本片段" not in stored_text
 
 
 def test_generate_short_drama_script_mock_idea_requires_idea_text():
