@@ -15,7 +15,7 @@
 
 ## 1.1 当前治理状态
 
-截至第 337 步，大部分 app-level hooks 和 image prompt workspace 拆分已完成：
+截至第 339 步，前端 App 第一轮结构治理已完成：
 
 - 第 327 步：新增前端 App 结构治理方案文档；
 - 第 328 步：抽出 `useAppToasts`；
@@ -24,12 +24,14 @@
 - 第 332 步：抽出 `useLegacyIdeaScriptWorkspace`；
 - 第 334 步：抽出 `useStoryboardWorkspace`；
 - 第 336 步：抽出 `useImagePromptWorkspace`；
-- `App.tsx` 已从 2167 行降到约 1704 行；
+- 第 338 步：抽出 `useImageGenerationWorkspace`；
+- `App.tsx` 已从 2167 行降到 1465 行；
 - 前端 `npm run build` 通过；
 - 前端 `npm run test:e2e` 13 passed；
+- 后端 `python -m pytest tests/api` 557 passed；
 - git status clean。
 
-这只代表大部分 app-level hooks 和 image prompt workspace 拆分已完成，不代表 `App.tsx` 治理已经结束。`App.tsx` 仍然偏大，后续需要继续拆 image generation workspace orchestration。
+这代表前端 App 第一轮结构治理已完成，不代表 `App.tsx` 已经彻底完美。主要 workspace orchestration 已从 `App.tsx` 拆出，后续仍可继续渐进优化，但不应为了追求完美拆分无限拖延服务器部署前准备。
 
 ## 2. 当前 App.tsx 主要职责
 
@@ -179,10 +181,12 @@ apps/web/src/hooks/creation/
 - 第 334 步：拆 storyboard workspace orchestration；（已完成）
 - 第 335 步：同步结构治理文档状态；（已完成）
 - 第 336 步：拆 image prompt workspace orchestration；（已完成）
-- 第 337 步：同步结构治理文档状态；
-- 第 338 步：拆 image generation workspace orchestration；
-- 第 339 步：`App.tsx` 收敛复查；
+- 第 337 步：同步结构治理文档状态；（已完成）
+- 第 338 步：拆 image generation workspace orchestration；（已完成）
+- 第 339 步：`App.tsx` 收敛复查；（已完成）
 - 第 340 步：README / Roadmap 同步。
+
+第 340 步之后，如有必要，可继续拆 system status、assets/tasks 展示、legacy remaining UI 等模块，但这些不应作为当前服务器部署前硬阻塞。
 
 每一步都必须满足：
 
@@ -202,7 +206,7 @@ apps/web/src/hooks/creation/
 
 风险提示：
 
-旧 workspace orchestration 拆分比 `useAppToasts` / `useAppAuth` / `useWorkspaceNavigation` 风险更高。下一阶段 image generation 拆分风险最高，因为它涉及 prompt_items JSON 解析、图片生成请求、image generation bundle、asset collection、render tasks、error states，以及 prompt → image generation 自动带入。后续必须一次只拆 image generation workspace，不要同时动 Auth、CreationHome、Document Round-trip、Usage Ledger 或后端；拆完必须运行 `npm run build` 和 `npm run test:e2e`。
+旧 workspace orchestration 拆分比 `useAppToasts` / `useAppAuth` / `useWorkspaceNavigation` 风险更高。当前第一轮拆分已经覆盖 legacy idea/script、storyboard、image prompt、image generation。后续如果继续拆 system status、assets/tasks 展示或 remaining legacy UI，仍必须一次只拆一个小闭环，不要同时动 Auth、CreationHome、Document Round-trip、Usage Ledger 或后端；拆完必须运行 `npm run build` 和 `npm run test:e2e`。
 
 ## 7. 当前不做什么
 
@@ -233,4 +237,4 @@ apps/web/src/hooks/creation/
 
 当前结论：
 
-`App.tsx` 仍是前端最大结构风险。大部分 app-level hooks 和 image prompt workspace 拆分已完成，下一阶段应继续拆 image generation workspace orchestration，通过小步治理把根组件逐步压回 AppShell 与 workspace router 职责。
+前端 App 第一轮结构治理已完成。`App.tsx` 仍可继续优化，但已经从 2167 行下降到 1465 行，主要 workspace orchestration 已被拆出，不再是服务器部署前最大的结构阻塞项。当前服务器部署前的主要风险应转向 Auth 持久化、Usage Ledger 持久化、部署 Runbook、环境变量、HTTPS/CORS、日志脱敏和权限边界。后续可以继续渐进拆分，但不应继续为了“完美拆分”拖延部署前准备。
