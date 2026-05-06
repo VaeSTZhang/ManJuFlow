@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { loginInternalUser } from "./api/auth";
 import { generateImageBundle, generateImages } from "./api/imageGenerations";
 import { createApiErrorFromResponse, parseApiErrorMessage } from "./api/errors";
 import { generateImagePrompts } from "./api/imagePrompts";
@@ -21,6 +22,7 @@ import type {
 import type { ImageGenerationBundleOutput } from "./types/imageGenerationBundle";
 import type { ImagePromptInput, ImagePromptOutput } from "./types/imagePrompt";
 import type { StoryboardInput, StoryboardOutput } from "./types/storyboard";
+import type { AuthLoginOutput } from "./types/auth";
 import type { SidebarItem } from "./components/layout/Sidebar";
 import type { ToastMessage, ToastType } from "./components/layout/Toast";
 
@@ -227,6 +229,8 @@ const sidebarItems: SidebarItem[] = [
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authContext, setAuthContext] = useState<AuthLoginOutput | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [activeWorkspaceId, setActiveWorkspaceId] = useState("creation-home");
   const [form, setForm] = useState<IdeaInput>(defaultForm);
   const [result, setResult] = useState<ScriptOutput | null>(null);
@@ -281,13 +285,27 @@ function App() {
     window.setTimeout(() => dismissToast(id), 3500);
   };
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    pushToast("success", "登录成功", "已进入内部试用账号。");
+  const handleLogin = async () => {
+    setIsAuthLoading(true);
+
+    try {
+      const loginOutput = await loginInternalUser({
+        username: "safe_creator",
+        password: "SafePass123",
+      });
+      setAuthContext(loginOutput);
+      setIsAuthenticated(true);
+      pushToast("success", "登录成功", "已进入内部试用账号。");
+    } catch (error) {
+      pushToast("error", "登录失败", parseApiErrorMessage(error, "登录失败，请确认账号或密码。"));
+    } finally {
+      setIsAuthLoading(false);
+    }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setAuthContext(null);
     pushToast("info", "已退出登录", "当前为浏览模式，登录后可操作。");
   };
 
@@ -1066,13 +1084,14 @@ function App() {
       toast={<Toast messages={toastMessages} onDismiss={dismissToast} />}
       topbar={
         <div className="top-auth-bar">
-          <span>{isAuthenticated ? "内部试用账号" : "浏览模式"}</span>
+          <span>{isAuthenticated ? authContext?.user.display_name ?? "内部试用账号" : "浏览模式"}</span>
           <button
             className="auth-button"
+            disabled={isAuthLoading}
             onClick={isAuthenticated ? handleLogout : handleLogin}
             type="button"
           >
-            {isAuthenticated ? "退出登录" : "登录"}
+            {isAuthLoading ? "登录中..." : isAuthenticated ? "退出登录" : "登录"}
           </button>
         </div>
       }
@@ -1081,6 +1100,7 @@ function App() {
       <div className="workspace-transition" key={activeWorkspaceId}>
       {activeWorkspaceId === "creation-home" && (
         <CreationHome
+          authContext={authContext}
           isAuthenticated={isAuthenticated}
           onRequireLogin={requireLogin}
         />

@@ -15,6 +15,9 @@ const originalWorldSetting = "当代都市，旧楼改造前夜。";
 const editedScriptTitle = "测试短剧：灯火归来";
 const editedScriptLogline = "年轻编剧回到旧楼，在层层反转中找回父亲留下的最后一场戏。";
 const editedWorldSetting = "当代都市旧楼即将拆迁，所有角色都被一份未完成剧本重新牵连。";
+const authUserId = "user_safe_creator_001";
+const authWorkspaceId = "workspace_dramora_internal";
+const authSessionId = "session_safe_creator_001";
 
 const creativeModelCases = [
   {
@@ -121,7 +124,41 @@ type ScriptGenerationPayload = {
   context_options?: RequestContextOptions;
 };
 
+async function mockAuth(page: Page) {
+  await page.route("**/api/auth/login", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      status: 200,
+      body: JSON.stringify({
+        user: {
+          user_id: authUserId,
+          username: "safe_creator",
+          display_name: "安全测试创作者",
+          role: "creator",
+          status: "active",
+          workspace_id: authWorkspaceId,
+          created_at: null,
+          updated_at: null,
+          metadata: {},
+        },
+        session: {
+          session_id: authSessionId,
+          user_id: authUserId,
+          workspace_id: authWorkspaceId,
+          role: "creator",
+          status: "active",
+          expires_at: null,
+          context_policy: "current_project_only",
+        },
+        access_token: "safe_test_token",
+        token_type: "bearer",
+      }),
+    });
+  });
+}
+
 async function login(page: Page) {
+  await mockAuth(page);
   await page.getByRole("button", { name: "登录" }).click();
   await expect(page.getByRole("button", { name: "退出登录" })).toBeVisible();
 }
@@ -309,11 +346,12 @@ test.describe("Dramora creation home smoke", () => {
       "project_creation_default",
     );
     expect(capturedPayloads.get("novel")?.context_options?.session_id).toBe(
-      "session_creation_default",
+      authSessionId,
     );
 
     for (const payload of capturedPayloads.values()) {
-      expect(payload.context_options?.workspace_id).toBe("workspace_dramora_internal");
+      expect(payload.context_options?.user_id).toBe(authUserId);
+      expect(payload.context_options?.workspace_id).toBe(authWorkspaceId);
       expect(payload.context_options?.request_id).toMatch(/^request_\d+$/);
     }
   });

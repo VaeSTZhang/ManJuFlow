@@ -1,5 +1,6 @@
 import type { SelectedCreativeModel } from "../ai/CreativeModelPanel";
 import type { AdaptationMode, CreationDrafts } from "./creationDraftTypes";
+import type { AuthLoginOutput } from "../../types/auth";
 import type { AIRequestPurpose, ShortDramaGenerationInput } from "../../types/scriptGeneration";
 import { buildCreationContextOptions } from "../../utils/contextOptions";
 
@@ -26,6 +27,7 @@ type BuildShortDramaGenerationRequestParams = {
   mode: ShortDramaGenerationRequestMode;
   drafts: CreationDrafts;
   selectedModel: SelectedCreativeModel;
+  authContext?: AuthLoginOutput | null;
 };
 
 type ShortDramaGenerationRequest = {
@@ -64,6 +66,7 @@ function buildAIRequestOptions(
 export function buildIdeaGenerationInput(
   draft: IdeaGenerationDraftInput,
   selectedModel: SelectedCreativeModel,
+  authContext?: AuthLoginOutput | null,
 ): ShortDramaGenerationInput {
   const genreStyle = trimToOptional(draft.genreStyle) ?? "短剧";
 
@@ -77,7 +80,7 @@ export function buildIdeaGenerationInput(
     extra_requirements: trimToOptional(draft.extraRequirements),
     language: "zh",
     ai_options: buildAIRequestOptions(selectedModel, "script_generation"),
-    context_options: buildCreationContextOptions(),
+    context_options: buildCreationContextOptions("generated_script", authContext),
     metadata: {
       source_entry: "idea",
     },
@@ -87,6 +90,7 @@ export function buildIdeaGenerationInput(
 export function buildFilmScriptGenerationInput(
   draft: AdaptationGenerationDraftInput,
   selectedModel: SelectedCreativeModel,
+  authContext?: AuthLoginOutput | null,
 ): ShortDramaGenerationInput {
   return {
     project_title: trimToOptional(draft.projectTitle) ?? "未命名电影改编短剧",
@@ -99,7 +103,7 @@ export function buildFilmScriptGenerationInput(
     extra_requirements: trimToOptional(draft.extraRequirements),
     language: "zh",
     ai_options: buildAIRequestOptions(selectedModel, "film_adaptation"),
-    context_options: buildCreationContextOptions(),
+    context_options: buildCreationContextOptions("generated_script", authContext),
     metadata: {
       source_entry: "film_script",
       source_title: trimToOptional(draft.sourceTitle),
@@ -110,6 +114,7 @@ export function buildFilmScriptGenerationInput(
 export function buildNovelGenerationInput(
   draft: AdaptationGenerationDraftInput,
   selectedModel: SelectedCreativeModel,
+  authContext?: AuthLoginOutput | null,
 ): ShortDramaGenerationInput {
   return {
     project_title: trimToOptional(draft.projectTitle) ?? "未命名小说改编短剧",
@@ -122,7 +127,7 @@ export function buildNovelGenerationInput(
     extra_requirements: trimToOptional(draft.extraRequirements),
     language: "zh",
     ai_options: buildAIRequestOptions(selectedModel, "novel_adaptation"),
-    context_options: buildCreationContextOptions(),
+    context_options: buildCreationContextOptions("generated_script", authContext),
     metadata: {
       source_entry: "novel",
       source_title: trimToOptional(draft.sourceTitle),
@@ -134,23 +139,24 @@ export function buildShortDramaGenerationRequest({
   mode,
   drafts,
   selectedModel,
+  authContext,
 }: BuildShortDramaGenerationRequestParams): ShortDramaGenerationRequest {
   if (mode === "idea") {
     return {
-      requestInput: buildIdeaGenerationInput(drafts.idea, selectedModel),
+      requestInput: buildIdeaGenerationInput(drafts.idea, selectedModel, authContext),
       sourceLabel: "灵感生成",
     };
   }
 
   if (mode === "film") {
     return {
-      requestInput: buildFilmScriptGenerationInput(drafts.film, selectedModel),
+      requestInput: buildFilmScriptGenerationInput(drafts.film, selectedModel, authContext),
       sourceLabel: "电影剧本改编",
     };
   }
 
   return {
-    requestInput: buildNovelGenerationInput(drafts.novel, selectedModel),
+    requestInput: buildNovelGenerationInput(drafts.novel, selectedModel, authContext),
     sourceLabel: "小说 / 网文改编",
   };
 }

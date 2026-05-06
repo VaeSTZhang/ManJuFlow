@@ -23,10 +23,12 @@ import type {
   AdaptationMode,
   CreationMode,
 } from "./creationDraftTypes";
+import type { AuthLoginOutput } from "../../types/auth";
 import type { ShortDramaGenerationInput, ShortDramaScriptOutput } from "../../types/scriptGeneration";
 
 type CreationHomeProps = {
   isAuthenticated: boolean;
+  authContext?: AuthLoginOutput | null;
   onRequireLogin: () => void;
 };
 
@@ -41,7 +43,7 @@ function buildModelLabel(selectedModel: SelectedCreativeModel): string {
   return selectedModel.model ? `${selectedModel.label} / ${selectedModel.model}` : selectedModel.label;
 }
 
-export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomeProps) {
+export function CreationHome({ isAuthenticated, authContext, onRequireLogin }: CreationHomeProps) {
   const [selectedMode, setSelectedMode] = useState<CreationMode | null>(null);
   const [selectedAdaptationMode, setSelectedAdaptationMode] = useState<AdaptationMode | null>(null);
   const {
@@ -88,6 +90,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     updateDocumentImportDraft,
     clearDocumentImportPreview,
     updateAdaptationDraft,
+    authContext,
   });
   const {
     downloadShortDramaDocx,
@@ -100,6 +103,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
     modelLabel: buildModelLabel(selectedCreativeModel),
     generatedAt: shortDramaGeneratedAt,
     lastEditedAt,
+    authContext,
     onError: setScriptGenerationError,
     onSuccess: () => setScriptGenerationError(""),
   });
@@ -189,6 +193,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       mode: "idea",
       drafts,
       selectedModel: selectedCreativeModel,
+      authContext,
     });
 
     await runScriptGeneration(requestInput, sourceLabel);
@@ -204,6 +209,7 @@ export function CreationHome({ isAuthenticated, onRequireLogin }: CreationHomePr
       mode,
       drafts,
       selectedModel: selectedCreativeModel,
+      authContext,
     });
 
     await runScriptGeneration(requestInput, sourceLabel);
