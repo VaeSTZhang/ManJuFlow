@@ -4,6 +4,7 @@ import { generateImageBundle, generateImages } from "./api/imageGenerations";
 import { createApiErrorFromResponse, parseApiErrorMessage } from "./api/errors";
 import { generateImagePrompts } from "./api/imagePrompts";
 import { generateStoryboard } from "./api/storyboards";
+import { useAppToasts } from "./app/useAppToasts";
 import "./App.css";
 import { AppShell } from "./components/layout/AppShell";
 import { CharacterCountHint } from "./components/common/CharacterCountHint";
@@ -24,7 +25,6 @@ import type { ImagePromptInput, ImagePromptOutput } from "./types/imagePrompt";
 import type { StoryboardInput, StoryboardOutput } from "./types/storyboard";
 import type { AuthLoginOutput } from "./types/auth";
 import type { SidebarItem } from "./components/layout/Sidebar";
-import type { ToastMessage, ToastType } from "./components/layout/Toast";
 
 type IdeaInput = {
   idea_text: string;
@@ -266,24 +266,13 @@ function App() {
   const [imageGenerationBundleError, setImageGenerationBundleError] = useState("");
   const [imageGenerationBundleResult, setImageGenerationBundleResult] =
     useState<ImageGenerationBundleOutput | null>(null);
-  const [toastMessages, setToastMessages] = useState<ToastMessage[]>([]);
+  const { toastMessages, pushToast, dismissToast } = useAppToasts();
   const isIdeaTextTooLong = form.idea_text.length > IDEA_TEXT_MAX_CHARS;
   const isBrowsingMode = !isAuthenticated;
 
   const selectedImagePromptModel =
     imagePromptModelOptions.find((option) => option.provider === imagePromptForm.llm_provider) ||
     imagePromptModelOptions[0];
-
-  const dismissToast = (id: string) => {
-    setToastMessages((current) => current.filter((message) => message.id !== id));
-  };
-
-  const pushToast = (type: ToastType, title: string, description?: string) => {
-    const id = `${Date.now()}-${Math.random()}`;
-
-    setToastMessages((current) => [...current, { id, type, title, description }]);
-    window.setTimeout(() => dismissToast(id), 3500);
-  };
 
   const handleLogin = async () => {
     setIsAuthLoading(true);
