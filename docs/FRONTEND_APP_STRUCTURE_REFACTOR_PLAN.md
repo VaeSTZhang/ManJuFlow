@@ -13,6 +13,20 @@
 
 本阶段不应一次性大重构。`App.tsx` 治理必须以小步拆分、行为不变、测试通过为基本原则。
 
+## 1.1 当前治理状态
+
+截至第 330 步，第一批低风险 hook 拆分已完成：
+
+- 第 327 步：新增前端 App 结构治理方案文档；
+- 第 328 步：抽出 `useAppToasts`；
+- 第 329 步：抽出 `useAppAuth`；
+- 第 330 步：抽出 `useWorkspaceNavigation`；
+- 前端 `npm run build` 通过；
+- 前端 `npm run test:e2e` 13 passed；
+- git status clean。
+
+这只代表第一批低风险 hook 已完成，不代表 `App.tsx` 治理已经结束。`App.tsx` 仍是当前前端最大结构风险，后续需要继续拆旧 workspace orchestration。
+
 ## 2. 当前 App.tsx 主要职责
 
 当前 `App.tsx` 同时承担了多类职责：
@@ -152,13 +166,15 @@ apps/web/src/hooks/creation/
 
 建议路线：
 
-- 第 327 步：新增结构治理设计文档；
-- 第 328 步：抽出 `useAppToasts`；
-- 第 329 步：抽出 `useAppAuth`；
-- 第 330 步：抽出 `useWorkspaceNavigation`；
-- 第 331 步：把旧 idea/script/storyboard/prompt/image workspace orchestration 拆出 `App.tsx`；
-- 第 332 步：让 `App.tsx` 只保留 `AppShell` + workspace router；
-- 第 333 步：同步 e2e / README / Roadmap 状态。
+- 第 327 步：新增结构治理设计文档；（已完成）
+- 第 328 步：抽出 `useAppToasts`；（已完成）
+- 第 329 步：抽出 `useAppAuth`；（已完成）
+- 第 330 步：抽出 `useWorkspaceNavigation`；（已完成）
+- 第 331 步：同步结构治理文档状态；
+- 第 332 步：拆 legacy idea/script workspace orchestration；
+- 第 333 步：拆 storyboard workspace orchestration；
+- 第 334 步：拆 image prompt / image generation workspace orchestration；
+- 第 335 步：让 `App.tsx` 进一步收敛为 `AppShell` + workspace router。
 
 每一步都必须满足：
 
@@ -175,6 +191,10 @@ apps/web/src/hooks/creation/
 2. `useAppAuth`：与第 324 步 Auth API 接入直接相关；
 3. `useWorkspaceNavigation`：隔离 active workspace 和 sidebar 逻辑；
 4. 旧阶段 workspaces：拆分体量较大，放在前几个低风险 hook 之后。
+
+风险提示：
+
+旧 workspace orchestration 拆分比 `useAppToasts` / `useAppAuth` / `useWorkspaceNavigation` 风险更高。后续必须一次只拆一个 workspace，并且每次拆完都运行 `npm run build` 和 `npm run test:e2e`。不要一次性迁移 legacy idea、storyboard、image prompt 和 image generation。
 
 ## 7. 当前不做什么
 
@@ -205,4 +225,4 @@ apps/web/src/hooks/creation/
 
 当前结论：
 
-`App.tsx` 已经是前端最大结构风险。下一步应优先抽 `useAppToasts`，再抽 `useAppAuth`，通过小步治理把根组件逐步压回 AppShell 与 workspace router 职责。
+`App.tsx` 已经是前端最大结构风险。第一批低风险 hook 拆分已完成，下一阶段应进入旧 workspace orchestration 的分批拆分，通过小步治理把根组件逐步压回 AppShell 与 workspace router 职责。
