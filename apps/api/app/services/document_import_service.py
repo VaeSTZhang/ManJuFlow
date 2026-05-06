@@ -9,6 +9,7 @@ from app.schemas.document_import import (
     DocumentImportPreview,
     DocumentImportSource,
 )
+from app.services.document_usage_ledger import record_document_import_usage
 
 
 DEFAULT_IMPORT_PREVIEW_MAX_CHARS = 1000
@@ -121,11 +122,13 @@ def build_document_import_preview(
         },
     )
 
-    return DocumentImportOutput(
+    output = DocumentImportOutput(
         project_title=project_title,
         preview=preview,
         context_options=context_options,
     )
+    record_document_import_usage(output=output, context_options=context_options)
+    return output
 
 
 def build_docx_import_preview(
@@ -137,7 +140,19 @@ def build_docx_import_preview(
     project_title: str | None = None,
     context_options: ContextOptions | None = None,
 ) -> DocumentImportOutput:
-    extracted_text = parse_docx_bytes_to_text(file_bytes)
+    try:
+        extracted_text = parse_docx_bytes_to_text(file_bytes)
+    except ValueError as exc:
+        record_document_import_usage(
+            output=None,
+            context_options=context_options,
+            status="failed",
+            error_code="document_import_failed",
+            error_message_safe=str(exc),
+            file_size_bytes=file_size_bytes if file_size_bytes is not None else len(file_bytes),
+            source_type="docx",
+        )
+        raise
     return build_document_import_preview(
         filename=filename,
         extracted_text=extracted_text,

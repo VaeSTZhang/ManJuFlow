@@ -8,6 +8,7 @@ import pytest
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
+from app.repositories.usage_ledger_repository import SQLiteUsageLedgerRepository
 from app.schemas.document import DocumentExportInput, DocumentExportOutput
 from app.services.document_export_service import (
     DOCX_EXPORT_NOT_IMPLEMENTED_MESSAGE,
@@ -16,6 +17,18 @@ from app.services.document_export_service import (
     build_txt_export_content,
     export_document,
 )
+from app.services.usage_ledger_service import (
+    configure_usage_ledger_repository_for_testing,
+    reset_usage_ledger_repository_for_testing,
+)
+
+
+@pytest.fixture(autouse=True)
+def isolated_usage_ledger_repository(tmp_path: Path):
+    repository = SQLiteUsageLedgerRepository(tmp_path / "document_export_service_test.sqlite")
+    configure_usage_ledger_repository_for_testing(repository)
+    yield repository
+    reset_usage_ledger_repository_for_testing()
 
 
 def test_export_document_txt_returns_document_export_output() -> None:

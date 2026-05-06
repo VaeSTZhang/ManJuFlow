@@ -6,6 +6,7 @@ from typing import Any
 from docx import Document
 
 from app.schemas.document import DocumentExportInput
+from app.services.document_usage_ledger import record_document_export_usage
 
 
 DEFAULT_DOCX_BASENAME = "dramora-document"
@@ -170,9 +171,33 @@ def build_short_drama_docx_document(input_data: DocumentExportInput) -> Document
 
 def build_docx_export_bytes(input_data: DocumentExportInput) -> bytes:
     if input_data.export_format != "docx":
+        record_document_export_usage(
+            input_data=input_data,
+            document_operation="export_docx",
+            status="failed",
+            error_code="document_export_docx_failed",
+            error_message_safe="DOCX export requires export_format='docx'.",
+        )
         raise ValueError("DOCX export requires export_format='docx'.")
 
-    document = build_short_drama_docx_document(input_data)
-    buffer = BytesIO()
-    document.save(buffer)
-    return buffer.getvalue()
+    try:
+        document = build_short_drama_docx_document(input_data)
+        buffer = BytesIO()
+        document.save(buffer)
+        docx_bytes = buffer.getvalue()
+    except Exception as exc:
+        record_document_export_usage(
+            input_data=input_data,
+            document_operation="export_docx",
+            status="failed",
+            error_code="document_export_docx_failed",
+            error_message_safe="DOCX export failed.",
+        )
+        raise ValueError("DOCX export failed.") from exc
+
+    record_document_export_usage(
+        input_data=input_data,
+        document_operation="export_docx",
+        file_size_bytes=len(docx_bytes),
+    )
+    return docx_bytes

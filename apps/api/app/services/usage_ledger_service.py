@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import re
+from uuid import uuid4
 
 from app.repositories.usage_ledger_repository import SQLiteUsageLedgerRepository, UsageLedgerRecord
 from app.schemas.usage_ledger import (
@@ -46,7 +47,7 @@ def _build_usage_ledger_id(input_data: UsageLedgerCreate) -> str:
         return f"usage_{_safe_id_part(input_data.request_id)}"
     if input_data.context and input_data.context.request_id:
         return f"usage_{_safe_id_part(input_data.context.request_id)}"
-    return DEFAULT_USAGE_LEDGER_ID
+    return f"{DEFAULT_USAGE_LEDGER_ID}_{uuid4().hex}"
 
 
 def _sanitize_usage_metadata(
@@ -156,7 +157,11 @@ def _build_usage_ledger_record(entry: UsageLedgerEntry) -> UsageLedgerRecord:
         generation_mode=str(entry.metadata.get("generation_mode")) if entry.metadata.get("generation_mode") else None,
         status=entry.status,
         source_mode=entry.source_mode,
-        document_operation=None,
+        document_operation=(
+            str(entry.metadata.get("document_operation"))
+            if entry.metadata.get("document_operation")
+            else None
+        ),
         input_character_count=_metadata_int(entry.metadata.get("input_character_count")),
         output_character_count=_metadata_int(entry.metadata.get("output_character_count")),
         prompt_token_count=cost_estimate.input_tokens if cost_estimate else None,

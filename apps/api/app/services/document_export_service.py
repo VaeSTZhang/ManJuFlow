@@ -4,6 +4,7 @@ from pathlib import PurePosixPath
 from typing import Any
 
 from app.schemas.document import DocumentExportInput, DocumentExportOutput
+from app.services.document_usage_ledger import record_document_export_usage
 
 
 DOCX_EXPORT_NOT_IMPLEMENTED_MESSAGE = "DOCX export is not implemented yet."
@@ -136,6 +137,13 @@ def _build_export_metadata(input_data: DocumentExportInput, content_source: str)
 
 def export_document(input_data: DocumentExportInput) -> DocumentExportOutput:
     if input_data.export_format == "docx":
+        record_document_export_usage(
+            input_data=input_data,
+            document_operation="export_docx",
+            status="failed",
+            error_code="unsupported_export_format",
+            error_message_safe=DOCX_EXPORT_NOT_IMPLEMENTED_MESSAGE,
+        )
         raise ValueError(DOCX_EXPORT_NOT_IMPLEMENTED_MESSAGE)
 
     if input_data.export_format == "txt":
@@ -147,7 +155,7 @@ def export_document(input_data: DocumentExportInput) -> DocumentExportOutput:
     else:
         raise ValueError(f"Unsupported export format: {input_data.export_format}")
 
-    return DocumentExportOutput(
+    output = DocumentExportOutput(
         project_title=input_data.project_title,
         document_type=input_data.document_type,
         source_stage=input_data.source_stage,
@@ -161,3 +169,9 @@ def export_document(input_data: DocumentExportInput) -> DocumentExportOutput:
         session_id=input_data.session_id,
         metadata=_build_export_metadata(input_data, content_source),
     )
+    record_document_export_usage(
+        input_data=input_data,
+        output=output,
+        document_operation=f"export_{input_data.export_format}",
+    )
+    return output
