@@ -33,6 +33,10 @@ apps/api/.local/
 generated/
 outputs/
 exports/
+apps/api/exports/
+backups/
+logs/
+apps/api/logs/
 .local/
 *.log
 *.db

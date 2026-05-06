@@ -50,6 +50,8 @@
 
 ## 4. 本地试运行目录边界
 
+本地运行数据目录与备份策略见 [Local Data Storage and Backup Plan｜本地数据目录与备份方案](LOCAL_DATA_STORAGE_AND_BACKUP_PLAN.md)。第 359 步已完成数据库文件、上传目录、导出目录、日志目录保护方案。
+
 以下目录或文件可以在本地运行时出现，但不能提交到公开仓库：
 
 - `.local/`
