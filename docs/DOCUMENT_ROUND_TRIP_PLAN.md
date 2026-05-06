@@ -2,7 +2,7 @@
 
 ## 1. 文档目的
 
-本文档用于定义 ManJuFlow 后续如何支持编剧用户熟悉的文档往返工作流：
+本文档用于定义 Dramora 后续如何支持编剧用户熟悉的文档往返工作流：
 
 - 在线编辑；
 - 下载 Word；
@@ -10,9 +10,35 @@
 - 再上传；
 - 继续进入剧本切分、分镜、绘图 / 媒体 Prompt 等后续阶段。
 
-这不是锦上添花功能，而是编剧行业用户的核心工作习惯。ManJuFlow 后续不能只支持单向生成，还需要让生成结果可编辑、可导出、可再导入，并能继续进入下一步生产链路。
+这不是锦上添花功能，而是编剧行业用户的核心工作习惯。Dramora 后续不能只支持单向生成，还需要让生成结果可编辑、可导出、可再导入，并能继续进入下一步生产链路。
 
-当前文档只做方案设计，不实现代码，不接真实文件处理，不引入新依赖。
+## 1.1 当前实现状态｜2026-05-06
+
+Document Round-trip 第一版主链路已经进入可浏览器验收状态：
+
+- `DocumentExportInput` / `DocumentExportOutput` 已完成；
+- TXT / JSON 导出 service 与 `POST /api/documents/export` 已完成；
+- DOCX bytes export service 与 `POST /api/documents/export-file` 已完成；
+- 前端 TXT / JSON / Word 下载已接入后端 Document Export 契约；
+- `DocumentImport` schema 已完成；
+- JSON metadata-only import preview：`POST /api/documents/import-preview` 已完成；
+- 真实 `.docx` bytes 解析 service 已完成；
+- 真实 multipart `.docx` 导入预览：`POST /api/documents/import-docx-preview` 已完成；
+- 前端已支持选择 `.docx` 文件上传并生成导入预览；
+- 导入预览后仍由用户确认“填入待改编文本 / 追加到当前文本后 / 取消导入”；
+- 浏览器手动验收已通过：安全虚构 `.docx` 上传成功、预览可见、确认填入后可继续生成短剧剧本、在线编辑正常、DOCX 下载正常。
+
+当前仍未完成：
+
+- 不保存真实上传文件；
+- 不做上传文件持久化；
+- 不做生产对象存储；
+- 不做正式权限系统；
+- 不做真实审计后台；
+- 不做导入后的自动改编方向判断；
+- 用户仍需填写“改编方向 / 重点要求”。
+
+当前状态仍是内部开发与部署前准备，不代表已生产上线。
 
 ## 2. 用户真实需求
 
@@ -79,11 +105,12 @@
 - Prompt；
 - 质量评审结果。
 
-建议后端后续新增：
+当前后端已支持：
 
 - `DocumentExportInput`；
 - `DocumentExportOutput`；
-- `POST /api/documents/export`。
+- `POST /api/documents/export`：TXT / JSON JSON 响应；
+- `POST /api/documents/export-file`：DOCX bytes 文件响应。
 
 `DocumentExportInput` 字段建议：
 
@@ -115,11 +142,12 @@
 - 用户修改后的 Prompt Word；
 - 后续支持 `.txt` / `.md`。
 
-建议后端后续新增：
+当前后端已支持：
 
-- `DocumentImportInput`；
+- `DocumentImport` schema；
 - `DocumentImportOutput`；
-- `POST /api/documents/import`。
+- `POST /api/documents/import-preview`：JSON metadata-only preview；
+- `POST /api/documents/import-docx-preview`：multipart `.docx` 上传预览。
 
 `DocumentImportInput` / `DocumentImportOutput` 字段建议：
 
@@ -142,10 +170,12 @@
 
 用户可能在不同阶段上传文件，因此上传能力不应长期只绑定到 `/api/uploads/script`。
 
-未来建议抽象为：
+当前第一版已经抽象出 documents 路由：
 
-- `POST /api/documents/import`；
-- `POST /api/documents/export`。
+- `POST /api/documents/import-preview`；
+- `POST /api/documents/import-docx-preview`；
+- `POST /api/documents/export`；
+- `POST /api/documents/export-file`。
 
 现有接口：
 
@@ -272,20 +302,25 @@ AI 生成剧本
 
 ## 13. 市场试用优先级
 
-### P0
+### P0 已完成主链路
 
-- 在线编辑文本；
+- 在线基础编辑；
 - 字数限制；
 - 下载 `.txt` / `.json`；
-- 真实 `.docx` 上传提取文本；
-- 上传后进入已有剧本切分。
-
-### P1
-
 - 下载 `.docx`；
+- 真实 `.docx` 上传提取文本；
+- 上传后进入导入预览；
+- 用户确认填入 / 追加 / 取消；
+- 确认填入后可继续进入短剧生成、在线编辑和 DOCX 导出。
+
+### P1 待继续
+
 - 分镜 / Prompt 下载 Word；
 - 上传后选择目标阶段；
-- metadata 保存。
+- 生产上传文件持久化；
+- 正式权限绑定；
+- usage ledger 持久化；
+- metadata 审计后台。
 
 ### P2
 
@@ -300,16 +335,24 @@ AI 生成剧本
 
 建议后续按以下小闭环推进：
 
-- 新增 Document Round-trip 方案文档；
-- 新增 `DocumentExport` Schema；
-- 新增纯文本导出服务；
-- 新增 `.docx` 导出服务；
-- 新增 `DocumentImport` Schema；
-- 新增真实 multipart upload；
-- 接入 `python-docx`；
-- 上传后 `extracted_text` 进入切分；
-- 在线编辑区第一版；
-- 浏览器验收。
+- 已完成：Document Round-trip 方案文档；
+- 已完成：`DocumentExport` Schema；
+- 已完成：纯文本 / JSON 导出服务；
+- 已完成：`.docx` 导出服务；
+- 已完成：`DocumentImport` Schema；
+- 已完成：真实 multipart `.docx` 导入预览；
+- 已完成：`python-docx` 导入 / 导出基础能力；
+- 已完成：上传后 `extracted_text` 进入导入预览，由用户确认填入；
+- 已完成：在线编辑区第一版；
+- 已完成：浏览器验收。
+
+后续建议：
+
+- 生产上传文件持久化设计；
+- 权限绑定后的 project/session 文档归属校验；
+- usage ledger 持久化；
+- 分镜 / Prompt 阶段的文档往返；
+- 部署前安全 Runbook。
 
 每一步都应保持可测试、可回滚，不一次性重构上传、导出、编辑和版本管理。
 

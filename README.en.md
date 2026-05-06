@@ -51,6 +51,7 @@ Dramora currently focuses on an internal script generation and adaptation workbe
 - the `film_script` `target_episode_count` issue has been guarded by prompt tuning and backend contract validation;
 - generated results use a unified `ShortDramaScriptOutput`;
 - the frontend supports review, basic editing, and TXT / JSON / DOCX export;
+- real `.docx` import preview is wired into the frontend, with user confirmation before filling or appending source text;
 - `context_options` now tracks the first layer of user / workspace / project / session ownership;
 - Usage Ledger schema and non-persistent service foundations have been added.
 
@@ -79,7 +80,7 @@ Storyboarding, prompt generation, image generation, assets, and tasks remain in 
 - AppShell / Sidebar / Toast workbench foundation;
 - Idea-to-script baseline workflow;
 - Text organization / script adaptation workspace;
-- Word import preview and user confirmation flow;
+- real `.docx` Word import preview and user confirmation flow;
 - input limits and backend validation;
 - frontend-friendly API error display;
 - Document Import / Export schemas, services, and endpoints;

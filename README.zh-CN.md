@@ -52,6 +52,7 @@
 - 生成结果统一为 `ShortDramaScriptOutput`；
 - 前端支持在线审看和基础字段编辑；
 - TXT / JSON / DOCX 导出已接入后端 Document Export 契约；
+- 真实 `.docx` 导入预览已接入前端，支持用户确认后填入或追加到待改编文本；
 - `context_options` 已用于 user / workspace / project / session 第一层归属追踪；
 - Usage Ledger 第一版 schema / service / 生成链路 metadata 已完成；
 - `.gitignore` 已强化，避免 `.env`、`.venv`、`node_modules`、`dist`、测试报告、上传文件和本地存储进入公开仓库。
@@ -81,7 +82,7 @@
 - AppShell / Sidebar / Toast 工作台基础；
 - 灵感生成剧本基础链路；
 - 文本整理 / 剧本改编 workspace；
-- Word 导入预览与用户确认交互；
+- 真实 `.docx` Word 导入预览与用户确认交互；
 - 字数限制与后端输入校验；
 - 前端接口错误友好提示；
 - Document Import / Export Schema、service、endpoint；
