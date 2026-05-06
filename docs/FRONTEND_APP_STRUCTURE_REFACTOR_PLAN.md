@@ -15,17 +15,20 @@
 
 ## 1.1 当前治理状态
 
-截至第 330 步，第一批低风险 hook 拆分已完成：
+截至第 335 步，第一批低风险 hook 和 storyboard workspace 拆分已完成：
 
 - 第 327 步：新增前端 App 结构治理方案文档；
 - 第 328 步：抽出 `useAppToasts`；
 - 第 329 步：抽出 `useAppAuth`；
 - 第 330 步：抽出 `useWorkspaceNavigation`；
+- 第 332 步：抽出 `useLegacyIdeaScriptWorkspace`；
+- 第 334 步：抽出 `useStoryboardWorkspace`；
+- `App.tsx` 已从 2167 行降到约 1889 行；
 - 前端 `npm run build` 通过；
 - 前端 `npm run test:e2e` 13 passed；
 - git status clean。
 
-这只代表第一批低风险 hook 已完成，不代表 `App.tsx` 治理已经结束。`App.tsx` 仍是当前前端最大结构风险，后续需要继续拆旧 workspace orchestration。
+这只代表第一批低风险 hook 和 storyboard workspace 拆分已完成，不代表 `App.tsx` 治理已经结束。`App.tsx` 仍然偏大，后续需要继续拆 image prompt / image generation workspace orchestration。
 
 ## 2. 当前 App.tsx 主要职责
 
@@ -170,11 +173,14 @@ apps/web/src/hooks/creation/
 - 第 328 步：抽出 `useAppToasts`；（已完成）
 - 第 329 步：抽出 `useAppAuth`；（已完成）
 - 第 330 步：抽出 `useWorkspaceNavigation`；（已完成）
-- 第 331 步：同步结构治理文档状态；
-- 第 332 步：拆 legacy idea/script workspace orchestration；
-- 第 333 步：拆 storyboard workspace orchestration；
-- 第 334 步：拆 image prompt / image generation workspace orchestration；
-- 第 335 步：让 `App.tsx` 进一步收敛为 `AppShell` + workspace router。
+- 第 331 步：同步结构治理文档状态；（已完成）
+- 第 332 步：拆 legacy idea/script workspace orchestration；（已完成）
+- 第 334 步：拆 storyboard workspace orchestration；（已完成）
+- 第 335 步：同步结构治理文档状态；
+- 第 336 步：拆 image prompt workspace orchestration；
+- 第 337 步：拆 image generation workspace orchestration；
+- 第 338 步：`App.tsx` 收敛复查；
+- 第 339 步：README / Roadmap 同步。
 
 每一步都必须满足：
 
@@ -194,7 +200,7 @@ apps/web/src/hooks/creation/
 
 风险提示：
 
-旧 workspace orchestration 拆分比 `useAppToasts` / `useAppAuth` / `useWorkspaceNavigation` 风险更高。后续必须一次只拆一个 workspace，并且每次拆完都运行 `npm run build` 和 `npm run test:e2e`。不要一次性迁移 legacy idea、storyboard、image prompt 和 image generation。
+旧 workspace orchestration 拆分比 `useAppToasts` / `useAppAuth` / `useWorkspaceNavigation` 风险更高。下一阶段 image prompt / image generation 拆分风险比 storyboard 更高，因为它们涉及 prompt items JSON、provider/model 选择、image generation bundle、asset/task mock，以及旧阶段向后续工作流转移。后续必须一次只拆一个 workspace，并且每次拆完都运行 `npm run build` 和 `npm run test:e2e`。不要一次性迁移全部图片相关逻辑。
 
 ## 7. 当前不做什么
 
@@ -225,4 +231,4 @@ apps/web/src/hooks/creation/
 
 当前结论：
 
-`App.tsx` 已经是前端最大结构风险。第一批低风险 hook 拆分已完成，下一阶段应进入旧 workspace orchestration 的分批拆分，通过小步治理把根组件逐步压回 AppShell 与 workspace router 职责。
+`App.tsx` 仍是前端最大结构风险。第一批低风险 hook 和 storyboard workspace 拆分已完成，下一阶段应继续拆 image prompt / image generation workspace orchestration，通过小步治理把根组件逐步压回 AppShell 与 workspace router 职责。
