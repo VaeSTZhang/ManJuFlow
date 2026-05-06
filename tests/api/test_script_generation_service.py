@@ -8,6 +8,7 @@ API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
 from app.config import get_settings
+from app.repositories.ownership_repository import SQLiteOwnershipRepository
 from app.repositories.usage_ledger_repository import SQLiteUsageLedgerRepository
 from app.schemas.context import ContextOptions
 from app.schemas.script import CharacterProfile, DialogueLine, EpisodeScript, SceneScript, ScriptOutput
@@ -22,14 +23,22 @@ from app.services.usage_ledger_service import (
     configure_usage_ledger_repository_for_testing,
     reset_usage_ledger_repository_for_testing,
 )
+from app.services.ownership_service import (
+    configure_ownership_repository_for_testing,
+    get_ownership_repository,
+    reset_ownership_repository_for_testing,
+)
 
 
 @pytest.fixture(autouse=True)
 def isolated_usage_ledger_repository(tmp_path: Path):
-    repository = SQLiteUsageLedgerRepository(tmp_path / "script_generation_usage_test.sqlite")
-    configure_usage_ledger_repository_for_testing(repository)
-    yield repository
+    usage_repository = SQLiteUsageLedgerRepository(tmp_path / "script_generation_usage_test.sqlite")
+    ownership_repository = SQLiteOwnershipRepository(tmp_path / "script_generation_ownership_test.sqlite")
+    configure_usage_ledger_repository_for_testing(usage_repository)
+    configure_ownership_repository_for_testing(ownership_repository)
+    yield usage_repository
     reset_usage_ledger_repository_for_testing()
+    reset_ownership_repository_for_testing()
 
 
 def make_fake_script_output() -> ScriptOutput:
@@ -402,6 +411,38 @@ def test_generate_short_drama_script_mock_idea_persists_usage_ledger(
     assert "第1集：归来线索" not in stored.metadata_json
 
 
+def test_generate_short_drama_script_mock_idea_creates_project_and_session_ownership() -> None:
+    input_data = ShortDramaGenerationInput(
+        source_mode="idea",
+        idea_text="雨夜里，女主收到一封来自十年前的信。",
+        target_episode_count=3,
+        context_options=ContextOptions(
+            user_id="user-ownership-idea",
+            workspace_id="workspace-ownership",
+            project_id="project-ownership-idea",
+            session_id="session-ownership-idea",
+            request_id="request-ownership-idea",
+            source_stage="generated_script",
+        ),
+    )
+
+    output = generate_short_drama_script_mock(input_data)
+    repository = get_ownership_repository()
+    project = repository.get_project("project-ownership-idea")
+    session = repository.get_session("session-ownership-idea")
+
+    assert project is not None
+    assert project.workspace_id == "workspace-ownership"
+    assert project.owner_user_id == "user-ownership-idea"
+    assert project.source_mode == "idea"
+    assert session is not None
+    assert session.project_id == "project-ownership-idea"
+    assert session.user_id == "user-ownership-idea"
+    assert output.metadata["ownership"]["project_id"] == "project-ownership-idea"
+    assert output.metadata["ownership"]["session_id"] == "session-ownership-idea"
+    assert "雨夜里，女主收到一封来自十年前的信。" not in (project.metadata_json or "")
+
+
 def test_generate_short_drama_script_usage_ledger_does_not_include_source_or_output_body():
     input_data = ShortDramaGenerationInput(
         source_mode="idea",
@@ -460,6 +501,30 @@ def test_generate_short_drama_script_mock_for_film_script_persists_usage_ledger(
     assert "虚构电影剧本片段" not in stored.metadata_json
 
 
+def test_generate_short_drama_script_mock_for_film_script_creates_ownership() -> None:
+    input_data = ShortDramaGenerationInput(
+        source_mode="film_script",
+        project_title="旧片场改编测试",
+        source_text="虚构电影剧本片段。",
+        target_episode_count=4,
+        context_options=ContextOptions(
+            project_id="project-ownership-film",
+            session_id="session-ownership-film",
+        ),
+    )
+
+    output = generate_short_drama_script_mock(input_data)
+    repository = get_ownership_repository()
+    project = repository.get_project("project-ownership-film")
+    session = repository.get_session("session-ownership-film")
+
+    assert project is not None
+    assert project.source_mode == "film_script"
+    assert session is not None
+    assert session.project_id == "project-ownership-film"
+    assert output.metadata["ownership"]["project_id"] == "project-ownership-film"
+
+
 def test_generate_short_drama_script_mock_for_novel_dispatches_to_novel_mock():
     input_data = ShortDramaGenerationInput(
         source_mode="novel",
@@ -498,6 +563,30 @@ def test_generate_short_drama_script_mock_for_novel_persists_usage_ledger(
     assert stored.input_character_count == len("虚构小说片段。")
     assert stored.metadata_json is not None
     assert "虚构小说片段" not in stored.metadata_json
+
+
+def test_generate_short_drama_script_mock_for_novel_creates_ownership() -> None:
+    input_data = ShortDramaGenerationInput(
+        source_mode="novel",
+        project_title="旧书店改编测试",
+        source_text="虚构小说片段。",
+        target_episode_count=4,
+        context_options=ContextOptions(
+            project_id="project-ownership-novel",
+            session_id="session-ownership-novel",
+        ),
+    )
+
+    output = generate_short_drama_script_mock(input_data)
+    repository = get_ownership_repository()
+    project = repository.get_project("project-ownership-novel")
+    session = repository.get_session("session-ownership-novel")
+
+    assert project is not None
+    assert project.source_mode == "novel"
+    assert session is not None
+    assert session.project_id == "project-ownership-novel"
+    assert output.metadata["ownership"]["session_id"] == "session-ownership-novel"
 
 
 def test_generate_short_drama_script_mock_rejects_assistant_rewrite_source_mode():

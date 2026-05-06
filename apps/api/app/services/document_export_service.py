@@ -5,6 +5,7 @@ from typing import Any
 
 from app.schemas.document import DocumentExportInput, DocumentExportOutput
 from app.services.document_usage_ledger import record_document_export_usage
+from app.services.ownership_service import record_export_document_ownership
 
 
 DOCX_EXPORT_NOT_IMPLEMENTED_MESSAGE = "DOCX export is not implemented yet."
@@ -169,9 +170,47 @@ def export_document(input_data: DocumentExportInput) -> DocumentExportOutput:
         session_id=input_data.session_id,
         metadata=_build_export_metadata(input_data, content_source),
     )
+    record_export_document_ownership(
+        context_options=input_data.context_options,
+        project_title=input_data.project_title,
+        source_mode=_structured_source_mode(input_data),
+        document_type=input_data.document_type,
+        source_stage=input_data.source_stage,
+        export_format=input_data.export_format,
+        filename_safe=output.filename,
+        content_type=_content_type_for_export(input_data.export_format),
+        file_size_bytes=output.file_size_bytes,
+        character_count=len(output.content_text or ""),
+        episode_count=_structured_count(input_data, "episodes"),
+        characters_count=_structured_count(input_data, "characters"),
+    )
     record_document_export_usage(
         input_data=input_data,
         output=output,
         document_operation=f"export_{input_data.export_format}",
     )
     return output
+
+
+def _structured_source_mode(input_data: DocumentExportInput) -> str | None:
+    if input_data.structured_payload is None:
+        return None
+    source_mode = input_data.structured_payload.get("source_mode")
+    return str(source_mode) if source_mode else None
+
+
+def _structured_count(input_data: DocumentExportInput, key: str) -> int | None:
+    if input_data.structured_payload is None:
+        return None
+    value = input_data.structured_payload.get(key)
+    if isinstance(value, list):
+        return len(value)
+    return None
+
+
+def _content_type_for_export(export_format: str) -> str:
+    if export_format == "json":
+        return "application/json;charset=utf-8"
+    if export_format == "txt":
+        return "text/plain;charset=utf-8"
+    return "application/octet-stream"

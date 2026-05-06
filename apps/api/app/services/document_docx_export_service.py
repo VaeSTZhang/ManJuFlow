@@ -7,6 +7,7 @@ from docx import Document
 
 from app.schemas.document import DocumentExportInput
 from app.services.document_usage_ledger import record_document_export_usage
+from app.services.ownership_service import record_export_document_ownership
 
 
 DEFAULT_DOCX_BASENAME = "dramora-document"
@@ -200,4 +201,34 @@ def build_docx_export_bytes(input_data: DocumentExportInput) -> bytes:
         document_operation="export_docx",
         file_size_bytes=len(docx_bytes),
     )
+    record_export_document_ownership(
+        context_options=input_data.context_options,
+        project_title=input_data.project_title,
+        source_mode=_structured_source_mode(input_data),
+        document_type=input_data.document_type,
+        source_stage=input_data.source_stage,
+        export_format="docx",
+        filename_safe=sanitize_docx_filename(input_data.filename, input_data.project_title),
+        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        file_size_bytes=len(docx_bytes),
+        character_count=None,
+        episode_count=_structured_count(input_data, "episodes"),
+        characters_count=_structured_count(input_data, "characters"),
+    )
     return docx_bytes
+
+
+def _structured_source_mode(input_data: DocumentExportInput) -> str | None:
+    if input_data.structured_payload is None:
+        return None
+    source_mode = input_data.structured_payload.get("source_mode")
+    return str(source_mode) if source_mode else None
+
+
+def _structured_count(input_data: DocumentExportInput, key: str) -> int | None:
+    if input_data.structured_payload is None:
+        return None
+    value = input_data.structured_payload.get(key)
+    if isinstance(value, list):
+        return len(value)
+    return None

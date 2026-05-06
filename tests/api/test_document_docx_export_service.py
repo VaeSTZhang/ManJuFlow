@@ -9,8 +9,9 @@ import pytest
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
-from app.schemas.document import DocumentExportInput
 from app.repositories.usage_ledger_repository import SQLiteUsageLedgerRepository
+from app.repositories.ownership_repository import SQLiteOwnershipRepository
+from app.schemas.document import DocumentExportInput
 from app.services.document_docx_export_service import (
     build_docx_export_bytes,
     sanitize_docx_filename,
@@ -19,14 +20,21 @@ from app.services.usage_ledger_service import (
     configure_usage_ledger_repository_for_testing,
     reset_usage_ledger_repository_for_testing,
 )
+from app.services.ownership_service import (
+    configure_ownership_repository_for_testing,
+    reset_ownership_repository_for_testing,
+)
 
 
 @pytest.fixture(autouse=True)
 def isolated_usage_ledger_repository(tmp_path: Path):
-    repository = SQLiteUsageLedgerRepository(tmp_path / "document_docx_export_service_test.sqlite")
-    configure_usage_ledger_repository_for_testing(repository)
-    yield repository
+    usage_repository = SQLiteUsageLedgerRepository(tmp_path / "document_docx_export_service_test.sqlite")
+    ownership_repository = SQLiteOwnershipRepository(tmp_path / "document_docx_export_ownership_test.sqlite")
+    configure_usage_ledger_repository_for_testing(usage_repository)
+    configure_ownership_repository_for_testing(ownership_repository)
+    yield usage_repository
     reset_usage_ledger_repository_for_testing()
+    reset_ownership_repository_for_testing()
 
 
 def make_short_drama_export_input(**overrides) -> DocumentExportInput:

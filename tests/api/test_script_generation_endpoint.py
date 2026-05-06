@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
+from app.repositories.ownership_repository import SQLiteOwnershipRepository  # noqa: E402
 from app.repositories.usage_ledger_repository import SQLiteUsageLedgerRepository  # noqa: E402
 from app.main import app  # noqa: E402
 from app.config import get_settings  # noqa: E402
@@ -17,14 +18,21 @@ from app.services.usage_ledger_service import (  # noqa: E402
     configure_usage_ledger_repository_for_testing,
     reset_usage_ledger_repository_for_testing,
 )
+from app.services.ownership_service import (  # noqa: E402
+    configure_ownership_repository_for_testing,
+    reset_ownership_repository_for_testing,
+)
 
 
 @pytest.fixture(autouse=True)
 def isolated_usage_ledger_repository(tmp_path: Path):
-    repository = SQLiteUsageLedgerRepository(tmp_path / "script_generation_endpoint_usage.sqlite")
-    configure_usage_ledger_repository_for_testing(repository)
-    yield repository
+    usage_repository = SQLiteUsageLedgerRepository(tmp_path / "script_generation_endpoint_usage.sqlite")
+    ownership_repository = SQLiteOwnershipRepository(tmp_path / "script_generation_endpoint_ownership.sqlite")
+    configure_usage_ledger_repository_for_testing(usage_repository)
+    configure_ownership_repository_for_testing(ownership_repository)
+    yield usage_repository
     reset_usage_ledger_repository_for_testing()
+    reset_ownership_repository_for_testing()
 
 
 def make_source_request(**overrides) -> dict:

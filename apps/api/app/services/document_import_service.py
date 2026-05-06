@@ -10,6 +10,7 @@ from app.schemas.document_import import (
     DocumentImportSource,
 )
 from app.services.document_usage_ledger import record_document_import_usage
+from app.services.ownership_service import record_import_document_ownership
 
 
 DEFAULT_IMPORT_PREVIEW_MAX_CHARS = 1000
@@ -126,6 +127,18 @@ def build_document_import_preview(
         project_title=project_title,
         preview=preview,
         context_options=context_options,
+    )
+    record_import_document_ownership(
+        context_options=context_options,
+        project_title=project_title or preview.detected_title,
+        source_mode=source_type,
+        filename_safe=safe_filename,
+        content_type=content_type,
+        file_size_bytes=file_size_bytes,
+        character_count=preview.character_count,
+        paragraph_count=preview.paragraph_count,
+        source_type=source_type,
+        has_detected_title=preview.detected_title is not None,
     )
     record_document_import_usage(output=output, context_options=context_options)
     return output

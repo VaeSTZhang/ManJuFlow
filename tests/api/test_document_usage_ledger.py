@@ -7,6 +7,7 @@ import pytest
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
+from app.repositories.ownership_repository import SQLiteOwnershipRepository  # noqa: E402
 from app.repositories.usage_ledger_repository import SQLiteUsageLedgerRepository  # noqa: E402
 from app.schemas.context import ContextOptions  # noqa: E402
 from app.schemas.document import DocumentExportInput  # noqa: E402
@@ -20,6 +21,10 @@ from app.services.usage_ledger_service import (  # noqa: E402
     configure_usage_ledger_repository_for_testing,
     reset_usage_ledger_repository_for_testing,
 )
+from app.services.ownership_service import (  # noqa: E402
+    configure_ownership_repository_for_testing,
+    reset_ownership_repository_for_testing,
+)
 
 
 SAFE_IMPORT_TEXT = "旧影院来信\n放映员收到一封写给未来的信。"
@@ -28,10 +33,13 @@ SAFE_EXPORT_TEXT = "第一集：林灯回到旧楼，发现父亲留下的剧本
 
 @pytest.fixture(autouse=True)
 def isolated_usage_ledger_repository(tmp_path: Path):
-    repository = SQLiteUsageLedgerRepository(tmp_path / "document_usage_ledger_test.sqlite")
-    configure_usage_ledger_repository_for_testing(repository)
-    yield repository
+    usage_repository = SQLiteUsageLedgerRepository(tmp_path / "document_usage_ledger_test.sqlite")
+    ownership_repository = SQLiteOwnershipRepository(tmp_path / "document_ownership_test.sqlite")
+    configure_usage_ledger_repository_for_testing(usage_repository)
+    configure_ownership_repository_for_testing(ownership_repository)
+    yield usage_repository
     reset_usage_ledger_repository_for_testing()
+    reset_ownership_repository_for_testing()
 
 
 def assert_metadata_has_no_document_body(metadata_json: str | None) -> None:

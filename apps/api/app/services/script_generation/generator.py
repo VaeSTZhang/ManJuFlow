@@ -19,6 +19,7 @@ from app.services.script_generation.validation import (
     ScriptGenerationContractError,
     validate_target_episode_count_contract,
 )
+from app.services.ownership_service import build_ownership_metadata, ensure_project_and_session
 from app.services.script_service import generate_script_mock, generate_script_with_llm
 
 
@@ -150,4 +151,12 @@ def _validate_and_attach_usage(
             error_message_safe=str(exc),
         )
         raise
-    return attach_usage_ledger_metadata(validated_output, input_data)
+    project, session = ensure_project_and_session(
+        input_data.context_options,
+        project_title=validated_output.project_title or input_data.project_title,
+        source_mode=input_data.source_mode,
+    )
+    metadata = dict(validated_output.metadata)
+    metadata["ownership"] = build_ownership_metadata(project, session)
+    output_with_ownership = validated_output.model_copy(update={"metadata": metadata})
+    return attach_usage_ledger_metadata(output_with_ownership, input_data)
