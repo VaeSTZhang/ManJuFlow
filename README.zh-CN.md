@@ -55,6 +55,7 @@
 - 真实 `.docx` 导入预览已接入前端，支持用户确认后填入或追加到待改编文本；
 - `context_options` 已用于 user / workspace / project / session 第一层归属追踪；
 - Usage Ledger 第一版 schema / service / 生成链路 metadata 已完成；
+- 内部 Auth 第一层已接入：前端登录已调用后端 auth API，当前仍为安全虚构账号和开发期 in-memory auth，不是正式生产权限系统；
 - `.gitignore` 已强化，避免 `.env`、`.venv`、`node_modules`、`dist`、测试报告、上传文件和本地存储进入公开仓库。
 
 当前仍处于内部开发与部署前准备阶段。项目尚未进入服务器部署、生产上线、正式多人权限系统或真实用量账单阶段。

@@ -53,6 +53,7 @@ Dramora currently focuses on an internal script generation and adaptation workbe
 - the frontend supports review, basic editing, and TXT / JSON / DOCX export;
 - real `.docx` import preview is wired into the frontend, with user confirmation before filling or appending source text;
 - `context_options` now tracks the first layer of user / workspace / project / session ownership;
+- first-layer internal auth is wired: frontend login now calls the backend auth API, still using safe in-memory test users, not production-grade authorization;
 - Usage Ledger schema and non-persistent service foundations have been added.
 
 Deployment has not started yet. Dramora is not presented as production-ready, commercially deployed, or backed by a completed multi-user permission system.
