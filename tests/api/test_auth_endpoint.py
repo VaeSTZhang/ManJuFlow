@@ -1,17 +1,31 @@
 from pathlib import Path
 import sys
 
+import pytest
 from fastapi.testclient import TestClient
 
 
 API_ROOT = Path(__file__).resolve().parents[2] / "apps" / "api"
 sys.path.insert(0, str(API_ROOT))
 
-from app.services.auth_service import AUTH_INVALID_CREDENTIALS_MESSAGE  # noqa: E402
+from app.repositories.auth_repository import SQLiteAuthRepository  # noqa: E402
+from app.services.auth_service import (  # noqa: E402
+    AUTH_INVALID_CREDENTIALS_MESSAGE,
+    configure_auth_repository_for_testing,
+    reset_auth_repository_for_testing,
+)
 from app.main import app  # noqa: E402
 
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def isolated_auth_repository(tmp_path: Path):
+    repository = SQLiteAuthRepository(tmp_path / "auth_endpoint_test.sqlite")
+    configure_auth_repository_for_testing(repository)
+    yield repository
+    reset_auth_repository_for_testing()
 
 
 def test_auth_login_returns_safe_creator_session() -> None:
@@ -51,6 +65,8 @@ def test_auth_login_wrong_username_returns_401() -> None:
 
     assert response.status_code == 401
     assert response.json()["detail"] == AUTH_INVALID_CREDENTIALS_MESSAGE
+    assert "SafePass123" not in response.text
+    assert "password_hash" not in response.text
 
 
 def test_auth_login_wrong_password_returns_401() -> None:
@@ -61,6 +77,8 @@ def test_auth_login_wrong_password_returns_401() -> None:
 
     assert response.status_code == 401
     assert response.json()["detail"] == AUTH_INVALID_CREDENTIALS_MESSAGE
+    assert "WrongPass123" not in response.text
+    assert "password_hash" not in response.text
 
 
 def test_auth_login_failure_detail_does_not_distinguish_failure_reason() -> None:
